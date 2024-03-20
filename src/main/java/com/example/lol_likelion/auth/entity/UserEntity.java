@@ -1,6 +1,7 @@
 package com.example.lol_likelion.auth.entity;
 
 import com.example.lol_likelion.user.entity.Follow;
+import com.example.lol_likelion.user.entity.Quest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -52,4 +53,10 @@ public class UserEntity {
     @Setter
     @Builder.Default
     private String roles = "ROLE_USER";
+
+    @OneToOne(mappedBy = "userEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Quest quest;
+
+
+
 }
