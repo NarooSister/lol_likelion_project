@@ -22,7 +22,7 @@ public class Offer {
     private String status;
 
     @Setter
-    private Integer apply_userId;
+    private Integer applyUserId;
     @Setter
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -30,6 +30,4 @@ public class Offer {
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
-
-
 }
