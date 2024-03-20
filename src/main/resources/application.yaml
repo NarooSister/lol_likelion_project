@@ -1,0 +1,14 @@
+riot:
+  api:
+    key:
+
+jwt:
+  secret: asdo42j42jdfjlsfj1j5pr3krjfjfj1f3jfgjgkd77356789asrf2
+
+logging:
+  level:
+    org:
+      springframework:
+        security:
+          web:
+            org.springframework.security.web.FilterChainProxy: Debug
