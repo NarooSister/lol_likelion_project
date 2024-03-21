@@ -21,7 +21,7 @@ public class OfferDto {
         private LocalDateTime createdAt;
         private Post post;
 
-    public static OfferDto formEntity(Offer entity){
+    public static OfferDto fromEntity(Offer entity){
         OfferDto.OfferDtoBuilder builder = OfferDto.builder()
                 .id(entity.getId())
                 .status(entity.getStatus())

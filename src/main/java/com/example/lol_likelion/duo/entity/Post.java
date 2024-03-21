@@ -37,7 +37,7 @@ public class Post {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
-    private List<Offer> offer = new ArrayList<>();
+    private List<Offer> offer;
 
     //TODO 추 후 User entity 완료되면 관계성 연결
 //    @ManyToOne(fetch = FetchType.LAZY)

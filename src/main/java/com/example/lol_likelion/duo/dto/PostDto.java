@@ -21,10 +21,10 @@ public class PostDto {
     private String findPosition;
     private String status;
     private LocalDateTime createdAt;
-    private List<Offer> offer = new ArrayList<>();
+    private List<Offer> offer;
 
     //TODO 권한 완료하면 권한에 부여 해야 함.
-    public static PostDto formEntity(Post entity){
+    public static PostDto fromEntity(Post entity){
         PostDtoBuilder builder = PostDto.builder()
                 .id(entity.getId())
                 .memo(entity.getMemo())
