@@ -1,8 +1,10 @@
 package com.example.lol_likelion.auth.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@NoArgsConstructor
 public class JwtRequestDto {
     private String username;
     private String password;

@@ -1,9 +1,23 @@
+<<<<<<< HEAD
 riot:
   api:
     key:
 
 jwt:
   secret: asdo42j42jdfjlsfj1j5pr3krjfjfj1f3jfgjgkd77356789asrf2
+=======
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+      dialect: org.hibernate.dialect.MySQL8InnoDBDialect
+
+
+>>>>>>> 420dcb323e1c415998484e2e14992eda1530001f
 
 logging:
   level:
@@ -11,4 +25,8 @@ logging:
       springframework:
         security:
           web:
+<<<<<<< HEAD
             org.springframework.security.web.FilterChainProxy: Debug
+=======
+            FilterChainProxy: Debug
+>>>>>>> 420dcb323e1c415998484e2e14992eda1530001f
