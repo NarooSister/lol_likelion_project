@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Entity
@@ -19,8 +21,8 @@ public class Badge {
     private String image;
     private Integer state;   //활성상태 미획득 0, 획득 1
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private UserEntity userId;
+    @ManyToMany(mappedBy = "badges", fetch = FetchType.LAZY)
+    private Set<UserEntity> users = new HashSet<>();
 
 
 }

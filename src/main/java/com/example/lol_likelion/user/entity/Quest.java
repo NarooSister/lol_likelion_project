@@ -16,7 +16,7 @@ public class Quest {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private UserEntity userId;
 
     // 연속적인 게임 일수
     // 조건 - 7일, 30일)

@@ -1,12 +1,14 @@
 package com.example.lol_likelion.api.dto.matchdata;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ParticipantDto {
+@Data
+public class ParticipantDto1 {
     private String puuid;
 
     private String riotIdGameName;
@@ -15,7 +17,6 @@ public class ParticipantDto {
     private String championName;
 
     private String lane;
-
     private Integer kills;
     private Integer deaths;
     private Integer assists;
@@ -31,7 +32,6 @@ public class ParticipantDto {
     private Integer wardsPlaced;
     //와드 파괴 횟수
     private Integer wardsKilled;
-
     //100 = 레드팀 ,  200 = 블루팀
     private Integer teamId;
     private Boolean win;
