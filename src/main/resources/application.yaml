@@ -1,9 +1,4 @@
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.45.16:3306/lolLikeLion?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
-    username: lion
-    password: lion
+
 
   jpa:
     hibernate:
@@ -13,12 +8,7 @@ spring:
         format_sql: true
       dialect: org.hibernate.dialect.MySQL8InnoDBDialect
 
-riot:
-  api:
-    key: RGAPI-bf49696e-b889-49a5-a7d4-6b6281b33b17
 
-jwt:
-  secret: asdo42j42jdfjlsfj1j5pr3krjfjfj1f3jfgjgkd77356789asrf2
 
 logging:
   level:
