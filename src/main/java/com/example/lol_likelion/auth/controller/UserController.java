@@ -1,15 +1,12 @@
 package com.example.lol_likelion.auth.controller;
 
-import com.example.lol_likelion.auth.dto.JwtRequestDto;
-import com.example.lol_likelion.auth.dto.JwtResponseDto;
-import com.example.lol_likelion.auth.dto.CreateUserDto;
-import com.example.lol_likelion.auth.dto.UpdateUserDto;
-import com.example.lol_likelion.auth.dto.UserInfoDto;
+import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -19,41 +16,40 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService service;
+    @GetMapping("/register")
+    public String signUpForm() {
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String create(CreateUserDto dto)
+    {
+        service.createUser(dto);
+        return "register-success";
+    }
 
     @GetMapping("/login")
     public String loginForm()
     {
-        return "login-form";
+        return "login";
     }
-
-    @GetMapping("/my-profile")
-    public String myProfile()
+    @PostMapping("/login")
+    private String login(JwtRequestDto dto, HttpServletResponse response)
     {
-        return "my-profile";
+         service.login(dto, response);
+        return "main";
     }
 
-    @PostMapping("/create")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public UserInfoDto create(@RequestBody CreateUserDto dto)
-    {
-        return service.createUser(dto);
-    }
-
-    @PostMapping("/signin")
-    @ResponseBody
-    private JwtResponseDto signin(@RequestBody JwtRequestDto dto)
-    {
-        return service.signin(dto);
-    }
-
-    @PostMapping("/update")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public UserInfoDto update(@RequestBody UpdateUserDto dto)
-    {
-        return service.updateUser(dto);
-    }
-
+//    @GetMapping("/my-page")
+//    public String myPage(){
+//        return "my-page";
+//    }
+//
+//    @PostMapping("/update")
+//    public String update(UpdateUserDto dto, Model model)
+//    {
+//        service.updateUser(dto);
+//        return "redirect:my-page";
+//    }
 
 }

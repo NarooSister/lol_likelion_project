@@ -1,15 +1,14 @@
 package com.example.lol_likelion.auth.dto;
 
 import com.example.lol_likelion.auth.entity.UserEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Getter
+@Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class UserInfoDto {
 
@@ -19,6 +18,7 @@ public class UserInfoDto {
     private String tagLine;
     private String email;
     private String phone;
+    private String tier;
 
     private List<String> roles;
 

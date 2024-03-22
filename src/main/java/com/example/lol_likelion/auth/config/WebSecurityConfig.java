@@ -31,23 +31,25 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/users/my-profile")
+                        .requestMatchers("/users/my-page")
                         .authenticated()
 
-                        .requestMatchers("https://asia.api.riotgames.com/**", "/users/create" , "/users/issue","/users/update")
+                        .requestMatchers("/error", "https://asia.api.riotgames.com/**","/users11","/users/update")
                         .permitAll()
-
+                        .requestMatchers(
+                                "/users/login",
+                                "/users/register"
+                        )
+                        .anonymous()
                         .anyRequest()
                         .permitAll()
-
                 )
 
 //        .formLogin(
 //                formLogin -> formLogin
 //                        .loginPage("/users/login")
-//                        .defaultSuccessUrl("/users/my-profile")
-//                        .failureUrl("/users/login?fail")
-//                        .permitAll()
+//                        .defaultSuccessUrl("/users/my-page")
+//                        .failureUrl("/users/login")
 //        )
 //
 //                .logout(
@@ -65,6 +67,7 @@ public class WebSecurityConfig {
                         ),
                         AuthorizationFilter.class
                 );
+
 
 
         return http.build();
