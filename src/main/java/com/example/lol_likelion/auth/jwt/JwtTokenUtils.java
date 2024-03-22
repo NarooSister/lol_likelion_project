@@ -38,8 +38,8 @@ public class JwtTokenUtils {
         Claims jwtClaims = Jwts.claims()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plusSeconds(60 * 60 * 24 * 30)));
-
+                .setExpiration(Date.from(now.plusSeconds(60 * 60 * 24)));
+        log.info("jwtExpiration : "+ jwtClaims.getExpiration().toString());
         return Jwts.builder()
                 .setClaims(jwtClaims)
                 .signWith(this.signingKey)
