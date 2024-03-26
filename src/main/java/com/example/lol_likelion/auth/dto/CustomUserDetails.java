@@ -1,10 +1,7 @@
 package com.example.lol_likelion.auth.dto;
 
 import com.example.lol_likelion.auth.entity.UserEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
