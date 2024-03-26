@@ -1,5 +1,7 @@
 package com.example.lol_likelion.auth.jwt;
 
+import com.example.lol_likelion.auth.dto.CustomUserDetails;
+import com.example.lol_likelion.auth.entity.UserEntity;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -31,70 +33,52 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         this.jwtTokenUtils = jwtTokenUtils;
         this.service = service;
     }
-
     @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        log.debug("JwtTokenFilter: Filtering request for path: {}", request.getRequestURI());
+        String jwtToken = null;
+
+        // 헤더에서 토큰 추출
+        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            jwtToken = authorizationHeader.substring(7);
+        } else if (request.getCookies() != null) { // 쿠키에서 토큰 추출
+            Cookie jwtTokenCookie = Arrays.stream(request.getCookies())
+                    .filter(cookie -> cookie.getName().equals("token"))
+                    .findFirst()
+                    .orElse(null);
+            if (jwtTokenCookie != null) {
+                jwtToken = jwtTokenCookie.getValue();
+            }
+        }
+
+        // 토큰 검증 및 인증 정보 설정
+        if (jwtToken != null && jwtTokenUtils.validate(jwtToken)) {
+            String username = jwtTokenUtils.parseClaims(jwtToken).getSubject();
+            log.info("username from parseClaims.getsubject :"+username);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                UserDetails userDetails = service.loadUserByUsername(username);
+                log.info("username from loadUserByUsername:"+userDetails);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                log.info("getAuthorities :" +userDetails.getAuthorities().toString());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } else {
+            log.warn("JWT Token is null or invalid");
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+/*  @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
         log.debug("try jwt filter");
-
-       /* //헤더에서 jwt 가져오는 방법
-        String authHeader
-                = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.split(" ")[1];
-            if (jwtTokenUtils.validate(token)) {
-                SecurityContext context = SecurityContextHolder.createEmptyContext();
-                String username = jwtTokenUtils
-                        .parseClaims(token)
-                        .getSubject();
-
-                log.info("!!!");
-
-                UserDetails userDetails = service.loadUserByUsername(username);
-
-                log.info(userDetails.toString());
-
-                for (GrantedAuthority authority :userDetails.getAuthorities()) {
-                    log.info("authority: {}", authority.getAuthority());
-                }
-
-                AbstractAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                token,
-                                userDetails.getAuthorities()
-                        );
-
-                context.setAuthentication(authentication);
-                SecurityContextHolder.setContext(context);
-                log.info("set security context with jwt");
-            }
-            else {
-                log.warn("jwt validation failed");
-            }
-        }
-        filterChain.doFilter(request, response);*/
-
-
-       /* // 쿠키에서 토큰을 추출
-        if (token != null && jwtTokenUtils.validate(token)) {
-            String username = jwtTokenUtils.parseClaims(token).getSubject();
-            UserDetails userDetails = service.loadUserByUsername(username);
-
-            AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-
-            SecurityContext context = SecurityContextHolder.createEmptyContext();
-            context.setAuthentication(authentication);
-            SecurityContextHolder.setContext(context);
-        } else {
-            log.warn("jwt validation failed");}
-
-        filterChain.doFilter(request, response);*/
-
 
         //두 경우 다 보는 로직
         String token = null;
@@ -124,10 +108,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
+    }*/
 
 
-    private String extractTokenFromCookies(HttpServletRequest request) {
+  /*  private String extractTokenFromCookies(HttpServletRequest request) {
         if (request.getCookies() == null) {
             return null;
         }
@@ -137,6 +121,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElse(null);
-    }
+    }*/
 
 }
