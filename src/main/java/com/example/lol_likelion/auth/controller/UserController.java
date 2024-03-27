@@ -8,15 +8,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
 
 @Controller
 @RequestMapping("users")
@@ -53,8 +50,8 @@ public class UserController {
         }
 
         //소환사 닉네임 검증
-        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName()) && !service.checkGameName(dto.getTagLine(), dto.getGameName())){
-            bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오."));
+        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+            bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
             bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 아이디를 입력해 주십시오."));
         }
 
