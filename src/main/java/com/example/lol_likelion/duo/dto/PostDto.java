@@ -15,12 +15,19 @@ import java.util.List;
 @AllArgsConstructor
 public class PostDto {
     private Integer id;
+    @Setter
     private String memo;
+    @Setter
     private String userId;
+    @Setter
     private String myPosition;
+    @Setter
     private String findPosition;
+    @Setter
     private String status;
+    @Setter
     private LocalDateTime createdAt;
+    @Setter
     private List<Offer> offer;
 
     //TODO 권한 완료하면 권한에 부여 해야 함.
@@ -34,6 +41,15 @@ public class PostDto {
                 .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
                 .offer(entity.getOffer());
+
+        return builder.build();
+    }
+
+    public static PostDto fromEntityTwo(Post entity){
+        PostDtoBuilder builder = PostDto.builder()
+                .memo(entity.getMemo())
+                .myPosition(entity.getMyPosition())
+                .findPosition(entity.getFindPosition());
 
         return builder.build();
     }

@@ -15,11 +15,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class OfferDto {
 
-        private Integer id;
-        private String status;
-        private Integer applyUserId;
-        private LocalDateTime createdAt;
-        private Post post;
+    private Integer id;
+    @Setter
+    private String status;
+    @Setter
+    private Integer applyUserId;
+    @Setter
+    private LocalDateTime createdAt;
+    @Setter
+    private Post post;
 
     public static OfferDto fromEntity(Offer entity){
         OfferDto.OfferDtoBuilder builder = OfferDto.builder()

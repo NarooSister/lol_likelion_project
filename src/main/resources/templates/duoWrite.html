@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>글 작성 페이지입니다.</h1>
+    <form method="post" action="/duo/myDuo">
+        <textarea name="memo" cols="30" rows="5" placeholder="메모작성해주세요"></textarea>
+        <select name="my_position" id="my_position" size=4 multiple>
+            <option value="mid">mid</option>
+            <option value="top">top</option>
+            <option value="jungle">jungle</option>
+            <option value="bottom">bottom</option>
+            <option value="supporter">supporter</option>
+        </select>
+        <select name="find_position" id="find_position" size=4 multiple>
+            <option value="mid">mid</option>
+            <option value="top">top</option>
+            <option value="jungle">jungle</option>
+            <option value="bottom">bottom</option>
+            <option value="supporter">supporter</option>
+        </select>
+        <input type="submit">
+        <input type="button" onclick="history.back()" >
+    </form>
+</body>
+</html>
