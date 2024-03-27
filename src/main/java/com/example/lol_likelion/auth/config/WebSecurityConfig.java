@@ -44,7 +44,8 @@ public class WebSecurityConfig {
                                 .requestMatchers(
                                         "/users/login",
                                         "/users/register",
-                                        "/users/main"
+                                        "/users/main",
+                                        "/users/user-page"
                                 )
                                 .anonymous()
                                 .anyRequest()

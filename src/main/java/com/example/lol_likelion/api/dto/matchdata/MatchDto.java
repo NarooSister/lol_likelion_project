@@ -3,12 +3,13 @@ import lombok.*;
 
 import java.util.List;
 
-@Builder
-@Getter
-@Setter
+
+@Data
 public class MatchDto {
     public MatchDto() {
     }
+    private MetadataDto metadata;
+    private InfoDto info;
     @Getter
     @Setter
     public static class MetadataDto {
@@ -25,6 +26,8 @@ public class MatchDto {
         private Long gameStartTimestamp	;
         //게임 플레이 시간
         private Long gameDuration;
+        private List<ParticipantDto> participants;
+        @Getter
         //참가자 정보
         public static class ParticipantDto {
             private String puuid;
