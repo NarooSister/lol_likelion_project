@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-riot:
-  api:
-    key:
-
-jwt:
-  secret: asdo42j42jdfjlsfj1j5pr3krjfjfj1f3jfgjgkd77356789asrf2
-=======
-
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://175.115.233.71:3306/lolLikeLion?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+    username: lion
+    password: lion
 
   jpa:
     hibernate:
@@ -16,17 +13,17 @@ jwt:
         format_sql: true
       dialect: org.hibernate.dialect.MySQL8InnoDBDialect
 
-
->>>>>>> 420dcb323e1c415998484e2e14992eda1530001f
-
 logging:
   level:
     org:
       springframework:
         security:
           web:
-<<<<<<< HEAD
-            org.springframework.security.web.FilterChainProxy: Debug
-=======
             FilterChainProxy: Debug
->>>>>>> 420dcb323e1c415998484e2e14992eda1530001f
+
+riot:
+  api:
+    key: RGAPI-bf49696e-b889-49a5-a7d4-6b6281b33b17
+
+jwt:
+  secret: asdo42j42jdfjlsfj1j5pr3krjfjfj1f3jfgjgkd77356789asrf2
