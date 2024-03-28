@@ -21,7 +21,12 @@ public class CreateUserDto {
     private String email;
     @NotBlank(message = "전화번호가 비어있습니다.")
     private String phone;
-    public UserEntity toEntity(String encodedPassword) {
+
+    private String tier;
+    private String puuid;
+    public UserEntity toEntity(String encodedPassword
+            , String tier, String puuid
+    ) {
         return UserEntity.builder()
                 .username(this.username)
                 .password(encodedPassword)
@@ -29,7 +34,9 @@ public class CreateUserDto {
                 .gameName(this.gameName)
                 .email(this.email)
                 .phone(this.phone)
+                .tier(tier)
                 .roles("ROLE_USER")
+                .puuid(puuid)
                 .build();
     }
 

@@ -5,28 +5,21 @@ import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.auth.dto.JwtRequestDto;
 import com.example.lol_likelion.auth.dto.CreateUserDto;
-import com.example.lol_likelion.auth.dto.CustomUserDetails;
-import com.example.lol_likelion.auth.dto.UserInfoDto;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.jwt.JwtTokenUtils;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.utils.AuthenticationFacade;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Slf4j
 @Service
-@Transactional
+
 @RequiredArgsConstructor
 public class UserService {
 
@@ -46,22 +39,36 @@ public class UserService {
         return userRepository.existsByTagLineAndGameName(tagLine, gameName);
     }
 
+
     //Riot Api를 통해 실제로 있는 소환사 아이디인지 확인
     public boolean riotApiCheckGameName(String tagLine, String gameName) {
-        //puuid 가져오기
-        PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
-        //puuid로 소환사 닉네임 가져오기
-        SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
+        try {
+            //입력 받은 tagLine과 gameName으로 puuid 가져오기
+            PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
+            // puuidDto에 puuid가 잘 들어있으면 존재하는 것으로 간주
+            return puuidDto != null && !puuidDto.getPuuid().isEmpty();
 
-        return summonerDto.getId().equals(gameName);
+        } catch (Exception e) {
+            // API 호출 실패 (예: 네트워크 문제, 잘못된 입력 등)
+            return false;
+        }
     }
 
     //회원가입
+    @Transactional(timeout = 10)
     public void createUser(CreateUserDto dto) {
-        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword())));
+        //tier 정보 가져와서 저장하기
+        //과정 : gameName과 tagLine으로 puuid 가져오기 -> puuid로 summonerId 가져오기
+        //-> summonerId로 tier 가져오기...
+        PuuidDto puuidDto = apiService.callRiotApiPuuid(dto.getGameName(), dto.getTagLine());
+        SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
+        String tier = apiService.getSummonerTierName(summonerDto);
+        //dto로 받은 유저정보와 tier 정보 저장하기
+        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid()));
     }
 
     //로그인
+    @Transactional
     public UserEntity login(JwtRequestDto dto) {
         Optional<UserEntity> optionalUser = userRepository.findByUsername(dto.getUsername());
         if (optionalUser.isEmpty()) {
@@ -79,6 +86,7 @@ public class UserService {
     //my-page (구현중)
     //username을 입력받아 UserEntity를 return
     //인증, 인가에 사용 가능
+    @Transactional
     public UserEntity getUserByUsername(String username) {
         if (username == null) return null;
         Optional<UserEntity> optionalUser = userRepository.findByUsername(username);

@@ -7,17 +7,21 @@ import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
 import com.example.lol_likelion.api.dto.matchdata.ParticipantDto1;
 import com.example.lol_likelion.auth.dto.UserInfoDto;
+import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@RestController
+@Controller
 @RequiredArgsConstructor
 public class ApiController {
 
@@ -35,7 +39,8 @@ public class ApiController {
     @GetMapping("users1")
     public String callRiotApi(
             @RequestParam("gameName") String gameName,
-            @RequestParam("tagLine") String tagLine
+            @RequestParam("tagLine") String tagLine,
+            Model model
     ) {
         //puuid 불러오기
         PuuidDto puuidDto = service.callRiotApiPuuid(gameName, tagLine);
@@ -45,72 +50,48 @@ public class ApiController {
         SummonerDto summonerDto = service.callRiotApiSummonerId(puuidDto);
         String summonerId = summonerDto.getId();
 
-        //tier 불러오는 방법
-        UserInfoDto userInfoDto = new UserInfoDto();
-        service.callRiotApiTier(summonerDto)
-                .subscribe(leagueEntrySet -> {
-                    for (LeagueEntryDTO entry : leagueEntrySet) {
-                        String tier = entry.getTier();
-                        // tier 정보를 사용하여 필요한 작업을 수행
-                        System.out.println("Tier: " + tier);
-                        //userInfoDto에 저장
-                        userInfoDto.setTier(tier);
-                    }
-                });
-
         //matchId 가져오기
         MatchIdDto matchIdDto = service.callRiotApiMatchId(puuidDto);
-        List<String> matchId = matchIdDto.getMatchIdList();
+
+        //tier 불러오는 방법
+        String tier = service.getSummonerTierName(summonerDto);
 
 
+        //================= match 정보 가져오는 부분 ===============
+        //보여줘야 하는 만큼 넣기
 
-        //match 가져오기
-        service.callRiotApiMatch(matchIdDto);
-        MatchDto matchDto = new MatchDto();
+        //최근 5게임 matchIdList
+        List<String> matchIdList = matchIdDto.getMatchIdList();
+        //최근 5게임 matchDto를 담을 List
+        List<MatchDto> matchDtoList = new ArrayList<>();
+        //최근 5게임 최근 플레이한 챔피언을 담을 List
+        List<String> championList = new ArrayList<>();
+        //matchList의 크기 만큼 반복(ex 5)
+        for (int i = 0; i < matchIdList.size(); i++) {
+            //한 개의 matchId 가져오기
+            String matchId = matchIdList.get(i);
+            //가져온 matchId로 인게임 match 정보 가져오기
+            MatchDto matchDto = service.callRiotApiMatch(matchId);
+            //i번 째 matchDto를 matchDtoList에 담음
+            matchDtoList.add(matchDto);
+            //최근 ?게임동안 플레이 한 챔피언 가져오기
+            // i번 째 matchDto에서 championList에 담음
+            championList.add(service.recentPlayChampion(matchDto, puuidDto));
+        }
 
-        System.out.println("### matchDto : " + matchDto);
-/*        MetadataDto metadataDto = new MetadataDto();
-        InfoDto infoDto = new InfoDto();
-        ParticipantDto1 participantDto = new ParticipantDto1();
-*/
-        MatchDto.InfoDto infoDto = new MatchDto.InfoDto();
+        //model에 넣어서 화면으로 보낸다.
+        model.addAttribute("matchDtoList", matchDtoList);
+        model.addAttribute("championList", championList);
 
-
-        System.out.println(infoDto.getGameStartTimestamp());
-
-        return "Api Test done";
+        return "user-page";
     }
+
     @GetMapping("users11")
-    public Mono<String> getMatchInfo(
+    public void getMatchInfo(
             @RequestParam("gameName") String gameName,
             @RequestParam("tagLine") String tagLine) {
 
         // puuid 불러오기
         Mono<PuuidDto> puuidDtoMono = Mono.just(service.callRiotApiPuuid(gameName, tagLine));
-
-        // summonerId 불러오기 및 match 정보 가져오기를 연쇄적으로 수행
-        return puuidDtoMono.flatMap(puuidDto -> {
-            MatchIdDto matchIdDto = service.callRiotApiMatchId(puuidDto);
-            return service.callRiotApiMatch(matchIdDto)
-                    .map(matchDto -> {
-                        /*// MatchDto 내용 확인을 위한 로그 추가
-                        log.info("Match 정보 가져옴: Game Duration: {}", matchDto.getInfo().getGameDuration());
-
-                        // 참가자 정보 로그 출력
-                        if (!matchDto.getInfo().getParticipants().isEmpty()) {
-                            MatchDto.InfoDto.ParticipantDto participant = matchDto.getInfo().getParticipants().get(0); // 예시로 첫 번째 참가자만 출력
-                            log.info("First participant - Kills: {}, Deaths: {}, Assists: {}",
-                                    participant.getKills(), participant.getDeaths(), participant.getAssists());
-                        }*/
-                        return "Match 정보 처리 완료";
-                    });
-        }).doOnError(error -> {
-            // 에러 처리 로직
-            log.error("Match 정보 처리 중 에러 발생", error);
-        });
     }
-
-
-
-
 }
