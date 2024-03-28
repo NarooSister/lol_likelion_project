@@ -3,17 +3,19 @@ package com.example.lol_likelion.auth.service;
 import com.example.lol_likelion.api.ApiService;
 import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
-import com.example.lol_likelion.auth.dto.JwtRequestDto;
-import com.example.lol_likelion.auth.dto.CreateUserDto;
+import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.entity.UserEntity;
-import com.example.lol_likelion.auth.jwt.JwtTokenUtils;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.utils.AuthenticationFacade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.Optional;
 
@@ -21,12 +23,11 @@ import java.util.Optional;
 @Service
 
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApiService apiService;
-    private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationFacade authenticationFacade;
 
     //존재하는 아이디인지 확인
@@ -93,17 +94,52 @@ public class UserService {
         return optionalUser.orElse(null);
     }
 
-//    @Transactional
-//    public UserInfoDto updateUser(UpdateUserDto dto) {
-//        UserEntity userEntity = authenticationFacade.extractUser();
-//        String username = userEntity.getUsername();
-//        log.info(username);
-////        userEntity.setPassword(dto.getPassword());
-////        userEntity.setGameName(dto.getGameName());
-////        userEntity.setTagLine(dto.getTagLine());
-//        userEntity.setPhone(dto.getPhone());
-//        userEntity.setEmail(dto.getEmail());
-//
-//        return UserInfoDto.fromEntity(userRepository.save(userEntity));
-//    }
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
+                .map(CustomUserDetails::fromEntity)
+                .orElseThrow(() -> new UsernameNotFoundException("not found"));
+    }
+
+    @Transactional
+    public void updateUser(UpdateUserDto dto) {
+        UserEntity user = authenticationFacade.extractUser();
+
+        user.setPhone(dto.getPhone());
+        user.setEmail(dto.getEmail());
+
+        UserInfoDto.fromEntity(userRepository.save(user));
+    }
+
+    //현재 비밀번호와 입력된 비밀번호 비교
+    public boolean checkCurrentPassword(String password) {
+        // 현재 인증된 사용자의 비밀번호 가져오기
+        UserEntity user = authenticationFacade.extractUser();
+        return passwordEncoder.matches(password, user.getPassword());
+    }
+
+    // 새 비밀번호 업데이트
+    @Transactional
+    public void updatePassword(UpdatePasswordDto dto) {
+        UserEntity user = authenticationFacade.extractUser();
+
+        // 새 비밀번호 암호화
+        String encodedNewPassword = passwordEncoder.encode(dto.getNewPassword());
+        user.setPassword(encodedNewPassword);
+
+        // 변경 사항 저장
+        userRepository.save(user);
+    }
+
+    // 새 소환사 닉네임 업데이트
+    @Transactional
+    public void updateGameName(UpdateGameNameDto dto){
+        UserEntity user = authenticationFacade.extractUser();
+        user.setGameName(dto.getGameName());
+        user.setTagLine(dto.getTagLine());
+        userRepository.save(user);
+    }
+
+
+
 }

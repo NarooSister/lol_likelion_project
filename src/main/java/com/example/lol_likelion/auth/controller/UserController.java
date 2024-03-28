@@ -46,13 +46,13 @@ public class UserController {
 
         //소환사 닉네임 중복 검증
         if (service.checkGameName(dto.getTagLine(), dto.getGameName())){
-            bindingResult.addError(new FieldError("dto", "gameName", "이미 가입된 아이디 입니다."));
+            bindingResult.addError(new FieldError("dto", "gameName", "이미 가입된 소환사 닉네임 입니다."));
         }
 
         //소환사 닉네임 검증
         if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
             bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
-            bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 아이디를 입력해 주십시오."));
+            bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 닉네임을 입력해 주십시오."));
         }
 
         //password와 passwordCheck 검증
@@ -87,12 +87,13 @@ public class UserController {
         }
 
         //로그인 성공 -> jwt token 발급
-        String jwtToken = jwtTokenUtils.generateToken(CustomUserDetails.fromEntity(user));
+        String token = jwtTokenUtils.generateToken(CustomUserDetails.fromEntity(user));
 
         // 발급한 Jwt Token을 Cookie를 통해 전송
         // 클라이언트는 다음 요청부터 Jwt Token이 담긴 쿠키 전송 => 이 값을 통해 인증, 인가 진행
-        Cookie cookie = new Cookie("jwtToken", jwtToken);
-        cookie.setMaxAge(60 * 60);  // 쿠키 유효 시간 : 1시간
+        Cookie cookie = new Cookie("token", token);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 10);  // 쿠키 유효 시간 : 1시간
         response.addCookie(cookie);
 
         return "redirect:/users/main";
@@ -101,7 +102,7 @@ public class UserController {
     @GetMapping("/logout")
     public String logout(HttpServletResponse response) {
         // 쿠키 파기
-        Cookie cookie = new Cookie("jwtToken", null);
+        Cookie cookie = new Cookie("token", null);
         cookie.setMaxAge(0);
         response.addCookie(cookie);
 
@@ -125,5 +126,66 @@ public class UserController {
     public String authorizationFail(){
         return "authorization-fail";
     }
+
+
+    @PostMapping("")
+    public String updateUser(Model model, UpdateUserDto user){
+       service.updateUser(user);
+        model.addAttribute("user", user);
+        return "redirect:/users/my-page";
+    }
+    @GetMapping("/password")
+    public String updatePasswordForm(Model model){
+        model.addAttribute("updatePasswordDto", new UpdatePasswordDto());
+        return "password-update";
+    }
+    @PostMapping("/password")
+    public String updatePassword(@Valid UpdatePasswordDto dto, BindingResult bindingResult) {
+
+        // 현재 비밀번호와 입력된 비밀번호가 일치하는지
+        if (!service.checkCurrentPassword(dto.getCurrentPassword())) {
+            bindingResult.addError(new FieldError("dto", "currentPassword", "현재 비밀번호가 올바르지 않습니다."));
+        }
+        //새 비밀번호와 비밀번호 확인이 일치하는지
+        if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
+            bindingResult.addError(new FieldError("dto", "confirmPassword", "새 비밀번호가 일치하지 않습니다."));
+        }
+
+        if (bindingResult.hasErrors()) {
+            return "password-update";
+        }
+
+        // 비밀번호 변경 로직 실행
+        service.updatePassword(dto);
+        return "redirect:/users/my-page";
+    }
+
+    @GetMapping("/game-name")
+    public String updateGameNameForm(Model model){
+        model.addAttribute("updateGameNameDto", new UpdateGameNameDto());
+        return "gameName-update";
+    }
+    @PostMapping("/game-name")
+    public String updateGameName(@Valid UpdateGameNameDto dto, BindingResult bindingResult){
+
+        //소환사 닉네임 중복 검증
+        if (service.checkGameName(dto.getTagLine(), dto.getGameName())){
+            bindingResult.addError(new FieldError("dto", "gameName", "이미 가입된 소환사 닉네임 입니다."));
+        }
+
+        //소환사 닉네임 검증
+        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+            bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
+            bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 아이디를 입력해 주십시오."));
+        }
+
+        if(bindingResult.hasErrors()) {
+            return "gameName-update";
+        }
+
+        service.updateGameName(dto);
+        return "redirect:/users/my-page";
+    }
+
 
 }
