@@ -47,12 +47,12 @@ public class UserEntity {
     private LocalDateTime createdAt;
 
     @Setter
-    @OneToMany(mappedBy = "toUser")
-    private List<Follow> followers;
+    @OneToMany(mappedBy = "following")
+    private List<Follow> followerList;
 
     @Setter
-    @OneToMany(mappedBy = "fromUser")
-    private List<Follow> followings;
+    @OneToMany(mappedBy = "follower")
+    private List<Follow> followingList;
 
     @Setter
     @Builder.Default

@@ -2,9 +2,7 @@ package com.example.lol_likelion.user.entity;
 
 import com.example.lol_likelion.auth.entity.UserEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -12,6 +10,8 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,19 +19,22 @@ public class Follow {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    private UserEntity fromUser;
+    // fromUser
+    private UserEntity follower;
+
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    private UserEntity toUser;
+    // toUser
+    private UserEntity following;
 
     @Setter
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public Follow(UserEntity fromUser, UserEntity toUser, LocalDateTime createdAt) {
-        this.fromUser = fromUser;
-        this.toUser = toUser;
+    public Follow(UserEntity follower, UserEntity following, LocalDateTime createdAt) {
+        this.follower = follower;
+        this.following = following;
         this.createdAt = createdAt;
     }
 }
