@@ -7,11 +7,16 @@
 <body>
     <h1>테스트 중입니다</h1>
     <div th:unless="${posts.isEmpty()}" th:each="post : ${posts}">
-        <p th:text="${post.id}"></p>
-        <p th:text="${post.memo}"></p>
-        <p th:text="${post.userId}"></p>
-        <p th:text="${post.myPosition}"></p>
-        <p th:text="${post.findPosition}"></p>
+        <a th:href="@{/duo/myDuo/{postId}(postId=${post.id})}">
+            <p th:text="${post.id}"></p>
+            <p th:text="${post.memo}"></p>
+            <p th:text="${post.userId}"></p>
+            <p th:text="${post.myPosition}"></p>
+            <p th:text="${post.findPosition}"></p>
+            <form th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post" >
+                <input type="submit">
+            </form>
+        </a>
     </div>
     <div th:if="${posts.isEmpty()}">
         <p>글이 업서요!!</p>

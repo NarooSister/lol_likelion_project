@@ -6,10 +6,7 @@ import com.example.lol_likelion.duo.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 
 @Controller
@@ -57,5 +54,45 @@ public class DuoController {
 
     }
 
+    @PostMapping("/offer/{postId}")
+    public String createOffer(
+        // user 정보 추후 작성해야함
+        @PathVariable("postId")
+        Long postId
+    ){
 
+        System.out.println(postId);
+        offerService.createDuo(postId);
+
+        return "redirect:/duo";
+    }
+
+    // 내 게시글 단일 조회 - GET
+    @GetMapping("/myDuo/{postId}")
+    public String checkPost(
+            @PathVariable("postId")
+            Long postId,
+            Model model
+    )
+    {
+        // postId 게시글 하나의 정보
+        model.addAttribute("posts",postService.readPost(postId));
+
+        System.out.println(postId);
+        System.out.println(postService.readPost(postId));
+        return "/duoDetail";
+    }
+
+    // 게시글 삭제
+    // ERROR : 수정중...0328
+    @DeleteMapping("/myDuo/{postId}")
+    public String deletePost(
+        @PathVariable("postId")
+        Long postId
+    ){
+//        offerService.deleteOfferInPost(postId);
+//        postService.deletePost(postId);
+        return "redirect:/duo";
+
+    }
 }
