@@ -2,10 +2,8 @@ package com.example.lol_likelion.api;
 
 import com.example.lol_likelion.api.dto.*;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
-import com.example.lol_likelion.auth.dto.UserInfoDto;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.example.lol_likelion.auth.repository.UserRepository;
@@ -16,7 +14,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
