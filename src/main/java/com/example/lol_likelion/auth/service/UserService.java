@@ -59,13 +59,15 @@ public class UserService implements UserDetailsService {
     @Transactional(timeout = 10)
     public void createUser(CreateUserDto dto) {
         //tier 정보 가져와서 저장하기
-        //과정 : gameName과 tagLine으로 puuid 가져오기 -> puuid로 summonerId 가져오기
+        //과정 : gameName과 tagLine으로 puuid 가져오기 -> puuid로 summonerId 와 profileIconId 가져오기
         //-> summonerId로 tier 가져오기...
+        //프로필 아이콘 주소 : https://ddragon.leagueoflegends.com/cdn/10.6.1/img/profileicon/{profileIconId}.png
         PuuidDto puuidDto = apiService.callRiotApiPuuid(dto.getGameName(), dto.getTagLine());
         SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
         String tier = apiService.getSummonerTierName(summonerDto);
-        //dto로 받은 유저정보와 tier 정보 저장하기
-        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid()));
+
+        //dto로 받은 유저정보와 tier 정보, profileIconId 저장하기
+        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid(), summonerDto.getProfileIconId()));
     }
 
     //로그인
@@ -94,13 +96,7 @@ public class UserService implements UserDetailsService {
         return optionalUser.orElse(null);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-                .map(CustomUserDetails::fromEntity)
-                .orElseThrow(() -> new UsernameNotFoundException("not found"));
-    }
-
+    //유저 정보 수정하기
     @Transactional
     public void updateUser(UpdateUserDto dto) {
         UserEntity user = authenticationFacade.extractUser();
@@ -141,5 +137,11 @@ public class UserService implements UserDetailsService {
     }
 
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
+                .map(CustomUserDetails::fromEntity)
+                .orElseThrow(() -> new UsernameNotFoundException("not found"));
+    }
 
 }
