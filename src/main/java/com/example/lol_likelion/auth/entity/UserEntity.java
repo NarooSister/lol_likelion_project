@@ -3,6 +3,7 @@ package com.example.lol_likelion.auth.entity;
 import com.example.lol_likelion.user.entity.Badge;
 import com.example.lol_likelion.user.entity.Follow;
 import com.example.lol_likelion.user.entity.Quest;
+import com.example.lol_likelion.user.entity.UserBadge;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -42,6 +43,8 @@ public class UserEntity {
     private String tier;
     @Setter
     private String dailyGameCount;
+    @Setter
+    private Integer profileIconId;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -54,22 +57,16 @@ public class UserEntity {
     @OneToMany(mappedBy = "follower")
     private List<Follow> followingList;
 
-    @Setter
     @Builder.Default
     private String roles = "ROLE_USER";
 
     @Setter
-    @OneToOne(mappedBy = "userId", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Quest quest;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "user_badge",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "badge_id")
-    )
-
-    private Set<Badge> badges = new HashSet<>();
+    @Setter
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<UserBadge> userBadges = new HashSet<>();
 
     @Setter
     private Integer trustScore;

@@ -53,7 +53,8 @@ public class WebSecurityConfig {
                                         "/users/user-page",
                                         "/users11",
                                         "/users/authentication-fail",
-                                        "/users/authorization-fail"
+                                        "/users/authorization-fail",
+                                        "/users/{gameName}/{tagLine}"
                                 )
                                 .permitAll()
                                 .anyRequest()
