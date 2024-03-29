@@ -9,7 +9,10 @@
 
 <div>
     <h2>My Page</h2>
-        <div>
+<!-- 소환사 프로필 아이콘 이미지 -->
+    <img th:src="@{'https://ddragon.leagueoflegends.com/cdn/10.6.1/img/profileicon/' + ${user.profileIconId} + '.png'}" />
+
+    <div>
             <label for="username">아이디</label>
             <input type="text" id="username" th:value="${user.username}" disabled/>
         </div>

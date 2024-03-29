@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <title>Match 정보</title>
 </head>
 <body>
@@ -16,41 +17,79 @@
             <img src="../icon/free-icon-lion-512px.png" alt="" width="35" height="35">
         </a>
         <form class="d-flex flex-grow-1 me-3">
-            <input class="form-control me-2 flex-grow-1" type="search" placeholder="소환사 이름 + KR1(태그)" aria-label="Search">
+            <input class="form-control me-2 flex-grow-1" type="search" placeholder="소환사 이름 + KR1(태그)"
+                   aria-label="Search">
             <button class="btn btn-outline-success" type="submit">Search</button>
 
         </form>
         <form class="d-flex">
-<!--            <button class="btn btn-outline-success me-2" type="button">듀오 구하기</button>-->
+            <!--            <button class="btn btn-outline-success me-2" type="button">듀오 구하기</button>-->
             <button class="btn btn-sm btn-outline-primary me-2" type="button">듀오 구하기</button>
             <button class="btn btn-sm btn-outline-primary" type="button">마이 페이지</button>
         </form>
     </div>
 </nav>
 
+<h2>소환사 정보</h2>
+
+<!-- 소환사 프로필 아이콘 이미지 -->
+<img th:src="@{'https://ddragon.leagueoflegends.com/cdn/10.6.1/img/profileicon/' + ${profileIconId} + '.png'}"/>
 
 
-<h1>Match 정보</h1>
 <!--TEST 내용-->
+<!--5게임 반복-->
 <!--matchDto.info, matchDto.metadata 가져오기-->
-<div th:each="match : ${matchDtoList}">
+
+
+<h3>최근 전적</h3>
+<div th:each="match, iterStat : ${matchDtoList}">
     <div>
-        <p>Match ID: <span th:text="${match.metadata.matchId}"></span></p>
+        <!-- 다른 매치 정보 표시 -->
 
-        <p>Game Version: <span th:text="${match.info.gameVersion}"></span></p>
-        <p>Game Duration: <span th:text="${match.info.gameDuration}"></span></p>
+        <!--몇 시간 전인지-->
+        <span>끝난 시간: <span th:text="${match.info.gameEndTimestamp}"></span></span>
+        <!--게임 플레이 시간(소요 시간)-->
+        <span>소요 시간: <span th:text="${match.info.gameDuration}"></span></span>
 
-        <!--participants 안의 내용물 화면에 뿌리기-->
-        <div th:each="participant : ${match.info.participants}">
-            <p>Champion Name: <span th:text="${participant.championName}"></span></p>
-            <p>KDA: <span th:text="${participant.kda}"></span></p>
-            <p>Kills: <span th:text="${participant.kills}"></span></p>
-            <p>Deaths: <span th:text="${participant.deaths}"></span></p>
-            <p>Assists: <span th:text="${participant.assists}"></span></p>
+        <!-- 현재 매치에 대한 사용자의 ParticipantDto 가져오기 -->
+        <div th:with="participant=${participantDtoList[iterStat.index]}">
+            <!-- 사용자의 승리/패배 여부 표시 -->
+            <p th:text="${participant.win} ? '승리' : '패배'"></p>
+            <!--사용한 챔피언 아이콘, 일단 챔피언 이름으로-->
+            <span>내 챔피언: <span th:text="${participant.championName}"></span></span>
+            <!--kill/death/assist-->
+            <span>KDA: <span th:text="${participant.kills}"></span>/<span th:text="${participant.deaths}"></span>/<span th:text="${participant.assists}"></span></span>
+            <!--kda -안나옴.. kda.. double 인지..?-->
+            <span>평점: <span th:text="${participant.kda}"></span></span>
+            <!--CS -->
+            <span>CS: <span th:text="${participant.totalMinionsKilled}"></span></span>
+
+
         </div>
+        <p>===게임 참가자===</p>
+        <!-- 현재 매치에 참가한 모든 참가자의 정보 나열 -->
+        <div th:each="participant : ${match.info.participants}">
+            <div>
+                <span>Champion Name: <span th:text="${participant.championName}"></span></span>
+                <span style="margin-left: 20px;">UserName: <span th:text="${participant.riotIdGameName}"></span></span>
+            </div>
+        </div>
+
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
 </body>
 </html>
+<!--<script>-->
+<!--    const unixTime = 0; // fill in your epoc time here.-->
+<!--    const isoTime = new Date(unixTime).toISOString();-->
+<!--    let timeEl;-->
+<!--    timeEl.textContent = unixTime+' -&#45;&#45; '+isoTime+' -&#45;&#45; '+new Date(isoTime).toString();-->
+<!--    timeEl.setAttribute('datetime', isoTime )-->
+
+<!--</script>-->
