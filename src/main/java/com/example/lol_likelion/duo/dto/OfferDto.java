@@ -15,11 +15,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class OfferDto {
 
-    private Integer id;
+    private Long id;
     @Setter
     private String status;
     @Setter
-    private Integer applyUserId;
+    private Long applyUserId;
     @Setter
     private LocalDateTime createdAt;
     @Setter

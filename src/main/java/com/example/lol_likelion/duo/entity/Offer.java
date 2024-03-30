@@ -16,13 +16,13 @@ import java.time.LocalDateTime;
 public class Offer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Setter
     private String status;
 
     @Setter
-    private Integer applyUserId;
+    private Long applyUserId;
     @Setter
     @CreationTimestamp
     private LocalDateTime createdAt;
