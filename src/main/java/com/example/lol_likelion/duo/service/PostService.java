@@ -39,6 +39,7 @@ public class PostService {
         post.setMyPosition(postDto.getMyPosition());
         post.setFindPosition(postDto.getFindPosition());
 
+        //TODO 같은 유저가 매칭이 완료되지 않은 상태에서 글 작성하면 작성 불가 (자동으로 업데이트 되게)
 
         return PostDto.fromEntity(postRepository.save(post));
     }
