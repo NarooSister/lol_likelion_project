@@ -39,6 +39,7 @@ public class PostService {
         post.setMyPosition(postDto.getMyPosition());
         post.setFindPosition(postDto.getFindPosition());
 
+
         return PostDto.fromEntity(postRepository.save(post));
     }
 

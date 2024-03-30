@@ -91,7 +91,7 @@ public class DuoController {
         Long postId
     ){
 //        offerService.deleteOfferInPost(postId);
-//        postService.deletePost(postId);
+        postService.deletePost(postId);
         return "redirect:/duo";
 
     }

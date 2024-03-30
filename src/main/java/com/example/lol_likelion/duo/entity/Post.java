@@ -36,7 +36,7 @@ public class Post {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Offer> offer;
 
     //TODO 추 후 User entity 완료되면 관계성 연결
