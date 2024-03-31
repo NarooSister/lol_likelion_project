@@ -4,14 +4,17 @@ import com.example.lol_likelion.auth.dto.CustomUserDetails;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.user.dto.UserProfileDto;
 import com.example.lol_likelion.user.entity.Follow;
 import com.example.lol_likelion.user.repository.FollowRepository;
 import com.example.lol_likelion.user.service.FollowService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,59 +25,30 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FollowController {
 
-    private final FollowRepository followRepository;
-    private final UserRepository userRepository;
+    private final FollowService followService;
+    private final UserService userService;
 
-    /*
-    @PostMapping("/follow/{id}")
-    public String follow(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        Optional<UserEntity> optionalFollowing = userRepository.findById(id);
-        UserEntity following = optionalFollowing.get();
-        UserEntity follower = userDetails.getEntity();
+    @GetMapping("/users/user-page/{pageUserId}")
+    public String profile(@PathVariable Long pageUserId, Model model, Authentication authentication) throws Exception {
 
-        Follow follow = new Follow();
-        follow.setFollowing(following);
-        follow.setFollower(follower);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("userName = " + userName);
 
-        followRepository.save(follow);
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long userId = userEntity.getId();
 
-        System.out.println(" follow 완료 ");
-        return "follow ok";
 
-    }
+        UserProfileDto dto = followService.userProfile(pageUserId, userId);
 
-    @PostMapping("/unFollow/{id}")
-    public String unFollow(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Optional<UserEntity> optinalFollowing = userRepository.findById(id);
-        UserEntity following = optinalFollowing.get();
-        UserEntity follower = userDetails.getEntity();
+        model.addAttribute("dto", dto);
 
-        followRepository.deleteByFollowerIdAndFollowingId(follower.getId(), following.getId());
+        System.out.println(dto);
 
-        return "unfollow ok";
-    }
-
-     */
-
-    @GetMapping("/users/user-page/{id}")
-    public String userDetail(@PathVariable Long id, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        //Optional<UserEntity> user0 = userRepository.findById(userDetails.getEntity().getId());
-        //System.out.println("userNamed : " + userDetails.getUsername());
-
-        List<Follow> followingList = followRepository.findByFollowingId(id);
-        int followingCount = followingList.size();
-
-        // 리스트 목록의 id가 일치하는 gameName 불러와서 목록으로 뿌리기
-
-        List<Follow> followerList = followRepository.findByFollowerId(id);
-        int followerCount = followerList.size();
-
-        System.out.println(followingCount);
         return "/users/user-page";
 
     }
-
 
 
 }
