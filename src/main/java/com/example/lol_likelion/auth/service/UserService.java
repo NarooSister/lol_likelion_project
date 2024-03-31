@@ -47,11 +47,11 @@ public class UserService implements UserDetailsService {
             //입력 받은 tagLine과 gameName으로 puuid 가져오기
             PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
             // puuidDto에 puuid가 잘 들어있으면 존재하는 것으로 간주
-            return puuidDto == null || puuidDto.getPuuid().isEmpty();
+            return puuidDto != null && !puuidDto.getPuuid().isEmpty();
 
         } catch (Exception e) {
             // API 호출 실패 (예: 네트워크 문제, 잘못된 입력 등)
-            return true;
+            return false;
         }
     }
 

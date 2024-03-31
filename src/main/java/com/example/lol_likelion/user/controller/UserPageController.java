@@ -1,18 +1,22 @@
 package com.example.lol_likelion.user.controller;
 
 import com.example.lol_likelion.api.ApiService;
+import com.example.lol_likelion.api.dto.LeagueEntryDTO;
 import com.example.lol_likelion.api.dto.MatchIdDto;
 import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
+import com.example.lol_likelion.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +25,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserPageController {
     private final ApiService apiService;
+    private final UserService userService;
 
+    // 소환사 닉네임과 태그로 검색하기
+    @PostMapping("/search")
+    public String searchSummoner(@RequestParam("gameName") String gameName, @RequestParam("tagLine") String tagLine) {
+        // 라이엇 API를 호출하여 소환사 존재 여부 검증
+        boolean exists = userService.riotApiCheckGameName(tagLine, gameName);
+
+        if (!exists) {
+            // 소환사가 존재하지 않을 경우, fail 페이지로
+            return "search-fail";
+        }
+
+        // URL 인코딩 수행
+        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+        String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
+
+        // 인코딩된 값을 사용하여 리디렉션 URL 구성
+        return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
+    }
 
     //유저 페이지로 이동
     @GetMapping("/{gameName}/{tagLine}")
@@ -29,6 +52,14 @@ public class UserPageController {
             @PathVariable String gameName,
             @PathVariable String tagLine,
             Model model){
+
+        //로그인 된 유저인지 확인하기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = authentication != null &&
+                !(authentication instanceof AnonymousAuthenticationToken)
+                && authentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
 
         //puuid 불러오기
         PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
@@ -41,8 +72,8 @@ public class UserPageController {
         //matchId 가져오기
         MatchIdDto matchIdDto = apiService.callRiotApiMatchId(puuidDto);
 
-        //tier 불러오는 방법
-        String tier = apiService.getSummonerTierName(summonerDto);
+        //LeagueEntryDto 불러오는 방법
+        LeagueEntryDTO leagueEntryDTO = apiService.getSummonerLeagueEntry(summonerDto);
 
 
         //================= match 정보 가져오는 부분 ===============
@@ -67,14 +98,15 @@ public class UserPageController {
             //i번째 경기 중 내 정보를 담음
             MatchDto.InfoDto.ParticipantDto participantDto = apiService.myInfoFromParticipants(matchDto, puuidDto);
             participantDtoList.add(participantDto);
+
+            System.out.println(matchDto.getInfo().getGameEndTimestamp());
         }
-
-
 
         //model에 넣어서 화면으로 보낸다.
         model.addAttribute("participantDtoList", participantDtoList);
         model.addAttribute("matchDtoList", matchDtoList);
         model.addAttribute("championList", championList);
+        model.addAttribute("leagueEntryDto", leagueEntryDTO);
 
 
         return "user-page";

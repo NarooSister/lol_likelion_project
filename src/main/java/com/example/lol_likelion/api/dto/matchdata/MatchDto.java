@@ -34,6 +34,7 @@ public class MatchDto {
             private String riotIdGameName;
             private String riotIdTagline;
             private String championName;
+            private Integer profileIcon;
 
             private String lane;
 
@@ -46,6 +47,8 @@ public class MatchDto {
             private Integer quadraKills;
             private Integer tripleKills;
 
+            private Boolean firstBloodKill;
+
             //제어와드 구매횟수
             private Integer visionWardsBoughtInGame;
             //와드 설치 횟수
@@ -56,6 +59,9 @@ public class MatchDto {
             //100 = 레드팀 ,  200 = 블루팀
             private Integer teamId;
             private Boolean win;
+
+
+
 
         }
     }

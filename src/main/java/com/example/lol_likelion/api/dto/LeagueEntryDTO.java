@@ -12,4 +12,8 @@ import lombok.NoArgsConstructor;
 public class LeagueEntryDTO {
     private String leagueId;
     private String tier;
+    private String rank;
+    private String leaguePoints;
+    private Integer wins;
+    private Integer losses;
 }
