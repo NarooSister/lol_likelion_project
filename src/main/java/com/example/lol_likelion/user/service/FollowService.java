@@ -43,11 +43,14 @@ public class FollowService {
         Long followerCount = followRepository.followerCount(pageUserId);
 
         dto.setFollowState(followState == 1);
-        dto.setFollowCount(followingCount);
-        dto.setFollowCount(followerCount);
+        dto.setFollowingCount(followingCount);
+        dto.setFollowerCount(followerCount);
 
-        System.out.println("pageUserId: " + pageUserId);
-        System.out.println("follower: " + followerCount);
+        System.out.println("페이지 주인 : "+ dto.isPageOwnerState());
+        System.out.println("찾는 사용자 : " + pageUserId);
+        System.out.println("팔로워 수 : " + followerCount);
+        System.out.println("팔로잉 수: " + followingCount);
+
         return dto;
 
     }

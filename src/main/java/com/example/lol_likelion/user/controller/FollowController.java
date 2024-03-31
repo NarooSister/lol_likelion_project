@@ -15,13 +15,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 public class FollowController {
 
@@ -34,7 +35,7 @@ public class FollowController {
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
-        System.out.println("userName = " + userName);
+        System.out.println("사용자 이름 : " + userName);
 
         UserEntity userEntity = userService.getUserByUsername(userName);
         Long userId = userEntity.getId();
@@ -46,7 +47,7 @@ public class FollowController {
 
         System.out.println(dto);
 
-        return "/users/user-page";
+        return "user-page";
 
     }
 
