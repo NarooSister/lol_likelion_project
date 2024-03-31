@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>테스트 중입니다</h1>
+    <form th:action="@{/duo/myDuo/{postId}(postId=${posts.id})}" th:method="post">
+        <input type="hidden" name="_method" value="delete">
+        <input type="submit" value="삭제하기">
+    </form>
+    <div>
+        <p>[[${posts.id}]]</p>
+        <div th:if="${posts.offer.isEmpty()}">글이 없어요</div>
+        <div th:unless="${posts.offer.isEmpty()}" th:each="offer:${posts.offer}">
+            <p th:text="${offer.id}"></p>
+            <p th:text="${offer.applyUserId}"></p>
+            <p th:text="${offer.status}"></p>
+            <hr>
+        </div>
+    </div>
+
+</body>
+</html>

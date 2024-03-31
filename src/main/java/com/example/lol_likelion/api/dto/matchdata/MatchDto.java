@@ -40,8 +40,8 @@ public class MatchDto {
             private Integer kills;
             private Integer deaths;
             private Integer assists;
-            private Integer kda;
-
+            private Double kda;
+            private Integer totalMinionsKilled;
             private Integer pentaKills;
             private Integer quadraKills;
             private Integer tripleKills;
