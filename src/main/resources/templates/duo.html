@@ -19,6 +19,7 @@
 </head>
 <body>
 <h1>테스트 중입니다</h1>
+<input type="hidden" th:if="${message != null}" th:value="${message}" name="message" id="message">
 <table border="1" id="postTable">
     <thead>
     <tr>
@@ -84,6 +85,17 @@
             var postId = target.cells[0].innerText; // ID 칼럼의 값
             window.location.href = '/duo/myDuo/' + postId;
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var errorMessageElement = document.getElementById('message');
+        if (errorMessageElement) {
+            var errorMessage = errorMessageElement.value;
+            // console.log(errorMessage);
+            alert(errorMessage);
+        } else {
+            console.log("errorMessage hidden field not found");
+        }
     });
 </script>
 </body>

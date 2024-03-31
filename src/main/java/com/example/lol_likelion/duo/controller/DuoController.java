@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import reactor.netty.http.server.HttpServerRequest;
 
 import java.util.List;
@@ -47,6 +48,9 @@ public class DuoController {
         model.addAttribute("posts", postService.readAll());
 
 
+        System.out.println("model = " + model);
+
+
 
         return "duo";
 
@@ -65,7 +69,8 @@ public class DuoController {
             String my_position,
             @RequestParam("find_position")
             String find_position,
-            Authentication authentication
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     ){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
@@ -86,6 +91,10 @@ public class DuoController {
         postDto.setMyPosition(my_position);
         postDto.setFindPosition(find_position);
         postDto.setUserId(userId);
+
+        if (postService.createDuo(postDto) == null){
+            redirectAttributes.addFlashAttribute("message", "이미 구인중 입니다");
+        }
         postService.createDuo(postDto);
 
         return "redirect:/duo";
