@@ -58,6 +58,7 @@ public class PostService {
         return PostDto.fromEntity(postRepository.findById(postId).orElseThrow());
     }
 
+
     public void deletePost(Long postId){
         Post post = postRepository.findById(postId).orElseThrow();
 

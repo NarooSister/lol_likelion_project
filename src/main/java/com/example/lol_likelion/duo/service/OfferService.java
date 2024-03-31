@@ -50,4 +50,8 @@ public class OfferService {
 
         return OfferDto.fromEntity(offerRepository.save(offer));
     }
+
+    public Offer readOfferOne(Long offerId){
+        return offerRepository.findById(offerId).orElseThrow();
+    }
 }

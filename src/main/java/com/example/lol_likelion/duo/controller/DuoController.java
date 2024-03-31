@@ -182,23 +182,34 @@ public class DuoController {
     }
 
     @PostMapping("/offer/accept/{offerId}")
-    @ResponseBody
     public String acceptOffer(
             @PathVariable("offerId")
-            Long offerId
+            Long offerId,
+            Model model
     ){
-
         offerService.updateStatus(offerId);
-        return "acceptOffer";
+        Offer offer = offerService.readOfferOne(offerId);
+        Post post = offer.getPost();
+        Long postId = post.getId();
+
+        model.addAttribute("posts", post);
+        model.addAttribute("offers", offer);
+
+
+        return "offerResult";
     }
 
     @DeleteMapping("/offer/deny/{offerId}")
-    @ResponseBody
+    @Transactional
     public String denyOffer(
             @PathVariable("offerId")
             Long offerId
     ){
+        Offer offer = offerService.readOfferOne(offerId);
         offerService.deleteOffer(offerId);
-        return "denyOffer";
+        Post post = offer.getPost();
+        Long postId = post.getId();
+
+        return String.format("redirect:/duo/myDuo/%d",postId);
     }
 }

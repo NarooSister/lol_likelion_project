@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostDto {
-    private Integer id;
+    private Long id;
     @Setter
     private String memo;
     @Setter

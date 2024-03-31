@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .split-screen {
+            display: flex;
+            height: 100vh;
+        }
+        .left-pane, .center-pane, .right-pane {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .heart-icon {
+            font-size: 100px; /* Adjust size as needed */
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="split-screen">
+    <div class="left-pane">
+        <h2>게시물(Post)</h2>
+        <div th:each="post : ${posts}">
+            <p>ID: <span th:text="${post.id}"></span></p>
+            <!-- Add more post details as needed -->
+        </div>
+    </div>
+    <div class="center-pane">
+        <span class="heart-icon">&hearts;</span>
+    </div>
+    <div class="right-pane">
+        <h2>제안(Offer)</h2>
+        <div th:each="offer : ${offers}">
+            <p>ID: <span th:text="${offer.id}"></span></p>
+            <!-- Add more offer details as needed -->
+        </div>
+    </div>
+</div>
+</body>
+</html>
