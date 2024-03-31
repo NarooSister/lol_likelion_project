@@ -3,24 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        .champion-icon {
+            width: 50px; /* 이미지 너비 조절 */
+            height: 50px; /* 이미지 높이 조절 */
+            border-radius: 50%; /* 동그라미 모양으로 만듭니다. */
+            margin-right: 5px; /* 이미지 간격 조절 */
+        }
+        .clickable {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>테스트 중입니다</h1>
-    <div th:unless="${posts.isEmpty()}" th:each="post : ${posts}">
-        <a th:href="@{/duo/myDuo/{postId}(postId=${post.id})}">
-            <p th:text="${post.id}"></p>
-            <p th:text="${post.memo}"></p>
-            <p th:text="${post.userId}"></p>
-            <p th:text="${post.myPosition}"></p>
-            <p th:text="${post.findPosition}"></p>
+<h1>테스트 중입니다</h1>
+<table border="1" id="postTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>메모</th>
+        <th>사용자 ID</th>
+        <th>내 포지션</th>
+        <th>선호 챔피언</th>
+        <th>찾는 포지션</th>
+        <th>액션</th>
+        <th>아이디</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:unless="${posts.isEmpty()}" th:each="post : ${posts}">
+        <td th:text="${post.id}"></td>
+        <td th:text="${post.memo}"></td>
+        <td th:text="${post.userId}"></td>
+        <td th:text="${post.myPosition}"></td>
+        <td>
+            <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
+            <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
+            <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
+        </td>
+        <td th:text="${post.findPosition}"></td>
+        <td>
             <form th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post" >
-                <input type="submit">
+                <input type="submit" value="액션">
             </form>
-        </a>
-    </div>
-    <div th:if="${posts.isEmpty()}">
-        <p>글이 업서요!!</p>
-    </div>
-    <button onclick=location.href="/duo/myDuo">글쓰기</button>
+        </td>
+        <td>
+            <!-- 제안 정보 확인 -->
+            <th:block th:if="${post.offer != null}">
+                <!-- offer.applyUserId 중 userId와 일치하는지 확인 -->
+                <form th:if="${post.offer.![applyUserId].contains(userId)}"
+                      th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
+                    <input type="hidden" name="_method" value="delete">
+                    <input type="hidden" name="userId" th:value="${userId}">
+                    <input type="submit" value="취소">
+                </form>
+                <form th:unless="${post.offer.![applyUserId].contains(userId)}"
+                      th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
+                    <input type="submit" value="신청">
+                </form>
+            </th:block>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div th:if="${posts.isEmpty()}">
+    <p>글이 없어요!!</p>
+</div>
+<button onclick=location.href="/duo/myDuo">글쓰기</button>
+
+<script>
+    // 각 행을 클릭했을 때 해당 게시물로 이동하는 함수
+    document.addEventListener('DOMContentLoaded', function () {
+        var table = document.getElementById('postTable');
+        table.addEventListener('click', function (event) {
+            var target = event.target;
+            while (target && target.tagName !== 'TR') {
+                target = target.parentNode;
+            }
+            if (!target) return;
+            var postId = target.cells[0].innerText; // ID 칼럼의 값
+            window.location.href = '/duo/myDuo/' + postId;
+        });
+    });
+</script>
 </body>
 </html>

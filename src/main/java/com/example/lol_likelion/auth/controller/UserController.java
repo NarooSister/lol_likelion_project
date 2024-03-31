@@ -130,7 +130,7 @@ public class UserController {
 
     @PostMapping("")
     public String updateUser(Model model, UpdateUserDto user){
-       service.updateUser(user);
+        service.updateUser(user);
         model.addAttribute("user", user);
         return "redirect:/users/my-page";
     }

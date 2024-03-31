@@ -19,24 +19,23 @@ import java.util.Optional;
 public class OfferService {
     private final OfferRepository offerRepository;
     private final PostRepository postRepository;
-    public OfferDto createDuo(Long postId){
+    public OfferDto createDuo(Long postId, OfferDto offerDto){
         Offer offer = new Offer();
-        OfferDto offerDto = new OfferDto();
         Post post = postRepository.findById(postId).orElseThrow();
 
         offerDto.setStatus("신청함");
-        offerDto.setApplyUserId(1);
+        offerDto.setApplyUserId(offerDto.getApplyUserId());
         offerDto.setPost(post);
         offer.setStatus(offerDto.getStatus());
         offer.setApplyUserId(offerDto.getApplyUserId());
         offer.setPost(offerDto.getPost());
+        offer.setApplyUserId(offerDto.getApplyUserId());
 
         return OfferDto.fromEntity(offerRepository.save(offer));
     }
 
-    public void deleteOfferInPost(Long postId){
+    public void deleteOffer(Long postId, Long userId){
         Post post = postRepository.findById(postId).orElseThrow();
-
-        offerRepository.deleteByPost(post);
+        offerRepository.deleteOfferByPostAndApplyUserId(post, userId);
     }
 }

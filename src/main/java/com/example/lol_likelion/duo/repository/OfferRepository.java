@@ -6,8 +6,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OfferRepository extends JpaRepository<Offer, Long> {
 
     void deleteByPost (Post post);
+
+    List<Offer> findByPost(Post post);
+
+    Optional<Offer> findByPostAndApplyUserId(Post post, Long userId);
+
+    void deleteOfferByPostAndApplyUserId(Post post, Long userId);
 }
