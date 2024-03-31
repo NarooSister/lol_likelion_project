@@ -28,7 +28,7 @@
         <th>내 포지션</th>
         <th>선호 챔피언</th>
         <th>찾는 포지션</th>
-        <th>액션</th>
+        <th>상태</th>
         <th>아이디</th>
     </tr>
     </thead>
@@ -45,9 +45,7 @@
         </td>
         <td th:text="${post.findPosition}"></td>
         <td>
-            <form th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post" >
-                <input type="submit" value="액션">
-            </form>
+            <a th:text="${post.status}"></a>
         </td>
         <td>
             <!-- 제안 정보 확인 -->

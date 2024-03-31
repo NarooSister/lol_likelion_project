@@ -85,7 +85,7 @@ public class DuoController {
         postDto.setMemo(memo);
         postDto.setMyPosition(my_position);
         postDto.setFindPosition(find_position);
-        postDto.setUserId(userId.toString());
+        postDto.setUserId(userId);
         postService.createDuo(postDto);
 
         return "redirect:/duo";
