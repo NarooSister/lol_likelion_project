@@ -51,7 +51,7 @@
             <td>
                 <a th:text="${post.status}"></a>
             </td>
-            <td>
+            <td th:unless="${post.getUserId() == userId}">
                 <div th:block th:if="${post.offer != null}">
                     <form th:if="${post.offer.![applyUserId].contains(userId)}"
                           th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
@@ -64,6 +64,9 @@
                         <button type="submit" class="btn btn-primary">신청</button>
                     </form>
                 </div>
+            </td>
+            <td th:if="${post.getUserId() == userId}">
+                <span class="badge badge-secondary">내 글</span>
             </td>
         </tr>
         </tbody>
