@@ -180,4 +180,25 @@ public class DuoController {
 
 
     }
+
+    @PostMapping("/offer/accept/{offerId}")
+    @ResponseBody
+    public String acceptOffer(
+            @PathVariable("offerId")
+            Long offerId
+    ){
+
+        offerService.updateStatus(offerId);
+        return "acceptOffer";
+    }
+
+    @DeleteMapping("/offer/deny/{offerId}")
+    @ResponseBody
+    public String denyOffer(
+            @PathVariable("offerId")
+            Long offerId
+    ){
+        offerService.deleteOffer(offerId);
+        return "denyOffer";
+    }
 }

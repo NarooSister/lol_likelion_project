@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        .champion-icon {
+            width: 50px; /* 이미지 너비 조절 */
+            height: 50px; /* 이미지 높이 조절 */
+            border-radius: 50%; /* 동그라미 모양으로 만듭니다. */
+            margin-right: 5px; /* 이미지 간격 조절 */
+        }
+    </style>
 </head>
 <body>
     <h1>테스트 중입니다</h1>
@@ -11,12 +19,69 @@
         <input type="submit" value="삭제하기">
     </form>
     <div>
-        <p>[[${posts.id}]]</p>
+        <table border="1" id="postTable">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>메모</th>
+                <th>사용자 ID</th>
+                <th>내 포지션</th>
+                <th>선호 챔피언</th>
+                <th>찾는 포지션</th>
+                <th>상태</th>
+            </tr>
+            </thead>
+            <tbody>
+                <td>[[${posts.id}]]</td>
+                <td>[[${posts.memo}]]</td>
+                <td>[[${posts.userId}]]</td>
+                <td>[[${posts.myPosition}]]</td>
+                <td>
+                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
+                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
+                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
+                </td>
+                <td>[[${posts.findPosition}]]</td>
+                <td>[[${posts.status}]]</td>
+            </tr>
+            </tbody>
+        </table>
+        <h2>신청 목록</h2>
+        <hr>
         <div th:if="${posts.offer.isEmpty()}">글이 없어요</div>
         <div th:unless="${posts.offer.isEmpty()}" th:each="offer:${posts.offer}">
-            <p th:text="${offer.id}"></p>
-            <p th:text="${offer.applyUserId}"></p>
-            <p th:text="${offer.status}"></p>
+            <div>
+                <table border="1" id="offerTable">
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>신청자</th>
+                        <th>상태</th>
+                        <th>선호 챔피언</th>
+                        <th>수락 / 거절</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <td> <p th:text="${offer.id}"></p> </td>
+                        <td> <p th:text="${offer.applyUserId}"></p> </td>
+                        <td> <p th:text="${offer.status}"></p> </td>
+                        <td>
+                            <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
+                            <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
+                            <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
+                        </td>
+                        <td>
+                            <form style="display: inline-block;" method="post" th:action="@{/duo/offer/accept/{offerId}(offerId=${offer.id})}">
+                                <input type="submit" value="수락">
+                            </form>
+                            <form style="display: inline-block;" method="post" th:action="@{/duo/offer/deny/{offerId}(offerId=${offer.id})}">
+                                <input type="hidden" name="_method" value="delete">
+                                <input type="submit" value="거절">
+                            </form>
+                        </td>
+                    </tbody>
+                </table>
+            </div>
             <hr>
         </div>
     </div>

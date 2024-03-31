@@ -38,4 +38,16 @@ public class OfferService {
         Post post = postRepository.findById(postId).orElseThrow();
         offerRepository.deleteOfferByPostAndApplyUserId(post, userId);
     }
+
+    public void deleteOffer(Long offerId){
+        Offer offer = offerRepository.findById(offerId).orElseThrow();
+        offerRepository.delete(offer);
+    }
+
+    public OfferDto updateStatus(Long offerId){
+        Offer offer = offerRepository.findById(offerId).orElseThrow();
+        offer.setStatus("수락");
+
+        return OfferDto.fromEntity(offerRepository.save(offer));
+    }
 }
