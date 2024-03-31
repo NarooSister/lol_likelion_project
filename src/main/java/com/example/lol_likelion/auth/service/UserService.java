@@ -47,11 +47,11 @@ public class UserService implements UserDetailsService {
             //입력 받은 tagLine과 gameName으로 puuid 가져오기
             PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
             // puuidDto에 puuid가 잘 들어있으면 존재하는 것으로 간주
-            return puuidDto == null || puuidDto.getPuuid().isEmpty();
+            return puuidDto != null && !puuidDto.getPuuid().isEmpty();
 
         } catch (Exception e) {
             // API 호출 실패 (예: 네트워크 문제, 잘못된 입력 등)
-            return true;
+            return false;
         }
     }
 
@@ -128,11 +128,21 @@ public class UserService implements UserDetailsService {
     }
 
     // 새 소환사 닉네임 업데이트
+    // 닉네임 변경에 따른 puuid, 티어, 프로필 아이콘 변경
+    // TODO: 소환사 닉네임 바꾸면 뱃지 초기화 해야 할지 ?
     @Transactional
     public void updateGameName(UpdateGameNameDto dto){
         UserEntity user = authenticationFacade.extractUser();
+
+        PuuidDto puuidDto = apiService.callRiotApiPuuid(dto.getGameName(), dto.getTagLine());
+        SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
+        String tier = apiService.getSummonerTierName(summonerDto);
+
         user.setGameName(dto.getGameName());
         user.setTagLine(dto.getTagLine());
+        user.setPuuid(puuidDto.getPuuid());
+        user.setTier(tier);
+        user.setProfileIconId(summonerDto.getProfileIconId());
         userRepository.save(user);
     }
 

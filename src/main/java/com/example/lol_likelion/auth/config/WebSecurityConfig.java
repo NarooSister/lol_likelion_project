@@ -38,7 +38,6 @@ public class WebSecurityConfig {
                         auth -> auth
                                 .requestMatchers(
                                         "/users/my-page",
-                                        "/users/main",
                                         "users/logout",
                                         "/users",
                                         "/users/password",
@@ -54,7 +53,9 @@ public class WebSecurityConfig {
                                         "/users11",
                                         "/users/authentication-fail",
                                         "/users/authorization-fail",
-                                        "/users/{gameName}/{tagLine}"
+                                        "/users/{gameName}/{tagLine}",
+                                        "/users/main",
+                                        "/users/search"
                                 )
                                 .permitAll()
                                 .anyRequest()

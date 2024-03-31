@@ -8,7 +8,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,7 +28,15 @@ public class UserController {
     private final JwtTokenUtils jwtTokenUtils;
 
     @GetMapping("/main")
-    public String mainForm(){
+    public String mainForm(Model model){
+
+        //로그인 된 유저인지 확인하기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = authentication != null &&
+                !(authentication instanceof AnonymousAuthenticationToken)
+                && authentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
         return "main";
     }
 
@@ -50,7 +60,7 @@ public class UserController {
         }
 
         //소환사 닉네임 검증
-        if (service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
             bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
             bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 닉네임을 입력해 주십시오."));
         }
@@ -114,6 +124,13 @@ public class UserController {
         UserEntity user = service.getUserByUsername(authentication.getName());
         model.addAttribute("user", user);
 
+        //로그인 된 유저인지 확인하기
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = authentication != null &&
+                !(authentication instanceof AnonymousAuthenticationToken)
+                && authentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
         return "my-page";
     }
 
@@ -174,7 +191,7 @@ public class UserController {
         }
 
         //소환사 닉네임 검증
-        if (service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
             bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
             bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 아이디를 입력해 주십시오."));
         }

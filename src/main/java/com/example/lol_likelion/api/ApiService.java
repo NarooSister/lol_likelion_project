@@ -128,6 +128,16 @@ public class ApiService {
             return "Unranked"; // 티어 정보가 없는 경우 기본값 반환
         }
     }
+    // 소환사의 티어 정보 중에서 특정 정보(예: 티어 이름)를 추출하여 반환하는 메서드
+    public LeagueEntryDTO getSummonerLeagueEntry(SummonerDto summonerDto) {
+        Set<LeagueEntryDTO> LeagueInfoSet = callRiotApiTier(summonerDto).block(); // Mono의 결과를 동기적으로 가져옴
+
+        if (LeagueInfoSet != null && !LeagueInfoSet.isEmpty()) {
+            return LeagueInfoSet.iterator().next(); // LeagueEntryDto 반환
+        } else {
+            return null;
+        }
+    }
 
     //matchId로 match 정보 1개 가지고 오기 (test 완료)
     public MatchDto callRiotApiMatch(String matchId) {
