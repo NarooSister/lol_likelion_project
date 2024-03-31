@@ -50,7 +50,7 @@ public class UserController {
         }
 
         //소환사 닉네임 검증
-        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+        if (service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
             bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
             bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 닉네임을 입력해 주십시오."));
         }
@@ -174,7 +174,7 @@ public class UserController {
         }
 
         //소환사 닉네임 검증
-        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+        if (service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
             bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
             bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 아이디를 입력해 주십시오."));
         }
