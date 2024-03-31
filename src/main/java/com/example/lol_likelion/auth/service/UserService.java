@@ -3,17 +3,19 @@ package com.example.lol_likelion.auth.service;
 import com.example.lol_likelion.api.ApiService;
 import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
-import com.example.lol_likelion.auth.dto.JwtRequestDto;
-import com.example.lol_likelion.auth.dto.CreateUserDto;
+import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.entity.UserEntity;
-import com.example.lol_likelion.auth.jwt.JwtTokenUtils;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.utils.AuthenticationFacade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.Optional;
 
@@ -21,12 +23,11 @@ import java.util.Optional;
 @Service
 
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApiService apiService;
-    private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationFacade authenticationFacade;
 
     //존재하는 아이디인지 확인
@@ -46,11 +47,11 @@ public class UserService {
             //입력 받은 tagLine과 gameName으로 puuid 가져오기
             PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
             // puuidDto에 puuid가 잘 들어있으면 존재하는 것으로 간주
-            return puuidDto != null && !puuidDto.getPuuid().isEmpty();
+            return puuidDto == null || puuidDto.getPuuid().isEmpty();
 
         } catch (Exception e) {
             // API 호출 실패 (예: 네트워크 문제, 잘못된 입력 등)
-            return false;
+            return true;
         }
     }
 
@@ -58,13 +59,15 @@ public class UserService {
     @Transactional(timeout = 10)
     public void createUser(CreateUserDto dto) {
         //tier 정보 가져와서 저장하기
-        //과정 : gameName과 tagLine으로 puuid 가져오기 -> puuid로 summonerId 가져오기
+        //과정 : gameName과 tagLine으로 puuid 가져오기 -> puuid로 summonerId 와 profileIconId 가져오기
         //-> summonerId로 tier 가져오기...
+        //프로필 아이콘 주소 : https://ddragon.leagueoflegends.com/cdn/10.6.1/img/profileicon/{profileIconId}.png
         PuuidDto puuidDto = apiService.callRiotApiPuuid(dto.getGameName(), dto.getTagLine());
         SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
         String tier = apiService.getSummonerTierName(summonerDto);
-        //dto로 받은 유저정보와 tier 정보 저장하기
-        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid()));
+
+        //dto로 받은 유저정보와 tier 정보, profileIconId 저장하기
+        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid(), summonerDto.getProfileIconId()));
     }
 
     //로그인
@@ -93,17 +96,52 @@ public class UserService {
         return optionalUser.orElse(null);
     }
 
-//    @Transactional
-//    public UserInfoDto updateUser(UpdateUserDto dto) {
-//        UserEntity userEntity = authenticationFacade.extractUser();
-//        String username = userEntity.getUsername();
-//        log.info(username);
-////        userEntity.setPassword(dto.getPassword());
-////        userEntity.setGameName(dto.getGameName());
-////        userEntity.setTagLine(dto.getTagLine());
-//        userEntity.setPhone(dto.getPhone());
-//        userEntity.setEmail(dto.getEmail());
-//
-//        return UserInfoDto.fromEntity(userRepository.save(userEntity));
-//    }
+    //유저 정보 수정하기
+    @Transactional
+    public void updateUser(UpdateUserDto dto) {
+        UserEntity user = authenticationFacade.extractUser();
+
+        user.setPhone(dto.getPhone());
+        user.setEmail(dto.getEmail());
+
+        UserInfoDto.fromEntity(userRepository.save(user));
+    }
+
+    //현재 비밀번호와 입력된 비밀번호 비교
+    public boolean checkCurrentPassword(String password) {
+        // 현재 인증된 사용자의 비밀번호 가져오기
+        UserEntity user = authenticationFacade.extractUser();
+        return passwordEncoder.matches(password, user.getPassword());
+    }
+
+    // 새 비밀번호 업데이트
+    @Transactional
+    public void updatePassword(UpdatePasswordDto dto) {
+        UserEntity user = authenticationFacade.extractUser();
+
+        // 새 비밀번호 암호화
+        String encodedNewPassword = passwordEncoder.encode(dto.getNewPassword());
+        user.setPassword(encodedNewPassword);
+
+        // 변경 사항 저장
+        userRepository.save(user);
+    }
+
+    // 새 소환사 닉네임 업데이트
+    @Transactional
+    public void updateGameName(UpdateGameNameDto dto){
+        UserEntity user = authenticationFacade.extractUser();
+        user.setGameName(dto.getGameName());
+        user.setTagLine(dto.getTagLine());
+        userRepository.save(user);
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
+                .map(CustomUserDetails::fromEntity)
+                .orElseThrow(() -> new UsernameNotFoundException("not found"));
+    }
+
 }

@@ -2,10 +2,8 @@ package com.example.lol_likelion.api;
 
 import com.example.lol_likelion.api.dto.*;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
-import com.example.lol_likelion.auth.dto.UserInfoDto;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.example.lol_likelion.auth.repository.UserRepository;
@@ -16,7 +14,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +62,7 @@ public class ApiService {
     }
 
     //puuid로 summonerId 불러오기(test 완료)
+    //SummonerDto로 profileIconId도 같이 가져오기
     public SummonerDto callRiotApiSummonerId(PuuidDto puuidDto) {
         String url = UriComponentsBuilder.fromUriString("https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}")
                 .queryParam("api_key", this.apiKey)
@@ -158,6 +156,18 @@ public class ApiService {
         }
     }
 
+    //partivipant에서 내 정보만 가져오기
+    public MatchDto.InfoDto.ParticipantDto myInfoFromParticipants(MatchDto matchDto, PuuidDto puuidDto) {
+        //플레이어 10명 정보 가져오기
+        List<String> participantsPuuid = matchDto.getMetadata().getParticipants();
+        //나랑 puuid가 같은 participant의 순서
+        String puuid = puuidDto.getPuuid(); //내 puuid
+        int index = participantsPuuid.indexOf(puuid);
+        //infoDto 안에 participantDto
+        List<MatchDto.InfoDto.ParticipantDto> participants = matchDto.getInfo().getParticipants();
+        return participants.get(index);
+    }
+
     //최근 ?게임동안 플레이 한 챔피언
     public String recentPlayChampion(MatchDto matchDto, PuuidDto puuidDto) {
         //플레이어 10명 정보 가져오기
@@ -169,6 +179,9 @@ public class ApiService {
         List<MatchDto.InfoDto.ParticipantDto> participants = matchDto.getInfo().getParticipants();
         return participants.get(index).getChampionName();
     }
+
+
+
 
     //TEST로 정보 가져와보기(확인하기 위함)
     public void processMatchInformation(MatchDto matchDto) {
