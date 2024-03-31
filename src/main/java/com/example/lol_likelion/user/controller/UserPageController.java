@@ -108,6 +108,10 @@ public class UserPageController {
         model.addAttribute("championList", championList);
         model.addAttribute("leagueEntryDto", leagueEntryDTO);
 
+
+
+
+
         return "user-page";
     }
 
