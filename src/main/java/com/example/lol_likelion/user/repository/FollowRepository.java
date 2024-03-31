@@ -4,31 +4,34 @@ import com.example.lol_likelion.user.entity.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
 
-    // Follow, Unfollow 유무
-    @Query(value = "SELECT count(*) " +
-            "FROM Follow " +
-            "WHERE following_id = ?1 AND follower_id = ?2", nativeQuery = true)
-    public int findByFollowingIdAndFollowerId(Long followerId, Long followingId);
-
-    // unFollow
     @Modifying
-    @Transactional
-    public void deleteByFollowerIdAndFollowingId(Long followerId, Long followingId);
+    @Query(value =  "INSERT INTO follow(following_id, follower_id, created_at) " +
+                    "VALUES(:following_id, :follower_id, now())", nativeQuery = true)
+    void follow(@Param("following_id") Long followingId, @Param("follower_id") Long followerId);
 
-    // 팔로워 리스트
-    public List<Follow> findByFollowerId(Long followerId);
+    @Modifying
+    @Query(value =  "DELETE FROM follow " +
+                    "WHERE following_id = :following_id AND follower_id = :follower_id", nativeQuery = true)
+    void unfollow(@Param("following_id") Long followingId, @Param("follower_id") Long followerId);
 
-    // 팔로우 리스트
-    public List<Follow> findByFollowingId(Long followingId);
+    @Query(value =  "SELECT COUNT(*) FROM follow " +
+                    "WHERE following_id = :principalId AND follower_id = :pageUserId", nativeQuery = true)
+    Long followState(@Param("principalId") Long principalId, @Param("pageUserId") Long pageUserId);
 
+    @Query(value =  "SELECT COUNT(*) FROM follow " +
+                    "WHERE follower_id = :pageUserId", nativeQuery = true)
+    Long followerCount(@Param("pageUserId") Long pageUserId);
 
-
+    @Query(value =  "SELECT COUNT(*) FROM follow " +
+                    "WHERE following_id = :pageUserId", nativeQuery = true)
+    Long followingCount(@Param("pageUserId") Long pageUserId);
 
 }
 
