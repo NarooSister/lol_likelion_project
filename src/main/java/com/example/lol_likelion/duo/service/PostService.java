@@ -38,6 +38,7 @@ public class PostService {
 
     public PostDto createDuo(PostDto postDto){
         Post post = new Post();
+        post = postRepository.findByStatusAndUserId(postDto.getStatus(), postDto.getUserId());
         post.setMemo(postDto.getMemo());
         post.setMyPosition(postDto.getMyPosition());
         post.setFindPosition(postDto.getFindPosition());

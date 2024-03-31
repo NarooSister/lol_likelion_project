@@ -7,4 +7,5 @@ import org.springframework.data.repository.Repository;
 import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
+    Post findByStatusAndUserId(String status, Long userId);
 }

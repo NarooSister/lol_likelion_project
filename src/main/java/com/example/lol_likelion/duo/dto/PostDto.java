@@ -18,7 +18,7 @@ public class PostDto {
     @Setter
     private String memo;
     @Setter
-    private String userId;
+    private Long userId;
     @Setter
     private String myPosition;
     @Setter

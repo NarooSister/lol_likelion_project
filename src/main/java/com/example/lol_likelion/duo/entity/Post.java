@@ -24,7 +24,7 @@ public class Post {
     private String memo;
 
     @Setter
-    private String userId;
+    private Long userId;
 
     @Setter
     private String myPosition;
