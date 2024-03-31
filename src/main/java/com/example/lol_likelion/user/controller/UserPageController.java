@@ -6,11 +6,17 @@ import com.example.lol_likelion.api.dto.MatchIdDto;
 import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
+import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.user.dto.UserProfileDto;
+import com.example.lol_likelion.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +32,7 @@ import java.util.List;
 public class UserPageController {
     private final ApiService apiService;
     private final UserService userService;
+    private final FollowService followService;
 
     // 소환사 닉네임과 태그로 검색하기
     @PostMapping("/search")
@@ -51,7 +58,7 @@ public class UserPageController {
     public String userPageForm(
             @PathVariable String gameName,
             @PathVariable String tagLine,
-            Model model){
+            Model model) throws Exception {
 
         //로그인 된 유저인지 확인하기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -61,6 +68,30 @@ public class UserPageController {
         model.addAttribute("isAuthenticated", isAuthenticated);
 
 
+        // ============================follow============================
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("사용자 이름 : " + userName);
+
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long userId = userEntity.getId();
+        System.out.println("사용자 id : " + userId);
+
+        UserEntity userEntity2 = userService.findByGameNameAndTagLine(gameName, tagLine);
+        if (userEntity2 != null) {
+            Long pageUserId = userEntity2.getId();
+            System.out.println("gameName/tagLine : " + pageUserId);
+
+            UserProfileDto dto = followService.userProfile(pageUserId, userId);
+
+            model.addAttribute("dto", dto);
+
+            System.out.println(dto);
+        } else {
+            System.out.println("유저가 아님");
+        }
+
+        // ==============================================================
         //puuid 불러오기
         PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
         String puuid = puuidDto.getPuuid();
