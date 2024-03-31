@@ -128,11 +128,21 @@ public class UserService implements UserDetailsService {
     }
 
     // 새 소환사 닉네임 업데이트
+    // 닉네임 변경에 따른 puuid, 티어, 프로필 아이콘 변경
+    // TODO: 소환사 닉네임 바꾸면 뱃지 초기화 해야 할지 ?
     @Transactional
     public void updateGameName(UpdateGameNameDto dto){
         UserEntity user = authenticationFacade.extractUser();
+
+        PuuidDto puuidDto = apiService.callRiotApiPuuid(dto.getGameName(), dto.getTagLine());
+        SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
+        String tier = apiService.getSummonerTierName(summonerDto);
+
         user.setGameName(dto.getGameName());
         user.setTagLine(dto.getTagLine());
+        user.setPuuid(puuidDto.getPuuid());
+        user.setTier(tier);
+        user.setProfileIconId(summonerDto.getProfileIconId());
         userRepository.save(user);
     }
 
