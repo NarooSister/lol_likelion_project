@@ -1,5 +1,7 @@
 package com.example.lol_likelion.auth.entity;
 
+import com.example.lol_likelion.duo.entity.Offer;
+import com.example.lol_likelion.duo.entity.Post;
 import com.example.lol_likelion.user.entity.Badge;
 import com.example.lol_likelion.user.entity.Follow;
 import com.example.lol_likelion.user.entity.Quest;
@@ -76,5 +78,13 @@ public class UserEntity {
     private Integer trustScore;
     @Setter
     private Integer level;
+
+    @Setter
+    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+    private List<Post> post;
+
+    @Setter
+    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+    private List<Offer> offer;
 
 }
