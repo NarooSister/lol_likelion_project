@@ -12,6 +12,12 @@
             border-radius: 50%;
             margin-right: 5px;
         }
+        .profile-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
         .clickable {
             cursor: pointer;
             color: blue;
@@ -61,6 +67,7 @@
         <tr th:unless="${posts.isEmpty()}" th:each="post : ${posts}">
             <td th:text="${post.id}"></td>
             <td th:with="userInfo=${post.userEntity}">
+                <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
                 <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
             </td>
             <td th:text="${post.userEntity.tier}"></td>
