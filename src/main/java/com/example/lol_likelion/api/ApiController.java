@@ -27,7 +27,8 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/bb")
+@RequestMapping("/api")
+
 public class ApiController {
 
     private final ApiService service;

@@ -19,13 +19,13 @@ public class Follow {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    // fromUser
+    // fromUser 나를
     private UserEntity follower;
 
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    // toUser
+    // toUser 내가
     private UserEntity following;
 
     @Setter

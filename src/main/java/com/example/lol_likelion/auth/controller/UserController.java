@@ -26,6 +26,7 @@ public class UserController {
     private final UserService service;
     private final JwtTokenUtils jwtTokenUtils;
 
+
     @GetMapping("/")
     public String mainForm(Model model){
 

@@ -153,4 +153,11 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("not found"));
     }
 
+    @Transactional
+    public UserEntity findByGameNameAndTagLine(String gameName, String tagLine) {
+        Optional<UserEntity> optionalUser = userRepository.findByGameNameAndTagLine(gameName, tagLine);
+        return optionalUser.orElse(null);
+    }
+
+
 }

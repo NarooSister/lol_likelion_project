@@ -58,11 +58,28 @@
                 <div class="card-body">
                     <h5 class="card-title"><strong> <span th:text="${user.username}"></span>님의 페이지</strong></h5>
                     <p class="card-text"><span th:text="${user.gameName}"></span> #<span th:text="${user.tagLine}"></span></p>
-                    <a href="/users/password" class="btn btn-primary mb-1">비밀번호 수정</a>
-                    <a href="/users/game-name" class="btn btn-secondary">소환사 닉네임 수정</a>
+                    <a href="password" class="btn btn-primary mb-1">비밀번호 수정</a>
+                    <a href="game-name" class="btn btn-secondary">소환사 닉네임 수정</a>
                 </div>
             </div>
         </div>
+
+        <div class="col-md-8">
+            <form th:action="@{/users}" method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label">이메일</label>
+                    <input type="email" class="form-control" id="email" name="email" th:value="${user.email}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">전화번호</label>
+                    <input type="text" class="form-control" id="phone" name="phone" th:value="${user.phone}" required>
+                </div>
+                <button type="submit" class="btn btn-success">수정</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 
         <div class="col-md-8">
             <form th:action="@{/users}" method="post">

@@ -37,8 +37,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(
                         auth -> auth
                                 .requestMatchers(
-                                        "/users/my-page",
-                                        "/users/logout",
+                                        "/my-page",
+                                        "/logout",
                                         "/users",
                                         "/users/password",
                                         "/users/game-name"
@@ -54,7 +54,8 @@ public class WebSecurityConfig {
                                         "/users/authorization-fail",
                                         "/users/{gameName}/{tagLine}",
                                         "/users/search",
-                                        "/bb/users11"
+                                        "/api/users11"
+
                                 )
                                 .permitAll()
                                 .anyRequest()
