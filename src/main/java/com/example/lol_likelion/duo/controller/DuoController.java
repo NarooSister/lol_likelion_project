@@ -95,7 +95,8 @@ public class DuoController {
         postDto.setUserEntity(userEntity);
 
         if (postService.createDuo(postDto) == null){
-            redirectAttributes.addFlashAttribute("message", "이미 구인중 입니다");
+            redirectAttributes.addFlashAttribute("message",
+                    "구인중 혹은 매칭중에는 새 글을 작성할 수 없습니다!");
         }
         postService.createDuo(postDto);
 

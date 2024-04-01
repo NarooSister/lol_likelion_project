@@ -42,7 +42,9 @@ public class PostService {
         if (postRepository.existsByStatusAndUserId("구인중", postDto.getUserId())){
             System.out.println("이미 구인중");
             return null;
-        }else {
+        } else if (postRepository.existsByStatusAndUserId("매칭중", postDto.getUserId())) {
+            return null;
+        } else {
             post.setMemo(postDto.getMemo());
             post.setMyPosition(postDto.getMyPosition());
             post.setFindPosition(postDto.getFindPosition());
