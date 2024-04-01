@@ -24,11 +24,12 @@
             <div>
                 <h4 class="mb-3">
 
-                     <span th:text="${participantDtoList[0].riotIdGameName}">gameName</span>
+                    <span th:text="${participantDtoList[0].riotIdGameName}">gameName</span>
                     <small class="text-muted">#<span
                             th:text="${participantDtoList[0].riotIdTagline}">tagLine</span></small>
                     <!--<button class="btn btn-outline-success btn-sm" type="submit">업데이트</button>-->
-                    <form th:action="@{'/users/' + ${participantDtoList[0].riotIdGameName} + '/' + ${participantDtoList[0].riotIdTagline}}" method="post">
+                    <form th:action="@{'/users/' + ${participantDtoList[0].riotIdGameName} + '/' + ${participantDtoList[0].riotIdTagline}}"
+                          method="post">
                         <!-- 필요한 input 필드들을 여기에 추가하세요. -->
                         <button type="submit" class="btn btn-outline-success btn-sm">업데이트</button>
                     </form>
@@ -36,18 +37,20 @@
                 <!-- Follow section -->
                 <h5 class="mb-3">
                     <!-- th:if ${dto ?. } 에서 ?. 는 null 일 경우 null을 반환해 nullPointerException을 방지해준다 -->
-                    <small th:if="${dto?.followingCount != null}" class="text-muted">following <span th:text="${dto?.followingCount}"></span></small>
-                    <small th:if="${dto?.followerCount != null}" class="text-muted">follower <span th:text="${dto?.followerCount}"></span></small>
+                    <small th:if="${dto?.followingCount != null}" class="text-muted">following <span
+                            th:text="${dto?.followingCount}"></span></small>
+                    <small th:if="${dto?.followerCount != null}" class="text-muted">follower <span
+                            th:text="${dto?.followerCount}"></span></small>
                 </h5>
                 <div th:if="${dto?.isPageOwnerState()} == true">
                     <button class="btn btn-primary btn-sm me-2" type="button">나다!</button>
                 </div>
-                <div  th:if="${dto?.isPageOwnerState()} == false">
-                    <div th:if = "${dto?.followState} == true ">
+                <div th:if="${dto?.isPageOwnerState()} == false">
+                    <div th:if="${dto?.followState} == true ">
                         <button class="btn btn-primary btn-sm me-2">UnFollow</button>
                         <button class="btn btn-danger btn-sm" type="button">차단</button>
                     </div>
-                    <div th:if = "${dto?.followState} == false ">
+                    <div th:if="${dto?.followState} == false ">
                         <button class="btn btn-primary btn-sm me-2" type="button">Follow</button>
                         <button class="btn btn-danger btn-sm" type="button">차단</button>
                     </div>
@@ -78,7 +81,6 @@
                 <div class="col">
                     <p class="mb-1"><span th:text="${leagueEntryDto.wins}">20</span>승 <span
                             th:text="${leagueEntryDto.losses}">10</span>패</p>
-
                 </div>
             </div>
         </div>
@@ -173,7 +175,7 @@
 </html>
 <script src="/js/follow.js"></script>
 <script>
-<!-- unix timestamp 계산 코드   -->
+    <!-- unix timestamp 계산 코드   -->
 
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll('.game-end-timestamp').forEach(element => {

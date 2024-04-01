@@ -71,28 +71,80 @@ public class UserPageController {
         model.addAttribute("isAuthenticated", isAuthenticated);
 
 
-        // ============================follow============================
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String userName = userDetails.getUsername();
-        System.out.println("사용자 이름 : " + userName);
 
-        UserEntity userEntity = userService.getUserByUsername(userName);
-        Long userId = userEntity.getId();
-        System.out.println("사용자 id : " + userId);
+        //======================follow 고치려는 노력.....==================================
 
-        UserEntity userEntity2 = userService.findByGameNameAndTagLine(gameName, tagLine);
-        if (userEntity2 != null) {
-            Long pageUserId = userEntity2.getId();
-            System.out.println("gameName/tagLine : " + pageUserId);
+/*
 
-            UserProfileDto dto = followService.userProfile(pageUserId, userId);
+        // follow 수정
+        // view나 service는 하나도 안고쳤습니당!
 
-            model.addAttribute("dto", dto);
+        // 사용자 1 = 페이지에 들어간 유저, 사용자 2 = 페이지의 주인 유저
+        // 1 비인증 2 인증 -> followers,following 보임
+        // 1 비인증 2 비인증 -> 암것도 안보임
+        // 1 인증 2 인증 -> followers,following,팔로우 차단 버튼 다 보임
+        // 1 인증 2 비인증 -> 암것도 안보임
 
-            System.out.println(dto);
+        UserEntity pageOwnerUser = userService.findByGameNameAndTagLine(gameName, tagLine);
+
+        // 사용자 2(페이지 주인)의 인증 상태는 확인 x
+        // 사용자 1이 인증된 경우에만 팔로우 관련 정보를 처리.
+        // isAuthenticated 는 위에서 가져온 로그인한 유저인지 확인하는 과정
+        if (isAuthenticated) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String userName = userDetails.getUsername();
+            UserEntity loggedInUser = userService.getUserByUsername(userName); // 로그인한 사용자(사용자 1)
+
+            // 사용자 2에 대한 정보가 있는 경우에만 팔로우 관련 정보를 처리.
+            //view에서 canFollow, canBlock 등으로 팔로우 버튼 차단 버튼 활성화 가능
+            if (pageOwnerUser != null) {
+                UserProfileDto userProfileDto = followService.userProfile(pageOwnerUser.getId(), loggedInUser.getId());
+                model.addAttribute("userProfile", userProfileDto);
+                model.addAttribute("canFollow", true); // 팔로우 버튼 표시
+                model.addAttribute("canBlock", true); // 차단 버튼 표시
+                //TODO: follow한 유저인 경우 언팔버튼으로 변경....?
+                //만약 기능 넣으려면 여기서 follow한 유저인지 확인하는 메소드 하나 추가해서 검증하고 넣기
+            } else {
+                // 사용자 2가 없는 경우, 팔로우와 차단 버튼을 표시하지 않음.
+                model.addAttribute("canFollow", false);
+                model.addAttribute("canBlock", false);
+            }
         } else {
-            System.out.println("유저가 아님");
+            // 사용자 1이 비인증인 경우, 팔로우와 차단 버튼을 표시하지 않음.
+            model.addAttribute("canFollow", false);
+            model.addAttribute("canBlock", false);
         }
+*/
+
+
+
+
+
+
+
+        // ============================follow============================
+
+//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+//        String userName = userDetails.getUsername();
+//        System.out.println("사용자 이름 : " + userName);
+//
+//        UserEntity userEntity = userService.getUserByUsername(userName);
+//        Long userId = userEntity.getId();
+//        System.out.println("사용자 id : " + userId);
+
+//        UserEntity userEntity2 = userService.findByGameNameAndTagLine(gameName, tagLine);
+//        if (userEntity2 != null) {
+//            Long pageUserId = userEntity2.getId();
+//            System.out.println("gameName/tagLine : " + pageUserId);
+//
+//            UserProfileDto dto = followService.userProfile(pageUserId, userId);
+//
+//            model.addAttribute("dto", dto);
+//
+//            System.out.println(dto);
+//        } else {
+//            System.out.println("유저가 아님");
+//        }
 
         // ==============================================================
 

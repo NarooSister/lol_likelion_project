@@ -10,9 +10,6 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
     Optional<UserEntity> findByUsername(String username);
     Optional<UserEntity> findByGameNameAndTagLine(String gameName, String tagLine);
     boolean existsByUsername(String username);
-    boolean existsByTagLineAndGameName(String tagLine, String gameName);
-
-    // follow 에 사용 gameName/tagLine
-    Optional<UserEntity> findByGameNameAndTagLine(String gameName, String tagLine);
+    boolean existsByGameNameAndTagLine(String gameName, String tagLine);
 
 }

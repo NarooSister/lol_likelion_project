@@ -9,12 +9,14 @@ import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.utils.AuthenticationFacade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import java.util.Optional;
@@ -37,7 +39,7 @@ public class UserService implements UserDetailsService {
 
     //존재하는 소환사 닉네임인지 확인
     public boolean checkGameName(String gameName, String tagLine){
-        return userRepository.existsByTagLineAndGameName(gameName, tagLine);
+        return userRepository.existsByGameNameAndTagLine(gameName, tagLine);
     }
 
 
