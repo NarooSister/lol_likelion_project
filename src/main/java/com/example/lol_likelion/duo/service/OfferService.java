@@ -26,6 +26,7 @@ public class OfferService {
         offerDto.setStatus("신청함");
         offerDto.setApplyUserId(offerDto.getApplyUserId());
         offerDto.setPost(post);
+        offer.setUserEntity(offerDto.getUserEntity());
         offer.setStatus(offerDto.getStatus());
         offer.setApplyUserId(offerDto.getApplyUserId());
         offer.setPost(offerDto.getPost());
@@ -37,5 +38,21 @@ public class OfferService {
     public void deleteOffer(Long postId, Long userId){
         Post post = postRepository.findById(postId).orElseThrow();
         offerRepository.deleteOfferByPostAndApplyUserId(post, userId);
+    }
+
+    public void deleteOffer(Long offerId){
+        Offer offer = offerRepository.findById(offerId).orElseThrow();
+        offerRepository.delete(offer);
+    }
+
+    public OfferDto updateStatus(Long offerId){
+        Offer offer = offerRepository.findById(offerId).orElseThrow();
+        offer.setStatus("수락");
+
+        return OfferDto.fromEntity(offerRepository.save(offer));
+    }
+
+    public Offer readOfferOne(Long offerId){
+        return offerRepository.findById(offerId).orElseThrow();
     }
 }

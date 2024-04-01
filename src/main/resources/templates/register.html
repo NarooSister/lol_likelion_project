@@ -16,7 +16,7 @@
                 <div class="row gx-5 justify-content-center">
                     <div class="col-lg-8 col-xl-6">
                         <h1 class="text-center mb-5">회원가입</h1>
-                        <form action="/users/register" th:method="post" th:object="${createUserDto}">
+                        <form action="/register" th:method="post" th:object="${createUserDto}">
                             <div class="form-floating mb-3">
                                 <input class="form-control" id="username" name="username" type="text" placeholder="Enter your identifier...">
                                 <label for="username">ID</label>
@@ -53,7 +53,7 @@
                                 <div class="error-class" th:errors="*{phone}"></div>
                             </div>
                             <div class="d-grid"><button class="btn btn-primary btn-lg" id="sign-in-button" type="submit">Submit</button></div>
-                            <div style="margin-top: 16px; text-align: right"><a href="/users/login">로그인</a></div>
+                            <div style="margin-top: 16px; text-align: right"><a href="/login">로그인</a></div>
 
                         </form>
                     </div>

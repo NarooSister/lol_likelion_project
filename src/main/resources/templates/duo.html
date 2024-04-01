@@ -3,78 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .champion-icon {
-            width: 50px; /* 이미지 너비 조절 */
-            height: 50px; /* 이미지 높이 조절 */
-            border-radius: 50%; /* 동그라미 모양으로 만듭니다. */
-            margin-right: 5px; /* 이미지 간격 조절 */
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .profile-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
         }
         .clickable {
             cursor: pointer;
             color: blue;
             text-decoration: underline;
         }
+        .game-name {
+            font-weight: bold;
+            color: black;
+        }
+        .tag-line {
+            color: gray;
+        }
+        .memo-bubble {
+            position: relative;
+            display: inline-block;
+        }
+        .memo-text {
+            width: auto;
+            background-color: #f9f9f9;
+            color: #000;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
-<h1>테스트 중입니다</h1>
-<table border="1" id="postTable">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>메모</th>
-        <th>사용자 ID</th>
-        <th>내 포지션</th>
-        <th>선호 챔피언</th>
-        <th>찾는 포지션</th>
-        <th>액션</th>
-        <th>아이디</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:unless="${posts.isEmpty()}" th:each="post : ${posts}">
-        <td th:text="${post.id}"></td>
-        <td th:text="${post.memo}"></td>
-        <td th:text="${post.userId}"></td>
-        <td th:text="${post.myPosition}"></td>
-        <td>
-            <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
-            <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
-            <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
-        </td>
-        <td th:text="${post.findPosition}"></td>
-        <td>
-            <form th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post" >
-                <input type="submit" value="액션">
-            </form>
-        </td>
-        <td>
-            <!-- 제안 정보 확인 -->
-            <th:block th:if="${post.offer != null}">
-                <!-- offer.applyUserId 중 userId와 일치하는지 확인 -->
-                <form th:if="${post.offer.![applyUserId].contains(userId)}"
-                      th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
-                    <input type="hidden" name="_method" value="delete">
-                    <input type="hidden" name="userId" th:value="${userId}">
-                    <input type="submit" value="취소">
-                </form>
-                <form th:unless="${post.offer.![applyUserId].contains(userId)}"
-                      th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
-                    <input type="submit" value="신청">
-                </form>
-            </th:block>
-        </td>
-    </tr>
-    </tbody>
-</table>
-<div th:if="${posts.isEmpty()}">
-    <p>글이 없어요!!</p>
+<div class="container mt-5">
+    <h1>테스트 중입니다</h1>
+    <input type="hidden" th:if="${message != null}" th:value="${message}" name="message" id="message">
+    <table class="table table-striped" id="postTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>사용자 정보</th>
+            <th>티어</th>
+            <th>내 포지션</th>
+            <th>선호 챔피언</th>
+            <th>찾는 포지션</th>
+            <th>메모</th>
+            <th>상태</th>
+            <th>신청</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:unless="${posts.isEmpty()}" th:each="post : ${posts}">
+            <td th:text="${post.id}"></td>
+            <td th:with="userInfo=${post.userEntity}">
+                <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
+                <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
+            </td>
+            <td th:text="${post.userEntity.tier}"></td>
+            <td th:text="${post.myPosition}"></td>
+            <td>
+                <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
+                <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
+                <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
+            </td>
+            <td th:text="${post.findPosition}"></td>
+            <td>
+                <div class="memo-bubble">
+                    <span class="memo-text" th:text="${post.memo}"></span>
+                </div>
+            </td>
+            <td>
+                <a th:text="${post.status}"></a>
+            </td>
+            <td th:unless="${post.getUserId() == userId}">
+                <div th:block th:if="${post.offer != null}">
+                    <form th:if="${post.offer.![applyUserId].contains(userId)}"
+                          th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
+                        <input type="hidden" name="_method" value="delete">
+                        <input type="hidden" name="userId" th:value="${userId}">
+                        <button type="submit" class="btn btn-danger">취소</button>
+                    </form>
+                    <form th:unless="${post.offer.![applyUserId].contains(userId)}"
+                          th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
+                        <button type="submit" class="btn btn-primary">신청</button>
+                    </form>
+                </div>
+            </td>
+            <td th:if="${post.getUserId() == userId}">
+                <span class="badge badge-secondary">내 글</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div th:if="${posts.isEmpty()}">
+        <p>글이 없어요!!</p>
+    </div>
+    <button onclick=location.href="/duo/myDuo" class="btn btn-primary">글쓰기</button>
 </div>
-<button onclick=location.href="/duo/myDuo">글쓰기</button>
+
+<!-- Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    // 각 행을 클릭했을 때 해당 게시물로 이동하는 함수
     document.addEventListener('DOMContentLoaded', function () {
         var table = document.getElementById('postTable');
         table.addEventListener('click', function (event) {
@@ -83,9 +126,19 @@
                 target = target.parentNode;
             }
             if (!target) return;
-            var postId = target.cells[0].innerText; // ID 칼럼의 값
+            var postId = target.cells[0].innerText;
             window.location.href = '/duo/myDuo/' + postId;
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var errorMessageElement = document.getElementById('message');
+        if (errorMessageElement) {
+            var errorMessage = errorMessageElement.value;
+            alert(errorMessage);
+        } else {
+            console.log("errorMessage hidden field not found");
+        }
     });
 </script>
 </body>

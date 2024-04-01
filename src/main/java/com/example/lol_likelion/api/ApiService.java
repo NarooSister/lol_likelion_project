@@ -97,6 +97,30 @@ public class ApiService {
 
         return matchIdDto;
     }
+    //puuid로 matchId 가지고 오기 -> 시작 시간 정해서 가지고 오기
+    //시작 시간 이후의 match 중에 가장 최근 match 부터 가져옴
+    public MatchIdDto callRiotApiMatchIdByTime(String puuid, Long startTime) {
+
+        String url = UriComponentsBuilder.fromUriString("https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids")
+                .queryParam("startTime", startTime)
+                .queryParam("queue", 420)
+                .queryParam("type", "ranked")
+                .queryParam("api_key", this.apiKey)
+                .queryParam("count", 5)
+                .buildAndExpand(puuid)
+                .toUriString();
+
+        List<String> matchIdList = authRestClient.get()
+                .uri(url)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+
+        MatchIdDto matchIdDto = new MatchIdDto();
+        matchIdDto.setMatchIdList(matchIdList);
+
+        return matchIdDto;
+    }
 
     //summonerId로 Tier 가지고 오기 (test 완료)
     //Tier 정보 Set으로 받아오기

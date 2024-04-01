@@ -18,7 +18,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -27,7 +26,8 @@ public class UserController {
     private final UserService service;
     private final JwtTokenUtils jwtTokenUtils;
 
-    @GetMapping("/main")
+
+    @GetMapping("/")
     public String mainForm(Model model){
 
         //로그인 된 유저인지 확인하기
@@ -55,12 +55,12 @@ public class UserController {
         }
 
         //소환사 닉네임 중복 검증
-        if (service.checkGameName(dto.getTagLine(), dto.getGameName())){
+        if (service.checkGameName(dto.getGameName(), dto.getTagLine())){
             bindingResult.addError(new FieldError("dto", "gameName", "이미 가입된 소환사 닉네임 입니다."));
         }
 
         //소환사 닉네임 검증
-        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+        if (!service.riotApiCheckGameName(dto.getGameName(), dto.getTagLine())){
             bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
             bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 닉네임을 입력해 주십시오."));
         }
@@ -106,7 +106,7 @@ public class UserController {
         cookie.setMaxAge(60 * 60 * 10);  // 쿠키 유효 시간 : 1시간
         response.addCookie(cookie);
 
-        return "redirect:/users/main";
+        return "redirect:/main";
     }
 
     @GetMapping("/logout")
@@ -145,18 +145,18 @@ public class UserController {
     }
 
 
-    @PostMapping("")
+    @PostMapping("/users")
     public String updateUser(Model model, UpdateUserDto user){
         service.updateUser(user);
         model.addAttribute("user", user);
-        return "redirect:/users/my-page";
+        return "redirect:/my-page";
     }
-    @GetMapping("/password")
+    @GetMapping("/users/password")
     public String updatePasswordForm(Model model){
         model.addAttribute("updatePasswordDto", new UpdatePasswordDto());
         return "password-update";
     }
-    @PostMapping("/password")
+    @PostMapping("/users/password")
     public String updatePassword(@Valid UpdatePasswordDto dto, BindingResult bindingResult) {
 
         // 현재 비밀번호와 입력된 비밀번호가 일치하는지
@@ -174,24 +174,24 @@ public class UserController {
 
         // 비밀번호 변경 로직 실행
         service.updatePassword(dto);
-        return "redirect:/users/my-page";
+        return "redirect:/my-page";
     }
 
-    @GetMapping("/game-name")
+    @GetMapping("/users/game-name")
     public String updateGameNameForm(Model model){
         model.addAttribute("updateGameNameDto", new UpdateGameNameDto());
         return "gameName-update";
     }
-    @PostMapping("/game-name")
+    @PostMapping("/users/game-name")
     public String updateGameName(@Valid UpdateGameNameDto dto, BindingResult bindingResult){
 
         //소환사 닉네임 중복 검증
-        if (service.checkGameName(dto.getTagLine(), dto.getGameName())){
+        if (service.checkGameName(dto.getGameName(), dto.getTagLine())){
             bindingResult.addError(new FieldError("dto", "gameName", "이미 가입된 소환사 닉네임 입니다."));
         }
 
         //소환사 닉네임 검증
-        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+        if (!service.riotApiCheckGameName(dto.getGameName(), dto.getTagLine())){
             bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
             bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 아이디를 입력해 주십시오."));
         }
@@ -201,7 +201,7 @@ public class UserController {
         }
 
         service.updateGameName(dto);
-        return "redirect:/users/my-page";
+        return "redirect:/my-page";
     }
 
 

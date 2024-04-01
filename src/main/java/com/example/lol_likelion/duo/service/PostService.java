@@ -38,19 +38,27 @@ public class PostService {
 
     public PostDto createDuo(PostDto postDto){
         Post post = new Post();
-        post.setMemo(postDto.getMemo());
-        post.setMyPosition(postDto.getMyPosition());
-        post.setFindPosition(postDto.getFindPosition());
-        post.setUserId(postDto.getUserId());
 
+        if (postRepository.existsByStatusAndUserId("구인중", postDto.getUserId())){
+            System.out.println("이미 구인중");
+            return null;
+        }else {
+            post.setMemo(postDto.getMemo());
+            post.setMyPosition(postDto.getMyPosition());
+            post.setFindPosition(postDto.getFindPosition());
+            post.setStatus("구인중");
+            post.setUserId(postDto.getUserId());
+            post.setUserEntity(postDto.getUserEntity());
+            return PostDto.fromEntity(postRepository.save(post));
+        }
         //TODO 같은 유저가 매칭이 완료되지 않은 상태에서 글 작성하면 작성 불가 (자동으로 업데이트 되게)
 
-        return PostDto.fromEntity(postRepository.save(post));
     }
 
     public PostDto readPost(Long postId){
         return PostDto.fromEntity(postRepository.findById(postId).orElseThrow());
     }
+
 
     public void deletePost(Long postId){
         Post post = postRepository.findById(postId).orElseThrow();

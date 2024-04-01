@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시물 및 제안</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .split-screen {
+            display: flex;
+            height: 100vh;
+        }
+        .left-pane, .center-pane, .right-pane {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+        .left-pane h2, .right-pane h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .heart-icon {
+            font-size: 100px; /* Adjust size as needed */
+            color: red;
+        }
+        .game-info {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .game-name {
+            font-weight: bold;
+            font-size: 20px;
+            color: #007bff;
+        }
+        .tag-line {
+            font-style: italic;
+            font-size: 16px;
+            color: #6c757d;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        .evaluate-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .evaluate-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="split-screen">
+    <div class="left-pane">
+        <h2>게시물(Post)</h2>
+        <div th:each="post : ${posts}" class="game-info">
+            <!-- Add more post details as needed -->
+            <p th:with="postUserInfo=${posts.userEntity}">
+                <span class="game-name" th:text="${postUserInfo.gameName}"></span> <span>#</span> <span class="tag-line" th:text="${postUserInfo.tagLine}"></span>
+            </p>
+        </div>
+    </div>
+    <div class="center-pane">
+        <span class="heart-icon">&hearts;</span>
+        <div class="button-container">
+            <button class="evaluate-button">평가하기</button>
+        </div>
+    </div>
+    <div class="right-pane">
+        <h2>제안(Offer)</h2>
+        <div th:each="offer : ${offers}" class="game-info">
+            <!-- Add more offer details as needed -->
+            <p th:with="offerUserInfo=${offers.userEntity}">
+                <span class="game-name" th:text="${offerUserInfo.gameName}"></span> <span>#</span> <span class="tag-line" th:text="${offerUserInfo.tagLine}"></span>
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

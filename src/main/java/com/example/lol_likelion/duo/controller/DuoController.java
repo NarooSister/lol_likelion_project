@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import reactor.netty.http.server.HttpServerRequest;
 
 import java.util.List;
@@ -47,6 +48,9 @@ public class DuoController {
         model.addAttribute("posts", postService.readAll());
 
 
+        System.out.println("model = " + model);
+
+
 
         return "duo";
 
@@ -65,7 +69,8 @@ public class DuoController {
             String my_position,
             @RequestParam("find_position")
             String find_position,
-            Authentication authentication
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     ){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
@@ -85,13 +90,16 @@ public class DuoController {
         postDto.setMemo(memo);
         postDto.setMyPosition(my_position);
         postDto.setFindPosition(find_position);
-        postDto.setUserId(userId.toString());
+        postDto.setUserId(userId);
+        System.out.println("userEntity = " + userEntity.toString());
+        postDto.setUserEntity(userEntity);
+
+        if (postService.createDuo(postDto) == null){
+            redirectAttributes.addFlashAttribute("message", "이미 구인중 입니다");
+        }
         postService.createDuo(postDto);
 
         return "redirect:/duo";
-
-
-
 
     }
 
@@ -113,6 +121,7 @@ public class DuoController {
 
         OfferDto offerDto = new OfferDto();
         offerDto.setApplyUserId(userId);
+        offerDto.setUserEntity(userEntity);
 
         System.out.println(postId);
         offerService.createDuo(postId, offerDto);
@@ -170,5 +179,37 @@ public class DuoController {
         return "redirect:/duo";
 
 
+    }
+
+    @PostMapping("/offer/accept/{offerId}")
+    public String acceptOffer(
+            @PathVariable("offerId")
+            Long offerId,
+            Model model
+    ){
+        offerService.updateStatus(offerId);
+        Offer offer = offerService.readOfferOne(offerId);
+        Post post = offer.getPost();
+        Long postId = post.getId();
+
+        model.addAttribute("posts", post);
+        model.addAttribute("offers", offer);
+
+
+        return "offerResult";
+    }
+
+    @DeleteMapping("/offer/deny/{offerId}")
+    @Transactional
+    public String denyOffer(
+            @PathVariable("offerId")
+            Long offerId
+    ){
+        Offer offer = offerService.readOfferOne(offerId);
+        offerService.deleteOffer(offerId);
+        Post post = offer.getPost();
+        Long postId = post.getId();
+
+        return String.format("redirect:/duo/myDuo/%d",postId);
     }
 }
