@@ -34,17 +34,20 @@ public class MatchDto {
             private String riotIdGameName;
             private String riotIdTagline;
             private String championName;
+            private Integer profileIcon;
 
             private String lane;
 
             private Integer kills;
             private Integer deaths;
             private Integer assists;
-            private Integer kda;
-
+            private Double kda;
+            private Integer totalMinionsKilled;
             private Integer pentaKills;
             private Integer quadraKills;
             private Integer tripleKills;
+
+            private Boolean firstBloodKill;
 
             //제어와드 구매횟수
             private Integer visionWardsBoughtInGame;
@@ -56,6 +59,9 @@ public class MatchDto {
             //100 = 레드팀 ,  200 = 블루팀
             private Integer teamId;
             private Boolean win;
+
+
+
 
         }
     }

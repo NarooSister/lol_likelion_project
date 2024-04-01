@@ -24,8 +24,9 @@ public class CreateUserDto {
 
     private String tier;
     private String puuid;
+    private Integer profileIconId;
     public UserEntity toEntity(String encodedPassword
-            , String tier, String puuid
+            , String tier, String puuid, Integer profileIconId
     ) {
         return UserEntity.builder()
                 .username(this.username)
@@ -37,6 +38,7 @@ public class CreateUserDto {
                 .tier(tier)
                 .roles("ROLE_USER")
                 .puuid(puuid)
+                .profileIconId(profileIconId)
                 .build();
     }
 

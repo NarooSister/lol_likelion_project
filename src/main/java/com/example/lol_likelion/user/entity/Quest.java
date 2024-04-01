@@ -4,10 +4,12 @@ import com.example.lol_likelion.auth.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @Getter
 @Entity
+@Setter
 @NoArgsConstructor
 public class Quest {
     @Id
@@ -16,7 +18,7 @@ public class Quest {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private UserEntity userId;
+    private UserEntity user;
 
     // 연속적인 게임 일수
     // 조건 - 7일, 30일)
@@ -40,7 +42,7 @@ public class Quest {
 
     // 펜타킬 횟수
     // 3회
-    private Integer pentakillDount;
+    private Integer pentakillCount;
 
     // 제어와수 설치 횟수
     // 50회

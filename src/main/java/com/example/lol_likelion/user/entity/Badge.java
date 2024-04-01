@@ -19,10 +19,8 @@ public class Badge {
     private String name;
     private String description;
     private String image;
-    private Integer state;   //활성상태 미획득 0, 획득 1
 
-    @ManyToMany(mappedBy = "badges", fetch = FetchType.LAZY)
-    private Set<UserEntity> users = new HashSet<>();
-
+    @OneToMany(mappedBy = "badge", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<UserBadge> userBadges = new HashSet<>();
 
 }

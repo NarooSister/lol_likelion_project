@@ -36,18 +36,28 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers("/users/my-page")
-                                .authenticated()
-
-                                .requestMatchers("/error", "https://asia.api.riotgames.com/**", "/users11", "/users/update")
-                                .permitAll()
                                 .requestMatchers(
-                                        "/users/login",
-                                        "/users/register",
-                                        "/users/main",
-                                        "/users/user-page"
+                                        "/my-page",
+                                        "/logout",
+                                        "/users",
+                                        "/users/password",
+                                        "/users/game-name"
                                 )
-                                .anonymous()
+                                .authenticated()
+                              //  .hasAnyAuthority("ROLE_USER")
+                                .requestMatchers(
+                                        "/",
+                                        "/error",
+                                        "/login",
+                                        "/register",
+                                        "/users/authentication-fail",
+                                        "/users/authorization-fail",
+                                        "/users/{gameName}/{tagLine}",
+                                        "/users/search",
+                                        "/api/users11"
+
+                                )
+                                .permitAll()
                                 .anyRequest()
                                 .permitAll()
                 )
@@ -81,13 +91,13 @@ public class WebSecurityConfig {
                                     //api 요청의 경우 실패하면 error 출력
                                     //화면 요청의 경우 실패하면 에러 페이지로 redirect
                                     if (!request.getRequestURI().contains("api")) {
-                                        response.sendRedirect("/login/authentication-fail");
+                                        response.sendRedirect("/users/authentication-fail");
                                     }
                                 })
                                 //인가 실패
                                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                                     if (!request.getRequestURI().contains("api")) {
-                                        response.sendRedirect("/login/authorization-fail");
+                                        response.sendRedirect("/users/authorization-fail");
                                     }
                                 })
                 );

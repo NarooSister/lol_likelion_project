@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class SummonerDto {
     private String id;
+    private Integer profileIconId;
 }

@@ -2,10 +2,8 @@ package com.example.lol_likelion.api;
 
 import com.example.lol_likelion.api.dto.*;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
-import com.example.lol_likelion.auth.dto.UserInfoDto;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.example.lol_likelion.auth.repository.UserRepository;
@@ -16,7 +14,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +62,7 @@ public class ApiService {
     }
 
     //puuid로 summonerId 불러오기(test 완료)
+    //SummonerDto로 profileIconId도 같이 가져오기
     public SummonerDto callRiotApiSummonerId(PuuidDto puuidDto) {
         String url = UriComponentsBuilder.fromUriString("https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}")
                 .queryParam("api_key", this.apiKey)
@@ -86,6 +84,30 @@ public class ApiService {
                 .queryParam("api_key", this.apiKey)
                 .queryParam("count", 5)
                 .buildAndExpand(puuidDto.getPuuid())
+                .toUriString();
+
+        List<String> matchIdList = authRestClient.get()
+                .uri(url)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+
+        MatchIdDto matchIdDto = new MatchIdDto();
+        matchIdDto.setMatchIdList(matchIdList);
+
+        return matchIdDto;
+    }
+    //puuid로 matchId 가지고 오기 -> 시작 시간 정해서 가지고 오기
+    //시작 시간 이후의 match 중에 가장 최근 match 부터 가져옴
+    public MatchIdDto callRiotApiMatchIdByTime(String puuid, Long startTime) {
+
+        String url = UriComponentsBuilder.fromUriString("https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids")
+                .queryParam("startTime", startTime)
+                .queryParam("queue", 420)
+                .queryParam("type", "ranked")
+                .queryParam("api_key", this.apiKey)
+                .queryParam("count", 5)
+                .buildAndExpand(puuid)
                 .toUriString();
 
         List<String> matchIdList = authRestClient.get()
@@ -130,6 +152,16 @@ public class ApiService {
             return "Unranked"; // 티어 정보가 없는 경우 기본값 반환
         }
     }
+    // 소환사의 티어 정보 중에서 특정 정보(예: 티어 이름)를 추출하여 반환하는 메서드
+    public LeagueEntryDTO getSummonerLeagueEntry(SummonerDto summonerDto) {
+        Set<LeagueEntryDTO> LeagueInfoSet = callRiotApiTier(summonerDto).block(); // Mono의 결과를 동기적으로 가져옴
+
+        if (LeagueInfoSet != null && !LeagueInfoSet.isEmpty()) {
+            return LeagueInfoSet.iterator().next(); // LeagueEntryDto 반환
+        } else {
+            return null;
+        }
+    }
 
     //matchId로 match 정보 1개 가지고 오기 (test 완료)
     public MatchDto callRiotApiMatch(String matchId) {
@@ -158,6 +190,18 @@ public class ApiService {
         }
     }
 
+    //partivipant에서 내 정보만 가져오기
+    public MatchDto.InfoDto.ParticipantDto myInfoFromParticipants(MatchDto matchDto, PuuidDto puuidDto) {
+        //플레이어 10명 정보 가져오기
+        List<String> participantsPuuid = matchDto.getMetadata().getParticipants();
+        //나랑 puuid가 같은 participant의 순서
+        String puuid = puuidDto.getPuuid(); //내 puuid
+        int index = participantsPuuid.indexOf(puuid);
+        //infoDto 안에 participantDto
+        List<MatchDto.InfoDto.ParticipantDto> participants = matchDto.getInfo().getParticipants();
+        return participants.get(index);
+    }
+
     //최근 ?게임동안 플레이 한 챔피언
     public String recentPlayChampion(MatchDto matchDto, PuuidDto puuidDto) {
         //플레이어 10명 정보 가져오기
@@ -169,6 +213,9 @@ public class ApiService {
         List<MatchDto.InfoDto.ParticipantDto> participants = matchDto.getInfo().getParticipants();
         return participants.get(index).getChampionName();
     }
+
+
+
 
     //TEST로 정보 가져와보기(확인하기 위함)
     public void processMatchInformation(MatchDto matchDto) {

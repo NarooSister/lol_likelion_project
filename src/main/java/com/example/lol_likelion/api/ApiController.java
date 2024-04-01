@@ -7,14 +7,18 @@ import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
 import com.example.lol_likelion.api.dto.matchdata.ParticipantDto1;
 import com.example.lol_likelion.auth.dto.UserInfoDto;
+import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.user.BadgeService;
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -23,9 +27,14 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/api")
+
 public class ApiController {
 
     private final ApiService service;
+    private final UserService userService;
+    private final BadgeService badgeService;
+
 
     @GetMapping("/")
     public PuuidDto callRiotApiPuuid(
@@ -36,7 +45,7 @@ public class ApiController {
     }
 
     //Api 테스트 예시입니다.
-    @GetMapping("users1")
+    @GetMapping("/users1")
     public String callRiotApi(
             @RequestParam("gameName") String gameName,
             @RequestParam("tagLine") String tagLine,
@@ -86,12 +95,12 @@ public class ApiController {
         return "user-page";
     }
 
-    @GetMapping("users11")
+    @GetMapping("/users11")
     public void getMatchInfo(
             @RequestParam("gameName") String gameName,
             @RequestParam("tagLine") String tagLine) {
-
-        // puuid 불러오기
-        Mono<PuuidDto> puuidDtoMono = Mono.just(service.callRiotApiPuuid(gameName, tagLine));
+        System.out.println("끝나기 전");
+       badgeService.userPageUpdate(gameName,tagLine);
+        System.out.println("끝남");
     }
 }

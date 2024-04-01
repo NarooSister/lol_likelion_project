@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .champion-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .profile-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h1>테스트 중입니다</h1>
+    <form th:action="@{/duo/myDuo/{postId}(postId=${posts.id})}" th:method="post">
+        <input type="hidden" name="_method" value="delete">
+        <input type="submit" class="btn btn-danger" value="삭제하기">
+    </form>
+    <div>
+        <table class="table mt-4">
+            <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>메모</th>
+                <th>사용자 ID</th>
+                <th>내 포지션</th>
+                <th>선호 챔피언</th>
+                <th>찾는 포지션</th>
+                <th>상태</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${posts.id}"></td>
+                <td th:text="${posts.memo}"></td>
+                <td th:with="userInfo=${posts.userEntity}">
+                    <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
+                    <span th:text="${userInfo.gameName}"></span>#<span th:text="${userInfo.tagLine}"></span>
+                </td>
+                <td th:text="${posts.myPosition}"></td>
+                <td>
+                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
+                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
+                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
+                </td>
+                <td th:text="${posts.findPosition}"></td>
+                <td th:text="${posts.status}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <h2>신청 목록</h2>
+        <hr class="my-4">
+        <div th:if="${posts.offer.isEmpty()}" class="alert alert-info" role="alert">글이 없어요</div>
+        <div th:unless="${posts.offer.isEmpty()}">
+            <div th:each="offer:${posts.offer}">
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>번호</th>
+                                <th>신청자</th>
+                                <th>티어</th>
+                                <th>상태</th>
+                                <th>선호 챔피언</th>
+                                <th>수락 / 거절</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td th:text="${offer.id}"></td>
+                                <td th:with="userInfo=${offer.userEntity}">
+                                    <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
+                                    <span th:text="${userInfo.gameName}"></span>#<span th:text="${userInfo.tagLine}"></span>
+                                </td>
+                                <td th:text="${offer.userEntity.tier}"></td>
+                                <td th:text="${offer.status}"></td>
+                                <td>
+                                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
+                                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
+                                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
+                                </td>
+                                <td>
+                                    <form style="display: inline-block;" method="post" th:action="@{/duo/offer/accept/{offerId}(offerId=${offer.id})}">
+                                        <button type="submit" class="btn btn-success">수락</button>
+                                    </form>
+                                    <form style="display: inline-block;" method="post" th:action="@{/duo/offer/deny/{offerId}(offerId=${offer.id})}">
+                                        <input type="hidden" name="_method" value="delete">
+                                        <button type="submit" class="btn btn-danger">거절</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

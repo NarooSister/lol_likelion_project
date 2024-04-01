@@ -1,56 +1,232 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
-    <title>Match 정보</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <title>User-page</title>
 </head>
 <body>
 
+<!-- 네비게이션바 -->
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
 
-<!--네비게이션 바-->
-<nav class="navbar navbar-light bg-light">
-    <div class="container-fluid">
-        <!--            TODO: 아이콘 누르면 홈으로 이동 수정-->
-        <a class="navbar-brand" href="/users/main">
-            <img src="../icon/free-icon-lion-512px.png" alt="" width="35" height="35">
-        </a>
-        <form class="d-flex flex-grow-1 me-3">
-            <input class="form-control me-2 flex-grow-1" type="search" placeholder="소환사 이름 + KR1(태그)" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
+<div class="container mt-4">
+    <div class="row mb-3 align-items-center">
+        <!-- 프로필 아이콘 -->
+        <div class="col-auto">
+            <img th:if="${not #lists.isEmpty(participantDtoList)}"
+                 th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${participantDtoList[0].profileIcon} + '.png'}"
+                 alt="Profile Icon" class="rounded-circle" width="100" height="100"/>
+        </div>
+        <!-- 소환사 정보와 액션 버튼 -->
+        <div class="col">
+            <div>
+                <h4 class="mb-3">
 
-        </form>
-        <form class="d-flex">
-<!--            <button class="btn btn-outline-success me-2" type="button">듀오 구하기</button>-->
-            <button class="btn btn-sm btn-outline-primary me-2" type="button">듀오 구하기</button>
-            <button class="btn btn-sm btn-outline-primary" type="button">마이 페이지</button>
-        </form>
-    </div>
-</nav>
-
-
-
-<h1>Match 정보</h1>
-<!--TEST 내용-->
-<!--matchDto.info, matchDto.metadata 가져오기-->
-<div th:each="match : ${matchDtoList}">
-    <div>
-        <p>Match ID: <span th:text="${match.metadata.matchId}"></span></p>
-
-        <p>Game Version: <span th:text="${match.info.gameVersion}"></span></p>
-        <p>Game Duration: <span th:text="${match.info.gameDuration}"></span></p>
-
-        <!--participants 안의 내용물 화면에 뿌리기-->
-        <div th:each="participant : ${match.info.participants}">
-            <p>Champion Name: <span th:text="${participant.championName}"></span></p>
-            <p>KDA: <span th:text="${participant.kda}"></span></p>
-            <p>Kills: <span th:text="${participant.kills}"></span></p>
-            <p>Deaths: <span th:text="${participant.deaths}"></span></p>
-            <p>Assists: <span th:text="${participant.assists}"></span></p>
+                    <span th:text="${participantDtoList[0].riotIdGameName}">gameName</span>
+                    <small class="text-muted">#<span
+                            th:text="${participantDtoList[0].riotIdTagline}">tagLine</span></small>
+                    <!--<button class="btn btn-outline-success btn-sm" type="submit">업데이트</button>-->
+                    <form th:action="@{'/users/' + ${participantDtoList[0].riotIdGameName} + '/' + ${participantDtoList[0].riotIdTagline}}"
+                          method="post">
+                        <!-- 필요한 input 필드들을 여기에 추가하세요. -->
+                        <button type="submit" class="btn btn-outline-success btn-sm">업데이트</button>
+                    </form>
+                </h4>
+                <!-- Follow section -->
+                <h5 class="mb-3">
+                    <!-- th:if ${dto ?. } 에서 ?. 는 null 일 경우 null을 반환해 nullPointerException을 방지해준다 -->
+                    <small th:if="${dto?.followingCount != null}" class="text-muted">following <span
+                            th:text="${dto?.followingCount}"></span></small>
+                    <small th:if="${dto?.followerCount != null}" class="text-muted">follower <span
+                            th:text="${dto?.followerCount}"></span></small>
+                </h5>
+                <div th:if="${dto?.isPageOwnerState()} == true">
+                    <button class="btn btn-primary btn-sm me-2" type="button">나다!</button>
+                </div>
+                <div th:if="${dto?.isPageOwnerState()} == false">
+                    <div th:if="${dto?.followState} == true ">
+                        <button class="btn btn-primary btn-sm me-2">UnFollow</button>
+                        <button class="btn btn-danger btn-sm" type="button">차단</button>
+                    </div>
+                    <div th:if="${dto?.followState} == false ">
+                        <button class="btn btn-primary btn-sm me-2" type="button">Follow</button>
+                        <button class="btn btn-danger btn-sm" type="button">차단</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <!-- 엠블럼 이미지 -->
+                <div class="col-auto">
+                    <div class="circle-img" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden;">
+                        <img th:src="@{'/images/rankedEmblems/Rank=' + ${leagueEntryDto.tier} + '.png'}"
+                             alt="Rank Emblem" class="img-fluid">
+                    </div>
+                </div>
+                <!-- 티어 및 LP 정보 -->
+                <div class="col">
+                    <h5 class="mb-0"><strong>티어: <span th:text="${leagueEntryDto.tier} + ' ' + ${leagueEntryDto.rank}">Gold IV</span></strong>
+                    </h5>
+                    <p class="mb-1">LP: <span th:text="${leagueEntryDto.leaguePoints}">100 LP</span></p>
+                </div>
+                <!-- 승리 및 패배 수 -->
+                <div class="col">
+                    <p class="mb-1"><span th:text="${leagueEntryDto.wins}">20</span>승 <span
+                            th:text="${leagueEntryDto.losses}">10</span>패</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div th:each="match, iterStat : ${matchDtoList}" class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><span
+                            th:text="${participantDtoList[iterStat.index].win} ? '승리' : '패배'"></span>
+                    </h5>
+                    <p class="card-text">
+                        <strong>끝난 시간:</strong> <span class="game-end-timestamp"
+                                                      th:text="${match.info.gameEndTimestamp}"></span><br>
+                        <strong>소요 시간:</strong> <span class="game-duration" th:text="${match.info.gameDuration}"></span><br>
+                        <strong>내 챔피언:</strong> <span
+                            th:text="${participantDtoList[iterStat.index].championName}"></span><br>
+                        <strong>KDA:</strong> <span th:text="${participantDtoList[iterStat.index].kills}"></span>/<span
+                            th:text="${participantDtoList[iterStat.index].deaths}"></span>/<span
+                            th:text="${participantDtoList[iterStat.index].assists}"></span><br>
+                        <strong>CS:</strong> <span
+                            th:text="${participantDtoList[iterStat.index].totalMinionsKilled}"></span>
+                    </p>
+
+                    <!-- 게임 참가자 리스트 -->
+                    <div class="mt-3">
+                        <div class="row">
+                            <!-- 왼쪽 컬럼 -->
+                            <div class="col">
+                                <ul class="list-group list-group-flush">
+                                    <li th:each="participant, stat : ${match.info.participants}"
+                                        th:if="${stat.index < 5}"
+                                        class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <!-- 챔피언 이미지와 유저 이름 -->
+                                            <div>
+                                                <img th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/' + ${participant.championName} + '.png'}"
+                                                     alt="Champion Image" class="rounded-circle me-2" width="30"
+                                                     height="30">
+                                                <span th:text="${participant.riotIdGameName}">UserName</span>
+                                            </div>
+                                            <!-- K/D/A -->
+                                            <div class="text-nowrap">
+                                                <span th:text="${participant.kills}">K</span> / <span
+                                                    th:text="${participant.deaths}">D</span> / <span
+                                                    th:text="${participant.assists}">A</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- 오른쪽 컬럼 -->
+                            <div class="col">
+                                <ul class="list-group list-group-flush">
+                                    <li th:each="participant, stat : ${match.info.participants}"
+                                        th:if="${stat.index >= 5}"
+                                        class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <!-- 챔피언 이미지와 유저 이름 -->
+                                            <div>
+                                                <img th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/' + ${participant.championName} + '.png'}"
+                                                     alt="Champion Image" class="rounded-circle me-2" width="30"
+                                                     height="30">
+                                                <span th:text="${participant.riotIdGameName}">UserName</span>
+                                            </div>
+                                            <!-- K/D/A -->
+                                            <div class="text-nowrap">
+                                                <span th:text="${participant.kills}">K</span> / <span
+                                                    th:text="${participant.deaths}">D</span> / <span
+                                                    th:text="${participant.assists}">A</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
 </body>
 </html>
+<script src="/js/follow.js"></script>
+<script>
+    <!-- unix timestamp 계산 코드   -->
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.game-end-timestamp').forEach(element => {
+            // 밀리초 단위 타임스탬프를 Date 객체로 변환
+            const timestamp = new Date(Number(element.textContent));
+
+            // 현재 시간과의 차이 계산
+            const now = new Date();
+            const diffSeconds = Math.floor((now - timestamp) / 1000); // 초 단위
+
+            let message = "방금 전";
+            if (diffSeconds >= 60) {
+                const diffMinutes = Math.floor(diffSeconds / 60);
+                if (diffMinutes >= 60) {
+                    const diffHours = Math.floor(diffMinutes / 60);
+                    if (diffHours >= 24) {
+                        const diffDays = Math.floor(diffHours / 24);
+                        message = `${diffDays}일 전`;
+                    } else {
+                        message = `${diffHours}시간 전`;
+                    }
+                } else {
+                    message = `${diffMinutes}분 전`;
+                }
+            }
+
+            // 변환된 메시지를 화면에 표시
+            element.textContent = message;
+        });
+    });
+
+    function formatDurationToHMS(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secondsLeft = seconds % 60;
+        let formattedDuration = "";
+
+        if (hours > 0) {
+            formattedDuration += `${hours}시간 `;
+        }
+
+        formattedDuration += `${minutes}분 ${secondsLeft}초`;
+
+        return formattedDuration;
+    }
+
+    // 모든 `game-duration` 클래스를 가진 요소에 대하여 지속 시간 형식을 변환합니다.
+    document.querySelectorAll('.game-duration').forEach(element => {
+        const formattedDuration = formatDurationToHMS(Number(element.textContent));
+        element.textContent = formattedDuration;
+    });
+
+
+</script>

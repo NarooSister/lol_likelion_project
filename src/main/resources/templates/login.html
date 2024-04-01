@@ -21,7 +21,7 @@
                 <div class="row gx-5 justify-content-center">
                     <div class="col-lg-8 col-xl-6">
                         <h1 class="text-center mb-5">로그인</h1>
-                        <form action="/users/login" th:method="post" th:object="${jwtRequestDto}">
+                        <form action="/login" th:method="post" th:object="${jwtRequestDto}">
                             <div class="form-floating mb-3">
                                 <input class="form-control" id="identifier" name="username" type="text" th:field="*{username}" placeholder="Enter your username..." >
                                 <label for="identifier">ID</label>
@@ -38,7 +38,7 @@
                             <div style="margin-top: 16px; text-align: right">
 <!--                                <a href="/oauth2/authorization/naver">네이버</a>-->
 <!--                                <a href="/oauth2/authorization/kakao">카카오</a>-->
-                                <a href="/users/register">회원가입</a>
+                                <a href="/register">회원가입</a>
                             </div>
                         </form>
                     </div>
