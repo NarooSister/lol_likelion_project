@@ -58,8 +58,8 @@
                 <div class="card-body">
                     <h5 class="card-title"><strong> <span th:text="${user.username}"></span>님의 페이지</strong></h5>
                     <p class="card-text"><span th:text="${user.gameName}"></span> #<span th:text="${user.tagLine}"></span></p>
-                    <a href="password" class="btn btn-primary mb-1">비밀번호 수정</a>
-                    <a href="game-name" class="btn btn-secondary">소환사 닉네임 수정</a>
+                    <a href="/users/password" class="btn btn-primary mb-1">비밀번호 수정</a>
+                    <a href="/users/game-name" class="btn btn-secondary">소환사 닉네임 수정</a>
                 </div>
             </div>
         </div>
@@ -79,6 +79,7 @@
         </div>
     </div>
 </div>
-
+</div>
 </body>
+
 </html>

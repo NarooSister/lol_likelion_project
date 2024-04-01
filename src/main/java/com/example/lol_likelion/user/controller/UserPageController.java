@@ -7,6 +7,7 @@ import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
 import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.user.BadgeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,12 +27,13 @@ import java.util.List;
 public class UserPageController {
     private final ApiService apiService;
     private final UserService userService;
+    private final BadgeService badgeService;
 
     // 소환사 닉네임과 태그로 검색하기
     @PostMapping("/search")
     public String searchSummoner(@RequestParam("gameName") String gameName, @RequestParam("tagLine") String tagLine) {
         // 라이엇 API를 호출하여 소환사 존재 여부 검증
-        boolean exists = userService.riotApiCheckGameName(tagLine, gameName);
+        boolean exists = userService.riotApiCheckGameName(gameName, tagLine);
 
         if (!exists) {
             // 소환사가 존재하지 않을 경우, fail 페이지로
@@ -109,9 +111,6 @@ public class UserPageController {
         model.addAttribute("leagueEntryDto", leagueEntryDTO);
 
 
-
-
-
         return "user-page";
     }
 
@@ -121,7 +120,9 @@ public class UserPageController {
                             @PathVariable String tagLine,
                             Model model){
 
-        return "redirect:/user-page";
+        badgeService.userPageUpdate(gameName,tagLine);
+
+        return "redirect:/users/{gameName}/{tagLine}";
     }
 
 }

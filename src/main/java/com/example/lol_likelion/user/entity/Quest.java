@@ -42,7 +42,7 @@ public class Quest {
 
     // 펜타킬 횟수
     // 3회
-    private Integer pentakillDount;
+    private Integer pentakillCount;
 
     // 제어와수 설치 횟수
     // 50회

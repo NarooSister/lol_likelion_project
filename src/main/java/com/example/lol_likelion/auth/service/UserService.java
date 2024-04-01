@@ -36,13 +36,13 @@ public class UserService implements UserDetailsService {
     }
 
     //존재하는 소환사 닉네임인지 확인
-    public boolean checkGameName(String tagLine, String gameName){
-        return userRepository.existsByTagLineAndGameName(tagLine, gameName);
+    public boolean checkGameName(String gameName, String tagLine){
+        return userRepository.existsByTagLineAndGameName(gameName, tagLine);
     }
 
 
     //Riot Api를 통해 실제로 있는 소환사 아이디인지 확인
-    public boolean riotApiCheckGameName(String tagLine, String gameName) {
+    public boolean riotApiCheckGameName(String gameName, String tagLine) {
         try {
             //입력 받은 tagLine과 gameName으로 puuid 가져오기
             PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
@@ -86,7 +86,6 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-    //my-page (구현중)
     //username을 입력받아 UserEntity를 return
     //인증, 인가에 사용 가능
     @Transactional

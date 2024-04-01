@@ -23,10 +23,15 @@
         <div class="col">
             <div>
                 <h4 class="mb-3">
+
                     <span th:text="${participantDtoList[0].riotIdGameName}">gameName</span>
                     <small class="text-muted">#<span
                             th:text="${participantDtoList[0].riotIdTagline}">tagLine</span></small>
-                    <button class="btn btn-outline-success btn-sm" type="button">업데이트</button>
+                    <!--<button class="btn btn-outline-success btn-sm" type="submit">업데이트</button>-->
+                    <form th:action="@{'/users/' + ${participantDtoList[0].riotIdGameName} + '/' + ${participantDtoList[0].riotIdTagline}}" method="post">
+                        <!-- 필요한 input 필드들을 여기에 추가하세요. -->
+                        <button type="submit" class="btn btn-outline-success btn-sm">업데이트</button>
+                    </form>
                 </h4>
                 <button class="btn btn-primary btn-sm me-2" type="button">팔로우</button>
                 <button class="btn btn-danger btn-sm" type="button">차단</button>

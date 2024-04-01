@@ -54,12 +54,12 @@ public class UserController {
         }
 
         //소환사 닉네임 중복 검증
-        if (service.checkGameName(dto.getTagLine(), dto.getGameName())){
+        if (service.checkGameName(dto.getGameName(), dto.getTagLine())){
             bindingResult.addError(new FieldError("dto", "gameName", "이미 가입된 소환사 닉네임 입니다."));
         }
 
         //소환사 닉네임 검증
-        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+        if (!service.riotApiCheckGameName(dto.getGameName(), dto.getTagLine())){
             bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
             bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 닉네임을 입력해 주십시오."));
         }
@@ -173,7 +173,7 @@ public class UserController {
 
         // 비밀번호 변경 로직 실행
         service.updatePassword(dto);
-        return "redirect:/users/my-page";
+        return "redirect:/my-page";
     }
 
     @GetMapping("/users/game-name")
@@ -185,12 +185,12 @@ public class UserController {
     public String updateGameName(@Valid UpdateGameNameDto dto, BindingResult bindingResult){
 
         //소환사 닉네임 중복 검증
-        if (service.checkGameName(dto.getTagLine(), dto.getGameName())){
+        if (service.checkGameName(dto.getGameName(), dto.getTagLine())){
             bindingResult.addError(new FieldError("dto", "gameName", "이미 가입된 소환사 닉네임 입니다."));
         }
 
         //소환사 닉네임 검증
-        if (!service.riotApiCheckGameName(dto.getTagLine(), dto.getGameName())){
+        if (!service.riotApiCheckGameName(dto.getGameName(), dto.getTagLine())){
             bindingResult.addError(new FieldError("dto", "tagLine", "태그를 바르게 입력해 주십시오. (Ex. KR1)"));
             bindingResult.addError(new FieldError("dto", "gameName", "실제로 존재하는 소환사 아이디를 입력해 주십시오."));
         }

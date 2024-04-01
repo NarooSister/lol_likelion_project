@@ -7,6 +7,7 @@ import com.example.lol_likelion.user.entity.UserBadge;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 
 import java.time.LocalDateTime;
@@ -42,12 +43,15 @@ public class UserEntity {
     @Setter
     private String tier;
     @Setter
-    private String dailyGameCount;
+    private Integer dailyGameCount;
     @Setter
     private Integer profileIconId;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Setter
+    private LocalDateTime updatedAt;        // 유저 페이지에서 최근 업데이트 된 시간
 
     @Setter
     @OneToMany(mappedBy = "following")
