@@ -41,7 +41,14 @@ public class WebSecurityConfig {
                                         "/logout",
                                         "/users",
                                         "/users/password",
-                                        "/users/game-name"
+                                        "/users/game-name",
+                                        "/duo/myDuo",
+                                        "/duo/offer/*",
+                                        "/duo/myDuo/{postId}",
+                                        "/duo/offer/{postId}",
+                                        "/duo/offer/accept/{offerId}",
+                                        "/duo/offer/deny/{offerId}"
+                                        
                                 )
                                 .authenticated()
                               //  .hasAnyAuthority("ROLE_USER")
@@ -54,7 +61,8 @@ public class WebSecurityConfig {
                                         "/users/authorization-fail",
                                         "/users/{gameName}/{tagLine}",
                                         "/users/search",
-                                        "/api/users11"
+                                        "/api/users11",
+                                        "/duo"
 
                                 )
                                 .permitAll()
