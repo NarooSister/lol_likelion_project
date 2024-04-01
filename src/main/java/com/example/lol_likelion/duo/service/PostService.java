@@ -89,4 +89,11 @@ public class PostService {
         return userInfoDto;
     }
 
+    public PostDto updateStatus(Long postId){
+        Post post = postRepository.findById(postId).orElseThrow();
+        post.setStatus("매칭중");
+
+        return PostDto.fromEntity(postRepository.save(post));
+    }
+
 }

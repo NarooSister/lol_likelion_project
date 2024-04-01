@@ -191,6 +191,7 @@ public class DuoController {
         Offer offer = offerService.readOfferOne(offerId);
         Post post = offer.getPost();
         Long postId = post.getId();
+        postService.updateStatus(postId);
 
         model.addAttribute("posts", post);
         model.addAttribute("offers", offer);

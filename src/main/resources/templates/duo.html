@@ -110,7 +110,7 @@
             <td>
                 <a th:text="${post.status}"></a>
             </td>
-            <td th:unless="${post.getUserId() == userId}">
+            <td th:unless="${post.getUserId() == userId or post.status == '매칭중'}">
                 <div th:block th:if="${post.offer != null}">
                     <form th:if="${post.offer.![applyUserId].contains(userId)}"
                           th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
