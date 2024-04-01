@@ -43,6 +43,21 @@
             padding: 5px 10px;
             border: 1px solid #ccc;
         }
+        .tier-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .findPosition-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .myPosition-icon{
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -70,14 +85,23 @@
                 <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
                 <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
             </td>
-            <td th:text="${post.userEntity.tier}"></td>
-            <td th:text="${post.myPosition}"></td>
+            <td th:unless="${post.userEntity.tier} == 'Unranked'">
+                <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${post.userEntity.tier} + '.png'}" alt="Ranked Emblems">
+            </td>
+            <td th:if="${post.userEntity.tier} == 'Unranked'" th:text="${post.userEntity.tier}">
+
+            </td>
+            <td>
+                <img class="myPosition-icon" th:src="@{'/images/rankedPosition/Position_Challenger-' + ${post.myPosition} + '.png'}" alt="Position Emblems">
+            </td>
             <td>
                 <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
                 <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
                 <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
             </td>
-            <td th:text="${post.findPosition}"></td>
+            <td>
+                <img class="findPosition-icon" th:src="@{'/images/rankedPosition/Position_Grandmaster-' + ${post.findPosition} + '.png'}" alt="Position Emblems">
+            </td>
             <td>
                 <div class="memo-bubble">
                     <span class="memo-text" th:text="${post.memo}"></span>
