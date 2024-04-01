@@ -18,6 +18,46 @@
             border-radius: 50%;
             margin-right: 5px;
         }
+        .clickable {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        .game-name {
+            font-weight: bold;
+            color: black;
+        }
+        .tag-line {
+            color: gray;
+        }
+        .memo-bubble {
+            position: relative;
+            display: inline-block;
+        }
+        .memo-text {
+            width: auto;
+            background-color: #f9f9f9;
+            color: #000;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+        }
+        .tier-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .findPosition-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .myPosition-icon{
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -28,34 +68,51 @@
         <input type="submit" class="btn btn-danger" value="삭제하기">
     </form>
     <div>
-        <table class="table mt-4">
-            <thead class="thead-dark">
+        <table class="table table-striped" id="postTable">
+            <thead>
             <tr>
                 <th>ID</th>
-                <th>메모</th>
-                <th>사용자 ID</th>
+                <th>사용자 정보</th>
+                <th>티어</th>
                 <th>내 포지션</th>
                 <th>선호 챔피언</th>
                 <th>찾는 포지션</th>
+                <th>메모</th>
                 <th>상태</th>
             </tr>
             </thead>
             <tbody>
             <tr>
                 <td th:text="${posts.id}"></td>
-                <td th:text="${posts.memo}"></td>
                 <td th:with="userInfo=${posts.userEntity}">
                     <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
-                    <span th:text="${userInfo.gameName}"></span>#<span th:text="${userInfo.tagLine}"></span>
+                    <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
                 </td>
-                <td th:text="${posts.myPosition}"></td>
+                <td th:unless="${posts.userEntity.tier} == 'Unranked'">
+                    <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${posts.userEntity.tier} + '.png'}" alt="Ranked Emblems">
+                </td>
+                <td th:if="${posts.userEntity.tier} == 'Unranked'" th:text="${posts.userEntity.tier}">
+
+                </td>
+                <td>
+                    <img class="myPosition-icon" th:src="@{'/images/rankedPosition/Position_Challenger-' + ${posts.myPosition} + '.png'}" alt="Position Emblems">
+                </td>
                 <td>
                     <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
                     <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
                     <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
                 </td>
-                <td th:text="${posts.findPosition}"></td>
-                <td th:text="${posts.status}"></td>
+                <td>
+                    <img class="findPosition-icon" th:src="@{'/images/rankedPosition/Position_Grandmaster-' + ${posts.findPosition} + '.png'}" alt="Position Emblems">
+                </td>
+                <td>
+                    <div class="memo-bubble">
+                        <span class="memo-text" th:text="${posts.memo}"></span>
+                    </div>
+                </td>
+                <td>
+                    <a th:text="${posts.status}"></a>
+                </td>
             </tr>
             </tbody>
         </table>
@@ -82,10 +139,13 @@
                                 <td th:text="${offer.id}"></td>
                                 <td th:with="userInfo=${offer.userEntity}">
                                     <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
-                                    <span th:text="${userInfo.gameName}"></span>#<span th:text="${userInfo.tagLine}"></span>
+                                    <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
                                 </td>
-                                <td th:text="${offer.userEntity.tier}"></td>
-                                <td th:text="${offer.status}"></td>
+                                <td>
+                                    <img class="tier-icon" th:unless="${offer.userEntity.tier} == 'Unranked'" th:src="@{'/images/rankedEmblems/Rank=' + ${offer.userEntity.tier} + '.png'}" alt="Ranked Emblems">
+                                    <span th:if="${offer.userEntity.tier} == 'Unranked'" th:text="${offer.userEntity.tier}"></span>
+                                </td>
+                                <td class="status" th:text="${offer.status}"></td>
                                 <td>
                                     <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
                                     <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
