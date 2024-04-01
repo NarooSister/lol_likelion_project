@@ -106,7 +106,7 @@ public class UserController {
         cookie.setMaxAge(60 * 60 * 10);  // 쿠키 유효 시간 : 1시간
         response.addCookie(cookie);
 
-        return "redirect:/main";
+        return "redirect:/";
     }
 
     @GetMapping("/logout")
