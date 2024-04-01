@@ -36,14 +36,16 @@ public class DuoController {
 
     @GetMapping("")
     public String duoHomepage(Model model, Authentication authentication){
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String userName = userDetails.getUsername();
-        System.out.println("userName = " + userName);
-        UserEntity userEntity = userService.getUserByUsername(userName);
-        Long userId = userEntity.getId();
+        if (authentication != null) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String userName = userDetails.getUsername();
+            System.out.println("userName = " + userName);
+            UserEntity userEntity = userService.getUserByUsername(userName);
+            Long userId = userEntity.getId();
 
+            model.addAttribute("userId", userId);
+        }
 //        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
-        model.addAttribute("userId", userId);
 
         model.addAttribute("posts", postService.readAll());
 
