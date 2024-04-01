@@ -192,6 +192,8 @@ public class DuoController {
         Post post = offer.getPost();
         Long postId = post.getId();
         postService.updateStatus(postId);
+        //수락시 다른 요청은 자동으로 삭제
+        offerService.deleteAnotherOffer(offerId);
 
         model.addAttribute("posts", post);
         model.addAttribute("offers", offer);

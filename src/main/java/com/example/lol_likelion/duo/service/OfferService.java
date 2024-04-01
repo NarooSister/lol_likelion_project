@@ -55,4 +55,8 @@ public class OfferService {
     public Offer readOfferOne(Long offerId){
         return offerRepository.findById(offerId).orElseThrow();
     }
+
+    public void deleteAnotherOffer(Long offerId){
+        offerRepository.deleteByIdNot(offerId);
+    }
 }
