@@ -1,5 +1,6 @@
 package com.example.lol_likelion.duo.dto;
 
+import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.duo.entity.Offer;
 import com.example.lol_likelion.duo.entity.Post;
 import lombok.*;
@@ -29,6 +30,8 @@ public class PostDto {
     private LocalDateTime createdAt;
     @Setter
     private List<Offer> offer;
+    @Setter
+    private UserEntity userEntity;
 
     //TODO 권한 완료하면 권한에 부여 해야 함.
     public static PostDto fromEntity(Post entity){
@@ -40,7 +43,8 @@ public class PostDto {
                 .findPosition(entity.getFindPosition())
                 .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
-                .offer(entity.getOffer());
+                .offer(entity.getOffer())
+                .userEntity(entity.getUserEntity());
 
         return builder.build();
     }

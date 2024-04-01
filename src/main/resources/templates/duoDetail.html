@@ -38,7 +38,9 @@
             <tr>
                 <td th:text="${posts.id}"></td>
                 <td th:text="${posts.memo}"></td>
-                <td th:text="${posts.userId}"></td>
+                <td th:with="userInfo=${posts.userEntity}">
+                    <span th:text="${userInfo.gameName}"></span>#<span th:text="${userInfo.tagLine}"></span>
+                </td>
                 <td th:text="${posts.myPosition}"></td>
                 <td>
                     <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
@@ -62,6 +64,7 @@
                             <tr>
                                 <th>번호</th>
                                 <th>신청자</th>
+                                <th>티어</th>
                                 <th>상태</th>
                                 <th>선호 챔피언</th>
                                 <th>수락 / 거절</th>
@@ -70,7 +73,10 @@
                             <tbody>
                             <tr>
                                 <td th:text="${offer.id}"></td>
-                                <td th:text="${offer.applyUserId}"></td>
+                                <td th:with="userInfo=${offer.userEntity}">
+                                    <span th:text="${userInfo.gameName}"></span>#<span th:text="${userInfo.tagLine}"></span>
+                                </td>
+                                <td th:text="${offer.userEntity.tier}"></td>
                                 <td th:text="${offer.status}"></td>
                                 <td>
                                     <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">

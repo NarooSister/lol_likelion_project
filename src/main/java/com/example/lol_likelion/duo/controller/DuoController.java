@@ -91,6 +91,8 @@ public class DuoController {
         postDto.setMyPosition(my_position);
         postDto.setFindPosition(find_position);
         postDto.setUserId(userId);
+        System.out.println("userEntity = " + userEntity.toString());
+        postDto.setUserEntity(userEntity);
 
         if (postService.createDuo(postDto) == null){
             redirectAttributes.addFlashAttribute("message", "이미 구인중 입니다");
@@ -98,9 +100,6 @@ public class DuoController {
         postService.createDuo(postDto);
 
         return "redirect:/duo";
-
-
-
 
     }
 
@@ -122,6 +121,7 @@ public class DuoController {
 
         OfferDto offerDto = new OfferDto();
         offerDto.setApplyUserId(userId);
+        offerDto.setUserEntity(userEntity);
 
         System.out.println(postId);
         offerService.createDuo(postId, offerDto);

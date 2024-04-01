@@ -1,5 +1,6 @@
 package com.example.lol_likelion.duo.entity;
 
+import com.example.lol_likelion.auth.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,4 +31,8 @@ public class Offer {
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
+
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity userEntity;
 }

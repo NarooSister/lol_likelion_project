@@ -1,5 +1,6 @@
 package com.example.lol_likelion.duo.dto;
 
+import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.duo.entity.Offer;
 import com.example.lol_likelion.duo.entity.Post;
 import jakarta.persistence.*;
@@ -24,6 +25,8 @@ public class OfferDto {
     private LocalDateTime createdAt;
     @Setter
     private Post post;
+    @Setter
+    private UserEntity userEntity;
 
     public static OfferDto fromEntity(Offer entity){
         OfferDto.OfferDtoBuilder builder = OfferDto.builder()
@@ -31,7 +34,8 @@ public class OfferDto {
                 .status(entity.getStatus())
                 .applyUserId(entity.getApplyUserId())
                 .createdAt(entity.getCreatedAt())
-                .post(entity.getPost());
+                .post(entity.getPost())
+                .userEntity(entity.getUserEntity());
 
         return builder.build();
     }

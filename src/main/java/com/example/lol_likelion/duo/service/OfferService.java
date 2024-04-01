@@ -26,6 +26,7 @@ public class OfferService {
         offerDto.setStatus("신청함");
         offerDto.setApplyUserId(offerDto.getApplyUserId());
         offerDto.setPost(post);
+        offer.setUserEntity(offerDto.getUserEntity());
         offer.setStatus(offerDto.getStatus());
         offer.setApplyUserId(offerDto.getApplyUserId());
         offer.setPost(offerDto.getPost());

@@ -17,6 +17,26 @@
             color: blue;
             text-decoration: underline;
         }
+        .game-name {
+            font-weight: bold;
+            color: black;
+        }
+        .tag-line {
+            color: gray;
+        }
+        .memo-bubble {
+            position: relative;
+            display: inline-block;
+        }
+        .memo-text {
+            width: auto;
+            background-color: #f9f9f9;
+            color: #000;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
@@ -27,11 +47,12 @@
         <thead>
         <tr>
             <th>ID</th>
-            <th>메모</th>
-            <th>사용자 ID</th>
+            <th>사용자 정보</th>
+            <th>티어</th>
             <th>내 포지션</th>
             <th>선호 챔피언</th>
             <th>찾는 포지션</th>
+            <th>메모</th>
             <th>상태</th>
             <th>신청</th>
         </tr>
@@ -39,8 +60,10 @@
         <tbody>
         <tr th:unless="${posts.isEmpty()}" th:each="post : ${posts}">
             <td th:text="${post.id}"></td>
-            <td th:text="${post.memo}"></td>
-            <td th:text="${post.userId}"></td>
+            <td th:with="userInfo=${post.userEntity}">
+                <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
+            </td>
+            <td th:text="${post.userEntity.tier}"></td>
             <td th:text="${post.myPosition}"></td>
             <td>
                 <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
@@ -48,6 +71,11 @@
                 <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
             </td>
             <td th:text="${post.findPosition}"></td>
+            <td>
+                <div class="memo-bubble">
+                    <span class="memo-text" th:text="${post.memo}"></span>
+                </div>
+            </td>
             <td>
                 <a th:text="${post.status}"></a>
             </td>
