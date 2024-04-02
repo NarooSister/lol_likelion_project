@@ -7,6 +7,8 @@ import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.utils.AuthenticationFacade;
+import com.example.lol_likelion.duo.dto.PostDto;
+import com.example.lol_likelion.duo.entity.Post;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -159,6 +161,25 @@ public class UserService implements UserDetailsService {
     public UserEntity findByGameNameAndTagLine(String gameName, String tagLine) {
         Optional<UserEntity> optionalUser = userRepository.findByGameNameAndTagLine(gameName, tagLine);
         return optionalUser.orElse(null);
+    }
+
+    public UserEntity findById(Long userId){
+        return userRepository.findById(userId).orElseThrow();
+    }
+
+    public void updateTrust(Long userId, Integer trustScore){
+
+        UserEntity user = userRepository.findById(userId).orElseThrow();
+        int score = 0;
+        if (user.getTrustScore() == null){
+            score = score + trustScore;
+        }else {
+            score = user.getTrustScore();
+            score = score + trustScore;
+        }
+        user.setTrustScore(score);
+
+        userRepository.save(user);
     }
 
 

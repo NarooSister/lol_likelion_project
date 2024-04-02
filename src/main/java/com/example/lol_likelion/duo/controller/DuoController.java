@@ -2,8 +2,10 @@ package com.example.lol_likelion.duo.controller;
 
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.duo.dto.EvaluationDto;
 import com.example.lol_likelion.duo.dto.OfferDto;
 import com.example.lol_likelion.duo.dto.PostDto;
+import com.example.lol_likelion.duo.entity.Evaluation;
 import com.example.lol_likelion.duo.entity.Offer;
 import com.example.lol_likelion.duo.entity.Post;
 import com.example.lol_likelion.duo.service.EvaluationService;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import reactor.netty.http.server.HttpServerRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -261,5 +264,42 @@ public class DuoController {
         offerService.updateStatus(offerId,"완료");
 
         return "redirect:/duo";
+    }
+
+    @GetMapping("/trust")
+    public String trustMain(Authentication authentication, Model model){
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long enterUserId = userEntity.getId();
+
+        List<EvaluationDto> evaluationList = evaluationService.readMyEvaluation(enterUserId);
+        List<UserEntity> userEntityList = new ArrayList<>();
+        for(EvaluationDto dto : evaluationList){
+            userEntityList.add(userService.findById(dto.getBeingEvaluated()));
+        }
+        model.addAttribute("trusts", userEntityList);
+        model.addAttribute("list", evaluationList);
+
+        return "trust";
+    }
+
+    @PostMapping("/trust")
+    public String resultTrust(
+            @RequestParam("userId")
+            Long userId,
+            @RequestParam("evaluationId")
+            Long evaluationId,
+            @RequestParam("trustScore")
+            Integer trustScore
+    ){
+        System.out.println("userId = " + userId);
+        System.out.println("evaluationId = " + evaluationId);
+        System.out.println("trustScore = " + trustScore);
+        userService.updateTrust(userId, trustScore);
+        evaluationService.updateStatus(evaluationId, "평가완료");
+
+
+        return "redirect:/duo/trust";
     }
 }

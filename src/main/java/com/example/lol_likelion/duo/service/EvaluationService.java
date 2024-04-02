@@ -1,10 +1,16 @@
 package com.example.lol_likelion.duo.service;
 
+import com.example.lol_likelion.duo.dto.EvaluationDto;
+import com.example.lol_likelion.duo.dto.PostDto;
 import com.example.lol_likelion.duo.entity.Evaluation;
+import com.example.lol_likelion.duo.entity.Post;
 import com.example.lol_likelion.duo.repository.EvaluationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -32,5 +38,21 @@ public class EvaluationService {
             evaluationRepository.save(secondEvaluation);
         }
 
+    }
+
+    public List<EvaluationDto> readMyEvaluation(Long enterUserId){
+
+        List<EvaluationDto> evaluationDto = new ArrayList<>();
+        for (Evaluation evaluation : evaluationRepository.findAllByEvaluator(enterUserId)){
+            evaluationDto.add(EvaluationDto.fromEntity(evaluation));
+        }
+        return evaluationDto;
+    }
+
+    public void updateStatus(Long evaluationId, String status){
+        Evaluation evaluation = evaluationRepository.findById(evaluationId).orElseThrow();
+
+        evaluation.setStatus(status);
+        evaluationRepository.save(evaluation);
     }
 }
