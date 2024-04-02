@@ -142,17 +142,28 @@ public class DuoController {
     public String checkPost(
             @PathVariable("postId")
             Long postId,
-            Model model
+            Model model,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     )
     {
+        PostDto postDto = postService.readPost(postId);
+        Long postUserId = postDto.getUserEntity().getId();
         // postId 게시글 하나의 정보
-        model.addAttribute("posts",postService.readPost(postId));
+        model.addAttribute("posts",postDto);
+        if (authentication != null){
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String userName = userDetails.getUsername();
+            UserEntity userEntity = userService.getUserByUsername(userName);
+            Long enterUserId = userEntity.getId();
 
-//        System.out.println(postId);
-//        System.out.println(postService.readPost(postId));
+            if (!postUserId.equals(enterUserId)){
+                redirectAttributes.addFlashAttribute("message",
+                        "본인 글이 아닌경우에는 접근 불가 합니다");
+                return "redirect:/duo";
+            }
+        }
 
-
-//        model.addAttribute("userInfo",postService.readUserInfo(postId));
         return "/duoDetail";
     }
 
