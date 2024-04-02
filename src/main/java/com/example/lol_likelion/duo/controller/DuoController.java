@@ -6,6 +6,7 @@ import com.example.lol_likelion.duo.dto.OfferDto;
 import com.example.lol_likelion.duo.dto.PostDto;
 import com.example.lol_likelion.duo.entity.Offer;
 import com.example.lol_likelion.duo.entity.Post;
+import com.example.lol_likelion.duo.service.EvaluationService;
 import com.example.lol_likelion.duo.service.OfferService;
 import com.example.lol_likelion.duo.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +33,7 @@ public class DuoController {
     private final OfferService offerService;
     private final PostService postService;
     private final UserService userService;
+    private final EvaluationService evaluationService;
 
 
     @GetMapping("")
@@ -83,7 +85,7 @@ public class DuoController {
 //        System.out.println("memo: "+memo);
 //        System.out.println("my_position = " + my_position);
 //        System.out.println("find_position = " + find_position);
-;
+
 //        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
 
 
@@ -201,11 +203,11 @@ public class DuoController {
             Long offerId,
             Model model
     ){
-        offerService.updateStatus(offerId);
+        offerService.updateStatus(offerId, "수락");
         Offer offer = offerService.readOfferOne(offerId);
         Post post = offer.getPost();
         Long postId = post.getId();
-        postService.updateStatus(postId);
+        postService.updateStatus(postId, "매칭중");
         //수락시 다른 요청은 자동으로 삭제
         offerService.deleteAnotherOffer(offerId);
 
@@ -228,5 +230,36 @@ public class DuoController {
         Long postId = post.getId();
 
         return String.format("redirect:/duo/myDuo/%d",postId);
+    }
+
+    @GetMapping("/offer/result/{postUserId}/{offerUserId}/{postId}/{offerId}")
+    public String duoOfferResult(
+            @PathVariable("postUserId")
+            Long postUserId,
+            @PathVariable("offerUserId")
+            Long offerUserId,
+            @PathVariable("postId")
+            Long postId,
+            @PathVariable("offerId")
+            Long offerId,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
+    ){
+//        System.out.println("postUserId = " + postUserId);
+//        System.out.println("offerUserId = " + offerUserId);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long enterUserId = userEntity.getId();
+        if (!enterUserId.equals(postUserId)){
+            redirectAttributes.addFlashAttribute("message",
+                    "본인 글이 아닌경우에는 접근 불가 합니다");
+            return "redirect:/duo";
+        }
+        evaluationService.createEvaluation(postUserId, offerUserId, postId);
+        postService.updateStatus(postId, "완료");
+        offerService.updateStatus(offerId,"완료");
+
+        return "redirect:/duo";
     }
 }

@@ -151,7 +151,7 @@
                                     <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
                                     <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
                                 </td>
-                                <td>
+                                <td th:unless="${offer.status == '완료'}">
                                     <form style="display: inline-block;" method="post" th:action="@{/duo/offer/accept/{offerId}(offerId=${offer.id})}">
                                         <button type="submit" class="btn btn-success">수락</button>
                                     </form>
@@ -159,6 +159,9 @@
                                         <input type="hidden" name="_method" value="delete">
                                         <button type="submit" class="btn btn-danger">거절</button>
                                     </form>
+                                </td>
+                                <td th:if="${offer.status == '완료'}">
+                                    <button type="button" class="btn btn-success">완료</button>
                                 </td>
                             </tr>
                             </tbody>

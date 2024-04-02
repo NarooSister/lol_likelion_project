@@ -45,9 +45,9 @@ public class OfferService {
         offerRepository.delete(offer);
     }
 
-    public OfferDto updateStatus(Long offerId){
+    public OfferDto updateStatus(Long offerId, String status){
         Offer offer = offerRepository.findById(offerId).orElseThrow();
-        offer.setStatus("수락");
+        offer.setStatus(status);
 
         return OfferDto.fromEntity(offerRepository.save(offer));
     }

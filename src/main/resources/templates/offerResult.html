@@ -65,6 +65,18 @@
         .evaluate-button:hover {
             background-color: #0056b3;
         }
+        .cancel-button {
+            background-color: #dc3545; /* Red color for cancel button */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .cancel-button:hover {
+            background-color: #c82333;
+        }
         .tier-icon {
             width: 300px;
             height: 300px;
@@ -93,6 +105,7 @@
     <div class="left-pane">
         <h2>작성자</h2>
         <div th:each="post : ${posts}" class="game-info">
+            <input type="hidden" th:value="${posts.getId()}" name="postId" id="postId">
             <!-- Add more post details as needed -->
             <p th:with="postUserInfo=${posts.userEntity}">
                 <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${posts.userEntity.tier} + '.png'}" alt="Ranked Emblems">
@@ -101,19 +114,24 @@
                 <span class="game-name" th:text="${postUserInfo.gameName}"></span> <span>#</span> <span class="tag-line" th:text="${postUserInfo.tagLine}"></span>
                 <br>
                 <img class="myPosition-icon" th:src="@{'/images/rankedPosition/Position_Challenger-' + ${posts.myPosition} + '.png'}" alt="Position Emblems">
+                <input type="hidden" th:value="${postUserInfo.getId()}" name="postUserId" id="postUserId">
             </p>
         </div>
     </div>
     <div class="center-pane">
         <span class="heart-icon">&hearts;</span>
         <div class="button-container">
-            <button class="evaluate-button">평가하기</button>
+            <button class="evaluate-button" onclick="redirectToResult()">평가하기</button>
+            <br>
+            <br>
+            <button class="cancel-button" onclick="cancelOffer()">취소하기</button>
         </div>
     </div>
     <div class="right-pane">
         <h2>신청자</h2>
         <div th:each="offer : ${offers}" class="game-info">
             <!-- Add more offer details as needed -->
+            <input type="hidden" th:value="${offers.getId()}" id="offerId" name="offerId">
             <p th:with="offerUserInfo=${offers.userEntity}">
                 <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${offers.userEntity.tier} + '.png'}" alt="Ranked Emblems">
                 <br>
@@ -121,9 +139,26 @@
                 <span class="game-name" th:text="${offerUserInfo.gameName}"></span> <span>#</span> <span class="tag-line" th:text="${offerUserInfo.tagLine}"></span>
                 <br>
                 <img class="findPosition-icon" th:src="@{'/images/rankedPosition/Position_Grandmaster-' + ${offers.post.findPosition} + '.png'}" alt="Position Emblems">
+                <input type="hidden" th:value="${offerUserInfo.getId()}" name="offerUserId" id="offerUserId">
             </p>
         </div>
     </div>
 </div>
+
+<script th:inline="javascript">
+    function redirectToResult() {
+        var postUserId = document.getElementById("postUserId").value;
+        var offerUserId = document.getElementById("offerUserId").value;
+        var postId = document.getElementById("postId").value;
+        var offerId = document.getElementById("offerId").value;
+        var url = "/duo/offer/result/" + postUserId + "/" + offerUserId + "/" + postId + "/" + offerId;
+        window.location.href = url;
+    }
+
+    function cancelOffer() {
+        // 취소하기 버튼을 눌렀을 때 수행할 작업을 여기에 추가합니다.
+        alert("Offer cancelled!"); // 예시로 경고창을 띄워보겠습니다.
+    }
+</script>
 </body>
 </html>

@@ -91,9 +91,9 @@ public class PostService {
         return userInfoDto;
     }
 
-    public PostDto updateStatus(Long postId){
+    public PostDto updateStatus(Long postId, String status){
         Post post = postRepository.findById(postId).orElseThrow();
-        post.setStatus("매칭중");
+        post.setStatus(status);
 
         return PostDto.fromEntity(postRepository.save(post));
     }
