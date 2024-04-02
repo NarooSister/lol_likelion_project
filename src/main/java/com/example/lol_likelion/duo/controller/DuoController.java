@@ -50,7 +50,7 @@ public class DuoController {
         model.addAttribute("posts", postService.readAll());
 
 
-        System.out.println("model = " + model);
+//        System.out.println("model = " + model);
 
 
 
@@ -76,7 +76,7 @@ public class DuoController {
     ){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
-        System.out.println("userName = " + userName);
+//        System.out.println("userName = " + userName);
         UserEntity userEntity = userService.getUserByUsername(userName);
         Long userId = userEntity.getId();
 
@@ -93,7 +93,7 @@ public class DuoController {
         postDto.setMyPosition(my_position);
         postDto.setFindPosition(find_position);
         postDto.setUserId(userId);
-        System.out.println("userEntity = " + userEntity.toString());
+//        System.out.println("userEntity = " + userEntity.toString());
         postDto.setUserEntity(userEntity);
 
         if (postService.createDuo(postDto) == null){
@@ -188,7 +188,7 @@ public class DuoController {
             @RequestParam("userId")
             Long userId
     ){
-        System.out.println("userId = " + userId);
+//        System.out.println("userId = " + userId);
         offerService.deleteOffer(postId, userId);
         return "redirect:/duo";
 
