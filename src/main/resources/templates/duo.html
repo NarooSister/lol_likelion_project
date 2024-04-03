@@ -58,12 +58,63 @@
             height: 50px;
             margin-right: 5px;
         }
+        .hidden-text{
+            display: none;
+        }
     </style>
 </head>
 <body>
 <nav th:replace="~{navbar :: navbarFragment}"></nav>
 <div class="container mt-5">
     <h1>테스트 중입니다</h1>
+    <!-- Filter Form -->
+    <form id="filterForm">
+        <div class="form-row">
+            <div class="col-md-3 mb-3">
+                <label for="tierFilter">티어</label>
+                <select class="form-control" id="tierFilter">
+                    <option value="">모두</option>
+                    <option value="Unranked">Unranked</option>
+                    <option value="IRON">Iron</option>
+                    <option value="BRONZE">Bronze</option>
+                    <option value="SILVER">Silver</option>
+                    <option value="GOLD">Gold</option>
+                    <option value="PLATINUM">Platinum</option>
+                    <option value="EMERALD">EMERALD</option>
+                    <option value="DIAMOND">Diamond</option>
+                    <option value="Master">Master</option>
+                    <option value="Grandmaster">Grandmaster</option>
+                    <option value="CHALLENGER">Challenger</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="positionFilter">포지션</label>
+                <select class="form-control" id="positionFilter">
+                    <option value="">모두</option>
+                    <option value="top">탑</option>
+                    <option value="jungle">정글</option>
+                    <option value="mid">미드</option>
+                    <option value="bottom">원딜</option>
+                    <option value="supporter">서포트</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="statusFilter">구인 상태</label>
+                <select class="form-control" id="statusFilter">
+                    <option value="">모두</option>
+                    <option value="구인중">구인중</option>
+                    <option value="매칭중">매칭중</option>
+                    <option value="완료">완</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label>&nbsp;</label><br>
+                <button class="btn btn-primary btn-block" type="submit">검색</button>
+            </div>
+        </div>
+
+    </form>
+    <!-- End Filter Form -->
     <input type="hidden" th:if="${message != null}" th:value="${message}" name="message" id="message">
     <table class="table table-striped" id="postTable">
         <thead>
@@ -87,10 +138,11 @@
                 <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
             </td>
             <td th:unless="${post.userEntity.tier} == 'Unranked'">
+                <span th:text="${post.userEntity.tier}"></span>
                 <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${post.userEntity.tier} + '.png'}" alt="Ranked Emblems">
             </td>
             <td th:if="${post.userEntity.tier} == 'Unranked'" th:text="${post.userEntity.tier}">
-
+                <span class="hidden-text" th:value="${post.userEntity.tier}"></span>
             </td>
             <td>
                 <img class="myPosition-icon" th:src="@{'/images/rankedPosition/Position_Challenger-' + ${post.myPosition} + '.png'}" alt="Position Emblems">
@@ -101,6 +153,7 @@
                 <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
             </td>
             <td>
+                <src class="hidden-text" th:text="${post.findPosition}"></src>
                 <img class="findPosition-icon" th:src="@{'/images/rankedPosition/Position_Grandmaster-' + ${post.findPosition} + '.png'}" alt="Position Emblems">
             </td>
             <td>
@@ -166,6 +219,39 @@
             console.log("errorMessage hidden field not found");
         }
     });
+
+    // Filter Form Handling
+    document.addEventListener('DOMContentLoaded', function () {
+        var filterForm = document.getElementById('filterForm');
+        filterForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // 폼 제출 방지
+
+            var tierFilter = document.getElementById('tierFilter').value;
+            var positionFilter = document.getElementById('positionFilter').value;
+            var statusFilter = document.getElementById('statusFilter').value;
+
+            // 여기에 필터링 로직 추가
+            // 예를 들어, 각 행의 데이터를 숨기거나 보여주는 등의 처리
+            filterPosts(tierFilter, positionFilter, statusFilter);
+        });
+    });
+    function filterPosts(tierFilter, positionFilter, statusFilter) {
+        var posts = document.querySelectorAll('#postTable tbody tr');
+        posts.forEach(function(post) {
+            var postTier = post.querySelector('td:nth-child(3)').textContent.trim();
+            var postPosition = post.querySelector('td:nth-child(6)').textContent.trim();
+            var postStatus = post.querySelector('td:nth-child(8)').textContent.trim();
+
+            // 티어, 포지션, 상태 중 하나라도 일치하지 않으면 해당 행을 숨김
+            if ((tierFilter !== '' && postTier !== tierFilter) ||
+                (positionFilter !== '' && postPosition !== positionFilter) ||
+                (statusFilter !== '' && postStatus !== statusFilter)) {
+                post.style.display = 'none';
+            } else {
+                post.style.display = '';
+            }
+        });
+    }
 </script>
 </body>
 </html>
