@@ -93,9 +93,10 @@ public class UserPageController {
         // 검색해서 받아올 때 띄어쓰기가 있으면 A+B+C 이렇게 받아와지는데
         // DB 에는 A B C 이렇게 되어있기 때문에 gameName 을 찾지 못해서 null 로 계속 보내졌던 거다 !!!
         // 그래서 replace 해줘서 다시 받아와야 한다 !!
-        String changeGameName = gameName.replace('+', ' ');
+        // String changeGameName = gameName.replace('+', ' ');
+        // -> encoding시 띄어쓰기에 +가 생겨서 다시 decoding 해줌.
 
-        UserEntity userEntity2 = userService.findByGameNameAndTagLine(changeGameName, tagLine);
+        UserEntity userEntity2 = userService.findByGameNameAndTagLine(decodedGameName, decodedTagLine);
 
         if (userEntity2 != null) {
             Long pageUserId = userEntity2.getId();

@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,6 +86,25 @@ public class FollowService {
 
         Optional<Follow> follow = followJPARepository.findByFollowerIdAndFollowingId(followerId, userPageId);
         followJPARepository.deleteById(follow.get().getId());
+    }
+
+    public List<Follow> findFollowersByUserId(Long userId) {
+        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
+        if (userEntityOptional.isPresent()) {
+            UserEntity userEntity = userEntityOptional.get();
+            return userEntity.getFollowerList();
+        } else {
+            throw new RuntimeException("유저 아이디를 찾을 수 없습니다.");
+        }
+    }
+    public List<Follow> findFollowingByUserId(Long userId) {
+        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
+        if (userEntityOptional.isPresent()) {
+            UserEntity userEntity = userEntityOptional.get();
+            return userEntity.getFollowingList();
+        } else {
+            throw new RuntimeException("유저 아이디를 찾을 수 없습니다.");
+        }
     }
 
 

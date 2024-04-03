@@ -17,14 +17,10 @@
 
 
 <body>
-<div>
-    <li th:each="participant, stat : ${dto.getFollowingUser()}"></li>
-</div>
+
 <!-- 네비게이션바 -->
 <nav th:replace="~{navbar :: navbarFragment}"></nav>
-<div>
-    <li th:each="participant, stat : ${dto.getFollowingUser()}"></li>
-</div>
+
 
 <div class="container mt-4">
     <div class="row mb-3 align-items-center">
@@ -37,7 +33,6 @@
             <!-- 소환사 정보와 액션 버튼 -->
             <div>
                 <h4 class="mb-3">
-
                     <span th:text="${participantDtoList[0].riotIdGameName}">gameName</span>
                     <small class="text-muted">#<span
                             th:text="${participantDtoList[0].riotIdTagline}">tagLine</span></small>
@@ -48,7 +43,6 @@
                         <button type="submit" class="btn btn-outline-success btn-sm">업데이트</button>
                     </form>
                 </h4>
-
 
                 <!-- Follow section -->
                 <h5 class="mb-3">
@@ -263,3 +257,5 @@
 
 
 </script>
+
+

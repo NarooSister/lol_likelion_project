@@ -20,4 +20,7 @@ public class UserProfileDto {
     private boolean followState; // 팔로우상태 / 했으면 true , 안했으면 false
     private Long followingCount; // 팔로잉수 카운팅
     private Long followerCount; // 팔로워수 카운팅
+
+    private UserEntity follower;
+    private UserEntity following;
 }

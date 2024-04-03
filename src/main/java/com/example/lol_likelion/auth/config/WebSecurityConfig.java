@@ -38,7 +38,6 @@ public class WebSecurityConfig {
                         auth -> auth
                                 .requestMatchers(
                                         "/my-page",
-                                        "/logout",
                                         "/users",
                                         "/users/password",
                                         "/users/game-name",
@@ -55,6 +54,7 @@ public class WebSecurityConfig {
                                 .requestMatchers(
                                         "/",
                                         "/error",
+                                        "/logout",
                                         "/login",
                                         "/register",
                                         "/authentication-fail",
@@ -77,11 +77,11 @@ public class WebSecurityConfig {
 //                        .failureUrl("/users/login")
 //        )
 //
-//                .logout(
-//                        logout -> logout
-//                                .logoutUrl("/users/logout")
-//                                .logoutSuccessUrl("/users/login")
-//                )
+                .logout(
+                        logout -> logout
+                                .logoutUrl("/logout")
+                                .logoutSuccessUrl("/")
+                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
