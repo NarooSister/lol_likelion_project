@@ -3,7 +3,9 @@ package com.example.lol_likelion.auth.controller;
 import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.jwt.JwtTokenUtils;
-import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.auth.utils.service.UserService;
+import com.example.lol_likelion.user.dto.UserBadgeDto;
+import com.example.lol_likelion.user.service.BadgeService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -17,6 +19,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class UserController {
@@ -25,6 +29,7 @@ public class UserController {
 
     private final UserService service;
     private final JwtTokenUtils jwtTokenUtils;
+    private final BadgeService badgeService;
 
 
     @GetMapping("/")
@@ -130,6 +135,15 @@ public class UserController {
                 !(authentication instanceof AnonymousAuthenticationToken)
                 && authentication.isAuthenticated();
         model.addAttribute("isAuthenticated", isAuthenticated);
+
+        //================뱃지 불러오기=====================
+        List<UserBadgeDto> badgeList = badgeService.readAllBadge(user);
+
+        model.addAttribute("badgeList", badgeList);
+
+
+
+
 
         return "my-page";
     }

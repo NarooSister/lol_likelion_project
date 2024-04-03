@@ -49,6 +49,11 @@ public class UserEntity {
     @Setter
     private Integer profileIconId;
 
+    @Setter
+    private Integer leagueWins;
+    @Setter
+    private Integer leagueLosses;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
