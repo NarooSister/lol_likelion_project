@@ -20,6 +20,9 @@
 
 <!-- 네비게이션바 -->
 <nav th:replace="~{navbar :: navbarFragment}"></nav>
+<div>
+    <li th:each="participant, stat : ${dto.getFollowingUser()}"></li>
+</div>
 
 <div class="container mt-4">
     <div class="row mb-3 align-items-center">
@@ -48,7 +51,7 @@
                 <!-- Follow section -->
                 <h5 class="mb-3">
                     <!-- th:if ${dto ?. } 에서 ?. 는 null 일 경우 null을 반환해 nullPointerException을 방지해준다 -->
-                    <small th:if="${dto?.followingCount != null}" class="text-muted">following <span
+                    <small  class="text-muted">following <span
                             th:text="${dto?.followingCount}"></span></small>
                     <small th:if="${dto?.followerCount != null}" class="text-muted">follower <span
                             th:text="${dto?.followerCount}"></span></small>
@@ -58,12 +61,20 @@
                 </div>
                 <div th:if="${dto?.isPageOwnerState()} == false">
                     <div th:if="${dto?.followState} == true ">
-                        <button class="btn btn-primary btn-sm me-2">UnFollow</button>
-                        <button class="btn btn-danger btn-sm" type="button">차단</button>
+                        <form th:action="@{/users/unfollow/{userPageId}(userPageId=${dto.followingUser})}" method="post">
+                            <!-- -->
+                            <input type="hidden" name="_method" value="delete">
+                            <input type="submit" class="btn btn-primary btn-sm me-2" value="unfollow"></input>
+                        </form>
                     </div>
                     <div th:if="${dto?.followState} == false ">
-                        <button class="btn btn-primary btn-sm me-2" type="button">Follow</button>
-                        <button class="btn btn-danger btn-sm" type="button">차단</button>
+                        <form th:action="@{/users/follow/{userPageId}(userPageId=${dto.followingUser})}" method="post">
+                            <input type="submit" class="btn btn-primary btn-sm me-2" value="follow"></input>
+                        </form>
+                        <!--<button class="btn btn-primary btn-sm me-2" onclick="toggleFollow([[${dto.followingUser}]], this)">Follow</button>
+                        <button class="btn btn-primary btn-sm me-2"
+                                th:attr="onclick=|toggleFollow('${dto.followingUser}', this)|">Follow</button>
+                        <button class="btn btn-danger btn-sm" type="button">차단</button>-->
                     </div>
                 </div>
             </div>

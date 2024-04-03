@@ -32,6 +32,11 @@ public class Follow {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @Setter
+    private Long followingUser;
+    @Setter
+    private Long followerUser;
+
     public Follow(UserEntity follower, UserEntity following, LocalDateTime createdAt) {
         this.follower = follower;
         this.following = following;

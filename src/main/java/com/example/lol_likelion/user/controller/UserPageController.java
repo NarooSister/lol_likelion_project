@@ -217,4 +217,60 @@ public class UserPageController {
         return "redirect:/my-page";
     }
 
+    @PostMapping("/follow/{userPageId}")
+    public String follow(@PathVariable Long userPageId, Model model,  Authentication authentication) throws Exception {
+        // 로그인한 사람 ID
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("사용자 이름 : " + userName);
+
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long followerId = userEntity.getId();
+        System.out.println("사용자 id : " + followerId);
+        //===============================================================
+        UserEntity userPage = userService.findUserById(userPageId);
+        String gameName = userPage.getGameName();
+        String tagLine = userPage.getTagLine();
+        Long followingId = userPageId;
+
+        System.out.println("팔로우할 id : " + followingId);
+
+        followService.follow(followingId,followerId);
+
+        // URL 인코딩 수행
+        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+        String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
+
+        // 인코딩된 값을 사용하여 리디렉션 URL 구성
+        return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
+
+    }
+
+    @DeleteMapping("/unfollow/{userPageId}")
+    public String unfollow(@PathVariable Long userPageId, Model model,  Authentication authentication) throws Exception {
+        // 로그인한 사람 ID
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("사용자 이름 : " + userName);
+
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long followerId = userEntity.getId();
+        System.out.println("사용자 id : " + followerId);
+
+        //===============================================================
+        UserEntity userPage = userService.findUserById(userPageId);
+        String gameName = userPage.getGameName();
+        String tagLine = userPage.getTagLine();
+        Long followingId = userPageId;
+        // URL 인코딩 수행
+        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+        String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
+
+        followService.unfollow(userPageId, followerId);
+        // 인코딩된 값을 사용하여 리디렉션 URL 구성
+        return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
+
+    }
+
+
 }

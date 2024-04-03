@@ -61,11 +61,11 @@ public class UserEntity {
     private LocalDateTime updatedAt;        // 유저 페이지에서 최근 업데이트 된 시간
 
     @Setter
-    @OneToMany(mappedBy = "following")
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
     private List<Follow> followerList;
 
     @Setter
-    @OneToMany(mappedBy = "follower")
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
     private List<Follow> followingList;
 
     @Builder.Default
