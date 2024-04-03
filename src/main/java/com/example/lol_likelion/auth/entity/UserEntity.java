@@ -77,7 +77,7 @@ public class UserEntity {
 
     @Setter
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<UserBadge> userBadges = new HashSet<>();
+    private Set<UserBadge> userBadges;
 
     @Setter
     private Integer trustScore;
