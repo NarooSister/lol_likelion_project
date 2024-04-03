@@ -161,5 +161,10 @@ public class UserService implements UserDetailsService {
         return optionalUser.orElse(null);
     }
 
+    public UserEntity findUserById(Long userId){
+        return userRepository.findById(userId).orElseThrow();
+    }
+
+
 
 }

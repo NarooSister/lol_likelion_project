@@ -9,12 +9,14 @@ import com.example.lol_likelion.api.dto.matchdata.MatchDto;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.user.dto.UserProfileDto;
+import com.example.lol_likelion.user.entity.Follow;
 import com.example.lol_likelion.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.lol_likelion.user.service.BadgeService;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -113,7 +115,6 @@ public class UserPageController {
             model.addAttribute("canBlock", false);
         }
 */
-
         // ============================follow============================
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
@@ -135,7 +136,6 @@ public class UserPageController {
             System.out.println("gameName/tagLine : " + pageUserId);
 
             UserProfileDto dto = followService.userProfile(pageUserId, userId);
-
             model.addAttribute("dto", dto);
 
             System.out.println(dto);
@@ -206,5 +206,61 @@ public class UserPageController {
 
         return "redirect:/users/{gameName}/{tagLine}";
     }
+
+    @PostMapping("/follow/{userPageId}")
+    public String follow(@PathVariable Long userPageId, Model model,  Authentication authentication) throws Exception {
+        // 로그인한 사람 ID
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("사용자 이름 : " + userName);
+
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long followerId = userEntity.getId();
+        System.out.println("사용자 id : " + followerId);
+        //===============================================================
+        UserEntity userPage = userService.findUserById(userPageId);
+        String gameName = userPage.getGameName();
+        String tagLine = userPage.getTagLine();
+        Long followingId = userPageId;
+
+        System.out.println("팔로우할 id : " + followingId);
+
+        followService.follow(followingId,followerId);
+
+        // URL 인코딩 수행
+        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+        String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
+
+        // 인코딩된 값을 사용하여 리디렉션 URL 구성
+        return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
+
+    }
+
+    @DeleteMapping("/unfollow/{userPageId}")
+    public String unfollow(@PathVariable Long userPageId, Model model,  Authentication authentication) throws Exception {
+        // 로그인한 사람 ID
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("사용자 이름 : " + userName);
+
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long followerId = userEntity.getId();
+        System.out.println("사용자 id : " + followerId);
+
+        //===============================================================
+        UserEntity userPage = userService.findUserById(userPageId);
+        String gameName = userPage.getGameName();
+        String tagLine = userPage.getTagLine();
+        Long followingId = userPageId;
+        // URL 인코딩 수행
+        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+        String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
+
+        followService.unfollow(userPageId, followerId);
+        // 인코딩된 값을 사용하여 리디렉션 URL 구성
+        return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
+
+    }
+
 
 }
