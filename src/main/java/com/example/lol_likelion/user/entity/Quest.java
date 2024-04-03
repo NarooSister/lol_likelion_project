@@ -24,47 +24,38 @@ public class Quest {
 
     // 연속적인 게임 일수
     // 조건 - 7일, 30일)
-    @Column(columnDefinition = "integer default 0")
-    private Integer continuousDailyGame;
+    private Integer continuousDailyGame=0;
 
     // 연속적인 승리 횟수
     // 10연승
-    @Column(columnDefinition = "integer default 0")
-    private Integer winningStreak;
+    private Integer winningStreak=0;
 
     // 승리 횟수
     // 100승
-    @Column(columnDefinition = "integer default 0")
-    private Integer winning;
+    private Integer winning=0;
 
     // 트리플킬 횟수
     // 10회
-    @Column(columnDefinition = "integer default 0")
-    private Integer triplekillCount;
+    private Integer triplekillCount=0;
 
     // 쿼드라킬 횟수
     // 5회
-    @Column(columnDefinition = "integer default 0")
-    private Integer quadrakillCount;
+    private Integer quadrakillCount=0;
 
     // 펜타킬 횟수
     // 3회
-    @Column(columnDefinition = "integer default 0")
-    private Integer pentakillCount;
+    private Integer pentakillCount=0;
 
     // 제어와수 설치 횟수
     // 50회
-    @Column(columnDefinition = "integer default 0")
-    private Integer visionWardPlaced;
+    private Integer visionWardPlaced=0;
 
     // 와드 파괴 횟수
     // 50회
-    @Column(columnDefinition = "integer default 0")
-    private Integer wardsTakedowns;
+    private Integer wardsTakedowns=0;
 
     // 퍼스트 블러드 횟수
     // 10회
-    @Column(columnDefinition = "integer default 0")
-    private Integer firstBloodCount;
+    private Integer firstBloodCount=0;
 
 }

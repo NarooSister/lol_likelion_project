@@ -8,13 +8,17 @@ import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.user.dto.UserBadgeDto;
 import com.example.lol_likelion.user.dto.UserProfileDto;
+import com.example.lol_likelion.user.entity.Badge;
+import com.example.lol_likelion.user.entity.UserBadge;
 import com.example.lol_likelion.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.lol_likelion.user.service.BadgeService;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,7 +54,7 @@ public class UserPageController {
         // URL 인코딩 수행
         String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
         String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
-        System.out.println("encodedGameName:" +encodedGameName);
+        System.out.println("encodedGameName:" + encodedGameName);
         System.out.println("encodedTagLine:" + encodedTagLine);
 
         // 인코딩된 값을 사용하여 리디렉션 URL 구성
@@ -75,52 +79,6 @@ public class UserPageController {
         model.addAttribute("isAuthenticated", isAuthenticated);
 
 
-
-        //======================follow 고치려는 노력.....==================================
-
-/*
-        // follow 수정
-        // view나 service는 하나도 안고쳤습니당!
-
-        // 사용자 1 = 페이지에 들어간 유저, 사용자 2 = 페이지의 주인 유저
-        // 1 비인증 2 인증 -> followers,following 보임
-        // 1 비인증 2 비인증 -> 암것도 안보임
-        // 1 인증 2 인증 -> followers,following,팔로우 차단 버튼 다 보임
-        // 1 인증 2 비인증 -> 암것도 안보임
-
-        UserEntity pageOwnerUser = userService.findByGameNameAndTagLine(gameName, tagLine);
-
-        // 사용자 2(페이지 주인)의 인증 상태는 확인 x
-        // 사용자 1이 인증된 경우에만 팔로우 관련 정보를 처리.
-        // isAuthenticated 는 위에서 가져온 로그인한 유저인지 확인하는 과정
-        if (isAuthenticated) {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String userName = userDetails.getUsername();
-            UserEntity loggedInUser = userService.getUserByUsername(userName); // 로그인한 사용자(사용자 1)
-
-            // 사용자 2에 대한 정보가 있는 경우에만 팔로우 관련 정보를 처리.
-            //view에서 canFollow, canBlock 등으로 팔로우 버튼 차단 버튼 활성화 가능
-            if (pageOwnerUser != null) {
-                UserProfileDto userProfileDto = followService.userProfile(pageOwnerUser.getId(), loggedInUser.getId());
-                model.addAttribute("dto", userProfileDto);
-                model.addAttribute("canFollow", true); // 팔로우 버튼 표시
-                model.addAttribute("canBlock", true); // 차단 버튼 표시
-                //TODO: follow한 유저인 경우 언팔버튼으로 변경....?
-                //만약 기능 넣으려면 여기서 follow한 유저인지 확인하는 메소드 하나 추가해서 검증하고 넣기
-            } else {
-                // 사용자 2가 없는 경우, 팔로우와 차단 버튼을 표시하지 않음.
-                model.addAttribute("canFollow", false);
-                model.addAttribute("canBlock", false);
-            }
-        } else {
-            // 사용자 1이 비인증인 경우, 팔로우와 차단 버튼을 표시하지 않음.
-            model.addAttribute("canFollow", false);
-            model.addAttribute("canBlock", false);
-        }*/
-
-
-
-
         // ============================follow============================
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -140,7 +98,7 @@ public class UserPageController {
 
             model.addAttribute("dto", dto);
 
-            System.out.println("model: " +model);
+            System.out.println("model: " + model);
         } else {
             System.out.println("유저가 아님");
         }
@@ -200,14 +158,51 @@ public class UserPageController {
 
     //userPage에서 업데이트 버튼 누르기
     @PostMapping("/{gameName}/{tagLine}")
-    public String userPage( @PathVariable String gameName,
-                            @PathVariable String tagLine,
-                            Model model){
-        System.out.println("gameName:" +gameName);
-        System.out.println("tagLine" +tagLine);
-        badgeService.userPageUpdate(gameName,tagLine);
+    public String userPage(@PathVariable String gameName,
+                           @PathVariable String tagLine,
+                           Model model) {
+
+        badgeService.userPageUpdate(gameName, tagLine);
 
         return "redirect:/users/{gameName}/{tagLine}";
     }
+
+    @GetMapping("/represent-badge")
+    public String getBadgeList(Model model, Authentication authentication) {
+        //로그인 된 유저인지 확인하기
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = authentication != null &&
+                !(authentication instanceof AnonymousAuthenticationToken)
+                && authentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        //유저 가져오기
+        UserEntity user = userService.getUserByUsername(authentication.getName());
+        model.addAttribute("user", user);
+
+
+        List<UserBadgeDto> representBadgeList = badgeService.readAllRepresentBadge(user);
+        List<UserBadgeDto> allBadgeExceptTrust = badgeService.readAllBadgeExceptTrust(user);
+        model.addAttribute("representBadgeList", representBadgeList);
+        model.addAttribute("allBadgeExceptTrust", allBadgeExceptTrust);
+
+        return "select-badge";
+    }
+
+    @PostMapping("/represent-badge")
+    public String selectRepresentBadge(
+            @RequestParam("selectedBadgeId1") Long selectedBadgeId1,
+            @RequestParam("selectedBadgeId2") Long selectedBadgeId2,
+            Authentication authentication) {
+        UserEntity user = userService.getUserByUsername(authentication.getName());
+
+        // 대표 뱃지 설정
+        if (selectedBadgeId1 != null && selectedBadgeId2 != null) {
+            badgeService.setRepresentBadge(user, selectedBadgeId1, selectedBadgeId2);
+        }
+
+        return "redirect:/my-page";
+    }
+
 
 }
