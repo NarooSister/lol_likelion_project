@@ -15,7 +15,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -41,6 +43,14 @@ public class DuoController {
 
     @GetMapping("")
     public String duoHomepage(Model model, Authentication authentication){
+
+        //로그인 된 유저인지 확인하기
+        Authentication checkAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = checkAuthentication != null &&
+                !(checkAuthentication instanceof AnonymousAuthenticationToken)
+                && checkAuthentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
         if (authentication != null) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String userName = userDetails.getUsername();
@@ -152,6 +162,13 @@ public class DuoController {
             RedirectAttributes redirectAttributes
     )
     {
+        //로그인 된 유저인지 확인하기
+        Authentication checkAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = checkAuthentication != null &&
+                !(checkAuthentication instanceof AnonymousAuthenticationToken)
+                && checkAuthentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
         PostDto postDto = postService.readPost(postId);
         Long postUserId = postDto.getUserEntity().getId();
         // postId 게시글 하나의 정보
@@ -268,6 +285,14 @@ public class DuoController {
 
     @GetMapping("/trust")
     public String trustMain(Authentication authentication, Model model){
+
+        //로그인 된 유저인지 확인하기
+        Authentication checkAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = checkAuthentication != null &&
+                !(checkAuthentication instanceof AnonymousAuthenticationToken)
+                && checkAuthentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
         UserEntity userEntity = userService.getUserByUsername(userName);
