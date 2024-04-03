@@ -1,4 +1,4 @@
-package com.example.lol_likelion.auth.service;
+package com.example.lol_likelion.auth.utils.service;
 
 import com.example.lol_likelion.api.ApiService;
 import com.example.lol_likelion.api.dto.PuuidDto;

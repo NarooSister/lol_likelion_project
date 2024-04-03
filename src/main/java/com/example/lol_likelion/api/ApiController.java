@@ -4,7 +4,7 @@ import com.example.lol_likelion.api.dto.MatchIdDto;
 import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
-import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.auth.utils.service.UserService;
 import com.example.lol_likelion.user.service.BadgeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

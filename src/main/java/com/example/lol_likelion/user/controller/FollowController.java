@@ -1,6 +1,7 @@
 package com.example.lol_likelion.user.controller;
 
 import com.example.lol_likelion.auth.entity.UserEntity;
+import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.user.dto.UserProfileDto;
 import com.example.lol_likelion.user.service.FollowService;
