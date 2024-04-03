@@ -23,7 +23,7 @@ public class PostService {
     //전체 글 읽기
     public List<PostDto> readAll(){
         List<PostDto> postDtos = new ArrayList<>();
-        for (Post post: postRepository.findAll()) {
+        for (Post post: postRepository.findAllByOrderByCreatedAtDesc()) {
             postDtos.add(PostDto.fromEntity(post));
         }
         return postDtos;
