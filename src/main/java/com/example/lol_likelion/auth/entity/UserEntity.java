@@ -12,7 +12,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +47,8 @@ public class UserEntity {
     @Setter
     private String tier;
     @Setter
-    private Integer dailyGameCount;
+    private Integer dailyGameCount; //하루에 플레이 한 게임 카운트-> 잔디 구현을 위해서는 List나 Set으로 고쳐야 함
+
     @Setter
     private Integer profileIconId;
 

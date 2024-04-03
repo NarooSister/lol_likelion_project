@@ -47,13 +47,13 @@ public class FollowService {
         dto.setFollowingUser(pageUserId);
         dto.setFollowerUser(principalId);
 
-        System.out.println("페이지 주인 : "+ dto.isPageOwnerState());
-        System.out.println("팔로우 여부: " + followState);
-        System.out.println("찾는 사용자 : " + pageUserId);
-        System.out.println("팔로워 수 : " + followerCount);
-        System.out.println("팔로잉 수: " + followingCount);
-        System.out.println("followerId : " + pageUserId);
-        System.out.println("followingId: " + principalId);
+        log.info("페이지 주인 : {}", dto.isPageOwnerState());
+        log.info("팔로우 여부: {}", followState);
+        log.info("찾는 사용자 : {}", pageUserId);
+        log.info("팔로워 수 : {}", followerCount);
+        log.info("팔로잉 수: {}", followingCount);
+        log.info("followerId : {}", pageUserId);
+        log.info("followingId: {}", principalId);
 
         return dto;
 

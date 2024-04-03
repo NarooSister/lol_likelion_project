@@ -71,38 +71,8 @@
                     </h5>
                     <p class="card-text"><span th:text="${user.gameName}"></span> #<span th:text="${user.tagLine}"></span></p>
                     <a href="/users/password" class="btn btn-primary mb-1">비밀번호 수정</a>
-                    <a href="/users/game-name" class="btn btn-secondary">소환사 닉네임 수정</a>
-                </div>
-            </div>
-
-
-
-           <!--  뱃지 카드
-            <div class="card mt-3" style="width: 15rem;">
-                <div class="card-body">
-                    <h5 class="card-title" ><strong>내가 획득한 뱃지</strong></h5>
-                    &lt;!&ndash; 뱃지 리스트 출력 &ndash;&gt;
-                    <ul class="list-unstyled">
-                        <li th:each="badge : ${badgeList}">
-                            &lt;!&ndash; 뱃지 이미지, 마우스 올리면 설명 나옴 &ndash;&gt;
-                            <img th:src="@{'/images/badge/' + ${badge.badge.getImage()}}" alt="Badge Image" class="badge-image"
-                                 th:title="${badge.badge.getDescription()}" width="70" height="70">
-                        </li>
-                    </ul>
-                    <a href="/users/represent-badge" class="btn btn-primary mb-1">대표 뱃지 수정</a>
-                </div>
-            </div>-->
-
-            <!-- 뱃지 카드 -->
-            <div class="card mt-3" style="width: 18rem;">
-                <div class="card-body text-center">
-                    <h5 class="card-title"><strong>내가 획득한 뱃지</strong></h5>
-                    <div class="badge-container">
-                        <!-- 뱃지 이미지, 마우스 올리면 설명 나옴 -->
-                        <img th:each="badge : ${badgeList}" th:src="@{'/images/badge/' + ${badge.badge.getImage()}}"
-                             alt="Badge Image" class="badge-image" th:title="${badge.badge.getDescription()}">
-                    </div>
-                    <a href="/users/represent-badge" class="btn btn-primary mt-3">대표 뱃지 수정</a>
+                    <a href="/users/game-name" class="btn btn-info  mb-1">소환사 닉네임 수정</a>
+                   <p><button type="button" class="btn btn-secondary" onclick="logout()">Logout</button></p>
                 </div>
             </div>
         </div>
@@ -118,8 +88,21 @@
                     <label for="phone" class="form-label">전화번호</label>
                     <input type="text" class="form-control" id="phone" name="phone" th:value="${user.phone}" required>
                 </div>
-                <button type="submit" class="btn btn-success">수정</button>
+                <button type="submit" class="btn btn-success mb-3">수정</button>
             </form>
+
+            <!-- 뱃지 카드 -->
+            <div class="card mt-3" style="width: 18rem;">
+                <div class="card-body text-center">
+                    <h5 class="card-title"><strong>내가 획득한 뱃지</strong></h5>
+                    <div class="badge-container">
+                        <!-- 뱃지 이미지, 마우스 올리면 설명 나옴 -->
+                        <img th:each="badge : ${badgeList}" th:src="@{'/images/badge/' + ${badge.badge.getImage()}}"
+                             alt="Badge Image" class="badge-image" th:title="${badge.badge.getDescription()}">
+                    </div>
+                    <a href="/users/represent-badge" class="btn btn-primary mt-3">대표 뱃지 수정</a>
+                </div>
+            </div>
 
             <div>
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#followersModal">
@@ -128,7 +111,6 @@
                 <button type="button" class="btn btn-info" data-toggle="modal" data-target="#followingModal">
                     팔로잉 보기
                 </button>
-                <button type="button" class="btn btn-info" onclick="logout()">Logout</button>
 
 
             </div>
@@ -148,7 +130,7 @@
                         <!-- 팔로워 목록을 여기에 넣어요 -->
                         <ul>
                             <!-- Thymeleaf를 사용하는 경우 예시 -->
-                            <li th:each="follower : ${followers}" th:text="${follower.follower.username}"></li>
+                            <li th:each="follower : ${followers}" th:text="${follower.follower.getGameName()}+'#'+${follower.follower.getTagLine()}"></li>
                         </ul>
                     </div>
                     <div class="modal-footer">
@@ -172,7 +154,7 @@
                         <!-- 팔로잉 목록을 여기에 넣어요 -->
                         <ul>
                             <!-- Thymeleaf를 사용하는 경우 예시 -->
-                            <li th:each="following : ${following}" th:text="${following.following.username}"></li>
+                            <li th:each="following : ${followings}" th:text="${following.following.getGameName()}+'#'+${following.following.getTagLine()}"></li>
                         </ul>
                     </div>
                     <div class="modal-footer">

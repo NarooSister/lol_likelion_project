@@ -8,6 +8,7 @@ import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.auth.utils.AuthenticationFacade;
 import com.example.lol_likelion.user.dto.UserBadgeDto;
 import com.example.lol_likelion.user.dto.UserProfileDto;
 import com.example.lol_likelion.user.entity.Follow;
@@ -39,6 +40,7 @@ public class UserPageController {
     private final UserService userService;
     private final FollowService followService;
     private final BadgeService badgeService;
+    private final AuthenticationFacade authenticationFacade;
 
 
     // 소환사 닉네임과 태그로 검색하기
@@ -73,15 +75,46 @@ public class UserPageController {
         String decodedTagLine = URLDecoder.decode(tagLine, StandardCharsets.UTF_8);
 
         //로그인 된 유저인지 확인하기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = authenticationFacade.getAuth();
         boolean isAuthenticated = authentication != null &&
                 !(authentication instanceof AnonymousAuthenticationToken)
                 && authentication.isAuthenticated();
         model.addAttribute("isAuthenticated", isAuthenticated);
 
+//======================================Follow 수정=====================================================
+
+        // 비로그인 상태의 유저가 접근할 때 오류나는 것 해결
+        // 대신 db에 저장된 유저 페이지라도 view에서 followers, following 볼 수 없음.
+
+        if (isAuthenticated && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String userName = userDetails.getUsername();
+            System.out.println("사용자 이름 : " + userName);
+
+            UserEntity userEntity = userService.getUserByUsername(userName);
+            if (userEntity != null) {
+                Long userId = userEntity.getId();
+                System.out.println("사용자 id : " + userId);
+
+                // 로그인한 사용자에 대한 추가 처리...
+                UserEntity pageUserEntity = userService.findByGameNameAndTagLine(decodedGameName, decodedTagLine);
+                model.addAttribute("pageUser", pageUserEntity); // 페이지 유저 정보 모델에 추가
+
+                if (pageUserEntity != null) {
+                    Long pageUserId = pageUserEntity.getId();
+                    UserProfileDto dto = followService.userProfile(pageUserId, userId);
+                    model.addAttribute("dto", dto); // 팔로우 상태 및 기타 정보 모델에 추가
+                }
+            }
+        } else {
+            // 인증되지 않았거나 UserDetails 타입이 아닌 경우의 처리
+            System.out.println("익명 사용자 접근 또는 UserDetails 타입이 아님.");
+        }
+
 
         // ============================follow============================
-      
+
+      /*
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
         System.out.println("사용자 이름 : " + userName);
@@ -109,7 +142,7 @@ public class UserPageController {
         } else {
             System.out.println("유저가 아님");
         }
-      
+      */
         // ==============================================================
 
         //puuid 불러오기
@@ -190,7 +223,7 @@ public class UserPageController {
     @GetMapping("/represent-badge")
     public String getBadgeList(Model model, Authentication authentication) {
         //로그인 된 유저인지 확인하기
-        authentication = SecurityContextHolder.getContext().getAuthentication();
+        authentication = authenticationFacade.getAuth();
         boolean isAuthenticated = authentication != null &&
                 !(authentication instanceof AnonymousAuthenticationToken)
                 && authentication.isAuthenticated();

@@ -47,7 +47,7 @@
                 <!-- Follow section -->
                 <h5 class="mb-3">
                     <!-- th:if ${dto ?. } 에서 ?. 는 null 일 경우 null을 반환해 nullPointerException을 방지해준다 -->
-                    <small  class="text-muted">following <span
+                    <small th:if="${dto?.followerCount != null}" class="text-muted">following <span
                             th:text="${dto?.followingCount}"></span></small>
                     <small th:if="${dto?.followerCount != null}" class="text-muted">follower <span
                             th:text="${dto?.followerCount}"></span></small>
@@ -84,7 +84,7 @@
             <div class="row align-items-center">
                 <!-- 엠블럼 이미지 -->
                 <div class="col-auto">
-                    <div class="circle-img" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden;">
+                    <div class="circle-img" style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden;">
                         <img th:src="@{'/images/rankedEmblems/Rank=' + ${leagueEntryDto.tier} + '.png'}"
                              alt="Rank Emblem" class="img-fluid">
                     </div>
@@ -102,12 +102,12 @@
                 </div>
                 <!-- 신뢰 뱃지 표시 -->
                 <div class="col custom-col" th:if="${trustBadge != null}">
-                    <img th:src="@{'/images/badge/' + ${trustBadge.badge.image}}" alt="Trust Badge" width="150" height="150"
+                    <img th:src="@{'/images/badge/' + ${trustBadge.badge.image}}" alt="Trust Badge" width="130" height="130"
                          th:title="${trustBadge.badge.getDescription()}">
                 </div>
                 <!-- 대표 뱃지 이미지 반복문 -->
                 <div th:each="badge : ${representBadgeList}" class="col custom-col">
-                    <img th:src="@{'/images/badge/' + ${badge.badge.image}}" alt="Representative Badge" width="150" height="150"
+                    <img th:src="@{'/images/badge/' + ${badge.badge.image}}" alt="Representative Badge" width="130" height="130"
                          th:title="${badge.badge.getDescription()}">
                 </div>
             </div>

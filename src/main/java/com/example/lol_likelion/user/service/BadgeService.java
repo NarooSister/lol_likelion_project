@@ -16,17 +16,18 @@ import com.example.lol_likelion.user.repository.QuestRepository;
 import com.example.lol_likelion.user.repository.UserBadgeRepository;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class BadgeService {
     private final UserRepository userRepository;
@@ -66,7 +67,7 @@ public class BadgeService {
         if(matchIdDto == null){
             return;
         }
-        System.out.println(matchIdDto);
+        log.info("matchIdDto: "+ matchIdDto);
 
         QuestDto questDto = new QuestDto();
 
@@ -86,6 +87,17 @@ public class BadgeService {
             for (String matchId : matchIdList) {
                 //가져온 matchId로 인게임 match 정보 가져오기
                 MatchDto matchDto = apiService.callRiotApiMatch(matchId);
+
+                //마지막 게임 날짜 가지고 오기
+                Long gameStartTimestamp = matchDto.getInfo().getGameStartTimestamp();
+                log.info("gameStartTimestamp: " + gameStartTimestamp);
+                LocalDate lastPlayDate = Instant.ofEpochSecond(gameStartTimestamp)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+                questDto.setLastPlayDate(lastPlayDate);
+
+                log.info("lastPlayDate: " + lastPlayDate);
+
                 if(matchDto != null){
                     //i번 째 matchDto를 matchDtoList에 담음
                     matchDtoList.add(matchDto);
@@ -97,6 +109,8 @@ public class BadgeService {
                 }
             }
         }
+
+
         if (!participantDtoList.isEmpty()) {
             // ParticipantDto에서 정보를 추출하여 QuestDto에 저장하는 로직
             for (MatchDto.InfoDto.ParticipantDto participantDto : participantDtoList) {
@@ -119,6 +133,9 @@ public class BadgeService {
             //questDto에서 정보 추출하여 quest entity에 저장
             Quest quest = getQuest(user, questDto);
             questRepository.save(quest);
+
+            //연속 게임 플레이 일수 저장하기
+            updateContinuousGamePlay(user);
 
             //뱃지 수여 조건 확인 후 뱃지 부여
             checkAndAwardBadges(user, questDto);
@@ -168,14 +185,13 @@ public class BadgeService {
         if (user.getTrustScore() <= -10) {
             awardTrustBadge(user, "비매너 유저");
         }
-
-        if (questDto.getWinningStreak() >= 7) {
+        if (questDto.getContinuousDailyGame() >= 7) {
             awardBadge(user, "성실한 소환사");
         }
-        if (questDto.getWinningStreak() >= 30) {
+        if (questDto.getContinuousDailyGame() >= 30) {
             awardBadge(user, "진정한 소환사");
         }
-        if (questDto.getWinning() >= 10) {
+        if (questDto.getWinningStreak() >= 10) {
             awardBadge(user, "이왜진?");
         }
         if (questDto.getWinning() >= 100) {
@@ -309,5 +325,40 @@ public class BadgeService {
         Integer badgeCount = userBadgeRepository.countAllByUserId(user.getId());
         user.setLevel(badgeCount / 2);
     }
+
+    //연속 게임 플레이 일수 업데이트
+    public void updateContinuousGamePlay(UserEntity user) {
+        LocalDate today = LocalDate.now();
+        Quest quest = user.getQuest();
+
+        if (quest == null) {
+            // 유저에게 Quest 엔티티가 아직 할당되지 않은 경우, 새로 생성
+            quest = new Quest();
+            quest.setUser(user);
+            user.setQuest(quest); // UserEntity와 Quest 엔티티 연결
+        }
+
+        LocalDate lastPlayDate = quest.getLastPlayDate();
+
+        if (lastPlayDate == null || !today.isEqual(lastPlayDate)) {
+            // 마지막 게임 플레이 날짜가 오늘과 동일하지 않으면 연속 게임 플레이 일수를 업데이트
+
+            if (lastPlayDate != null && today.minusDays(1).isEqual(lastPlayDate)) {
+                // 마지막 게임 플레이 날짜가 어제인 경우, 연속 게임 플레이로 간주하고 카운터 증가
+                quest.setContinuousDailyGame(quest.getContinuousDailyGame() + 1);
+            } else {
+                // 그 외의 경우, 연속 게임 플레이가 아니므로 카운터를 1로 재설정
+                quest.setContinuousDailyGame(1);
+            }
+
+            // 마지막 게임 플레이 날짜를 오늘로 업데이트
+            quest.setLastPlayDate(today);
+        }
+
+        // 업데이트된 Quest 엔티티 저장
+        questRepository.save(quest);
+    }
+
+
 
 }

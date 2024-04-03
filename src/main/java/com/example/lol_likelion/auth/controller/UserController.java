@@ -158,8 +158,7 @@ public class UserController {
         List<Follow> followers = followService.findFollowersByUserId(user.getId());
         model.addAttribute("followers", followers);
         List<Follow> following = followService.findFollowingByUserId(user.getId());
-        model.addAttribute("following", following);
-
+        model.addAttribute("followings", following);
 
 
         return "my-page";

@@ -4,13 +4,15 @@ import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.user.entity.Quest;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @Builder
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuestDto {
-
+    private LocalDate lastPlayDate;
     private Integer continuousDailyGame=0;
     private Integer winningStreak=0;
     private Integer winning=0;
