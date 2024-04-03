@@ -47,7 +47,8 @@ public class WebSecurityConfig {
                                         "/duo/myDuo/{postId}",
                                         "/duo/offer/{postId}",
                                         "/duo/offer/accept/{offerId}",
-                                        "/duo/offer/deny/{offerId}"
+                                        "/duo/offer/deny/{offerId}",
+                                        "/users/represent-badge"
 
                                 )
                                 .authenticated()

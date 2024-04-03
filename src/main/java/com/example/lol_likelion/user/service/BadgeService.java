@@ -51,8 +51,6 @@ public class BadgeService {
     public void userPageUpdate(String gameName, String tagLine) {
         //유저 가져오기
         Optional<UserEntity> optionalUser = userRepository.findByGameNameAndTagLine(gameName, tagLine);
-        System.out.println("gameName:" +gameName);
-        System.out.println("tagLine" +tagLine);
         if (optionalUser.isEmpty()) {
             return;
         }
@@ -65,6 +63,10 @@ public class BadgeService {
 
         //최근 update 시간 이후의 전적 matchId 가져 오기
         MatchIdDto matchIdDto = apiService.callRiotApiMatchIdByTime(user.getPuuid(), unixUpdatedAt);
+        if(matchIdDto == null){
+            return;
+        }
+        System.out.println(matchIdDto);
 
         QuestDto questDto = new QuestDto();
 
@@ -79,33 +81,66 @@ public class BadgeService {
 
         LeagueEntryDTO leagueEntryDTO = apiService.getSummonerLeagueEntry(summonerDto);
 
-        for (String matchId : matchIdList) {
-            //가져온 matchId로 인게임 match 정보 가져오기
-            MatchDto matchDto = apiService.callRiotApiMatch(matchId);
-            //i번 째 matchDto를 matchDtoList에 담음
-            matchDtoList.add(matchDto);
-            //i번째 경기 중 내 정보를 담음
-            MatchDto.InfoDto.ParticipantDto participantDto = apiService.myInfoFromParticipants(matchDto, puuidDto);
-            participantDtoList.add(participantDto);
+        // 여기에서 matchIdList가 비어 있는지 확인
+        if (!matchIdList.isEmpty()) {
+            for (String matchId : matchIdList) {
+                //가져온 matchId로 인게임 match 정보 가져오기
+                MatchDto matchDto = apiService.callRiotApiMatch(matchId);
+                if(matchDto != null){
+                    //i번 째 matchDto를 matchDtoList에 담음
+                    matchDtoList.add(matchDto);
+                    //i번째 경기 중 내 정보를 담음
+                    MatchDto.InfoDto.ParticipantDto participantDto = apiService.myInfoFromParticipants(matchDto, puuidDto);
+                    if(participantDto != null){
+                        participantDtoList.add(participantDto);
+                    }
+                }
+            }
         }
+        if (!participantDtoList.isEmpty()) {
+            // ParticipantDto에서 정보를 추출하여 QuestDto에 저장하는 로직
+            for (MatchDto.InfoDto.ParticipantDto participantDto : participantDtoList) {
+                //나중에 연승 로직 체크.. 10연승 후 1패 하고 업데이트 시 뱃지 수여 안됨.
+                if (participantDto.getWin()) {
+                    questDto.setWinning(questDto.getWinning() + 1);
+                    questDto.setWinningStreak(questDto.getWinningStreak() + 1);
+                } else {
+                    questDto.setWinningStreak(0);
+                }
+                questDto.setTriplekillCount(questDto.getTriplekillCount() + participantDto.getTripleKills());
+                questDto.setQuadrakillCount(questDto.getQuadrakillCount() + participantDto.getQuadraKills());
+                questDto.setPentakillCount(questDto.getPentakillCount() + participantDto.getPentaKills());
+                questDto.setVisionWardPlaced(questDto.getVisionWardPlaced() + participantDto.getWardsPlaced());
+                questDto.setWardsTakedowns(questDto.getWardsTakedowns() + participantDto.getWardsKilled());
+                if (participantDto.getFirstBloodKill()) {
+                    questDto.setFirstBloodCount(questDto.getFirstBloodCount() + 1);
+                }
+            }
+            //questDto에서 정보 추출하여 quest entity에 저장
+            Quest quest = getQuest(user, questDto);
+            questRepository.save(quest);
 
-        // ParticipantDto에서 정보를 추출하여 QuestDto에 저장하는 로직
-        for (MatchDto.InfoDto.ParticipantDto participantDto : participantDtoList) {
-            if (participantDto.getWin()) {
-                questDto.setWinning(questDto.getWinning() + 1);
-                questDto.setWinningStreak(questDto.getWinningStreak() + 1);
-            } else {
-                questDto.setWinningStreak(0);
+            //뱃지 수여 조건 확인 후 뱃지 부여
+            checkAndAwardBadges(user, questDto);
+
+            //뱃지 갯수에 따라 level 업데이트 하기
+            levelUpdate(user);
+
+            // UserEntity 업데이트 (필요한 경우)
+            user.setQuest(quest); // UserEntity에 Quest 설정
+            if (!participantDtoList.isEmpty()) {
+                user.setPuuid(participantDtoList.get(0).getPuuid());
             }
-            questDto.setTriplekillCount(questDto.getTriplekillCount() + participantDto.getTripleKills());
-            questDto.setQuadrakillCount(questDto.getQuadrakillCount() + participantDto.getQuadraKills());
-            questDto.setPentakillCount(questDto.getPentakillCount() + participantDto.getPentaKills());
-            questDto.setVisionWardPlaced(questDto.getVisionWardPlaced() + participantDto.getWardsPlaced());
-            questDto.setWardsTakedowns(questDto.getWardsTakedowns() + participantDto.getWardsKilled());
-            if (participantDto.getFirstBloodKill()) {
-                questDto.setFirstBloodCount(questDto.getFirstBloodCount() + 1);
-            }
+            user.setTier(leagueEntryDTO.getTier());
+            user.setLeagueWins(leagueEntryDTO.getWins());
+            user.setLeagueLosses(leagueEntryDTO.getLosses());
+            user.setUpdatedAt(LocalDateTime.now());
+
+            userRepository.save(user); // UserEntity 업데이트
         }
+    }
+
+    private Quest getQuest(UserEntity user, QuestDto questDto) {
         Quest quest = user.getQuest();
         if (quest == null) {
             quest = new Quest();
@@ -120,32 +155,18 @@ public class BadgeService {
         quest.setVisionWardPlaced(questDto.getVisionWardPlaced());
         quest.setWardsTakedowns(questDto.getWardsTakedowns());
         quest.setFirstBloodCount(questDto.getFirstBloodCount());
-
-        // Quest 엔티티 저장
-        questRepository.save(quest);
-
-        checkAndAwardBadges(user, questDto);
-
-        // UserEntity 업데이트 (필요한 경우)
-        user.setQuest(quest); // UserEntity에 Quest 설정
-        user.setPuuid(participantDtoList.get(0).getPuuid());
-        user.setTier(leagueEntryDTO.getTier());
-        user.setLeagueWins(leagueEntryDTO.getWins());
-        user.setLeagueLosses(leagueEntryDTO.getLosses());
-
-        userRepository.save(user); // UserEntity 업데이트
-
+        return quest;
     }
 
     public void checkAndAwardBadges(UserEntity user, QuestDto questDto) {
 
         //신뢰점수 20점 달성 : "우리들의 친절한 이웃"
         if (user.getTrustScore() >= 20) {
-            awardBadge(user, "우리들의 친절한 이웃");
+            awardTrustBadge(user, "우리들의 친절한 이웃");
         }
         //신뢰점수 -10점 이하
         if (user.getTrustScore() <= -10) {
-            awardBadge(user, "비매너 유저");
+            awardTrustBadge(user, "비매너 유저");
         }
 
         if (questDto.getWinningStreak() >= 7) {
@@ -178,10 +199,10 @@ public class BadgeService {
         if (questDto.getFirstBloodCount() >= 10) {
             awardBadge(user, "400골드 벌고 시작합시다");
         }
-        //뱃지 갯수에 따라 level 업데이트 하기
-        levelUpdate(user);
+
     }
 
+    //뱃지 부여하고 저장하는 과정
     public void awardBadge(UserEntity user, String badgeName) {
         //뱃지 이름으로 뱃지 조회
         Badge badge = badgeRepository.findByName(badgeName)
@@ -199,6 +220,28 @@ public class BadgeService {
         }
     }
 
+    //신뢰 뱃지 부여하는 과정
+    public void awardTrustBadge(UserEntity user, String badgeName) {
+        //뱃지 이름으로 뱃지 조회
+        Badge badge = badgeRepository.findByName(badgeName)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "뱃지를 찾을 수 없습니다."));
+
+        // 부여된 신뢰 뱃지 확인
+        List<UserBadge> trustBadge = userBadgeRepository.findAllByUserIdAndState(user.getId(), BadgeState.TRUST);
+
+        //이미 부여된 신뢰 뱃지가 있다면 초기화
+        for (UserBadge userBadge : trustBadge) {
+            userBadge.setState(BadgeState.NOT_ACQUIRED);
+            userBadgeRepository.save(userBadge);
+        }
+
+        // 사용자에게 새로운 신뢰 뱃지 부여
+        UserBadge userBadge = new UserBadge();
+        userBadge.setUser(user);
+        userBadge.setBadge(badge);
+        userBadge.setState(BadgeState.TRUST);
+        userBadgeRepository.save(userBadge);
+    }
 
 
     // READ ALL - 유저의 모든 뱃지 보여주기
@@ -210,6 +253,15 @@ public class BadgeService {
         return userBadgeDtos;
 
     }
+    // READ ALL - 유저의 뱃지 중 획득한 뱃지만 보여주기(TRUST 뱃지 제외)
+    public List<UserBadgeDto> readAllBadgeExceptTrust(UserEntity user){
+        List<UserBadgeDto> userBadgeDtos = new ArrayList<>();
+        //획득한 뱃지와 대표 뱃지를 모두 보여줌
+        for (UserBadge userBadge : userBadgeRepository.findAllByUserIdAndStates(user.getId(), BadgeState.ACQUIRED, BadgeState.REPRESENTATIVE)) {
+            userBadgeDtos.add(UserBadgeDto.fromEntity(userBadge));
+        }
+        return userBadgeDtos;
+    }
 
     //대표 뱃지 보여주기
     public List<UserBadgeDto> readAllRepresentBadge(UserEntity user) {
@@ -220,13 +272,35 @@ public class BadgeService {
         return userBadgeDtos;
     }
 
+    //신뢰 뱃지만 보여주기
+    public UserBadge readTrustBadge(UserEntity user) {
+        // 뱃지 ID가 1 또는 2인 뱃지를 조회한 뒤 존재 하면 반환
+        Optional<UserBadge> badge1 = userBadgeRepository.findByUserIdAndBadgeIdAndState(user.getId(), 1L, BadgeState.TRUST);
+        if (badge1.isPresent()) {
+            return badge1.get();
+        }
+
+        Optional<UserBadge> badge2 = userBadgeRepository.findByUserIdAndBadgeIdAndState(user.getId(), 2L, BadgeState.TRUST);
+        return badge2.orElse(null); // badge2가 존재하면 반환, 그렇지 않으면 null 반환
+    }
     //대표 뱃지 설정하기
-    public void setRepresentBadge(UserEntity user, Long badgeId) {
+    public void setRepresentBadge(UserEntity user, Long badgeId1, Long badgeId2) {
+        //모든 대표 뱃지의 상태 초기화
+        List<UserBadge> representBadge = userBadgeRepository.findAllByUserIdAndState(user.getId(), BadgeState.REPRESENTATIVE);
+        for (UserBadge userBadge : representBadge) {
+            userBadge.setState(BadgeState.ACQUIRED);
+            userBadgeRepository.save(userBadge);
+        }
+
         //유저가 선택한 뱃지를 대표 뱃지로 설정
-        UserBadge selectBadge = userBadgeRepository.findByUserIdAndBadgeId(user.getId(), badgeId);
+        UserBadge newSelectBadge1 = userBadgeRepository.findByUserIdAndBadgeId(user.getId(), badgeId1);
+        UserBadge newSelectBadge2 = userBadgeRepository.findByUserIdAndBadgeId(user.getId(), badgeId2);
+
         //상태 변경, 저장
-        selectBadge.setState(BadgeState.REPRESENTATIVE);
-        userBadgeRepository.save(selectBadge);
+        newSelectBadge1.setState(BadgeState.REPRESENTATIVE);
+        newSelectBadge2.setState(BadgeState.REPRESENTATIVE);
+        userBadgeRepository.save(newSelectBadge1);
+        userBadgeRepository.save(newSelectBadge2);
     }
 
     //뱃지 갯수에 따라 level update 하기
@@ -235,6 +309,5 @@ public class BadgeService {
         Integer badgeCount = userBadgeRepository.countAllByUserId(user.getId());
         user.setLevel(badgeCount / 2);
     }
-
 
 }
