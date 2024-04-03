@@ -7,6 +7,8 @@ import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.utils.AuthenticationFacade;
+import com.example.lol_likelion.duo.dto.PostDto;
+import com.example.lol_likelion.duo.entity.Post;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -69,7 +72,7 @@ public class UserService implements UserDetailsService {
         String tier = apiService.getSummonerTierName(summonerDto);
 
         //dto로 받은 유저정보와 tier 정보, profileIconId 저장하기
-        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid(), summonerDto.getProfileIconId()));
+        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid(), summonerDto.getProfileIconId(), LocalDateTime.now()));
     }
 
     //로그인
@@ -165,6 +168,24 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(userId).orElseThrow();
     }
 
+    public UserEntity findById(Long userId){
+        return userRepository.findById(userId).orElseThrow();
+    }
+
+    public void updateTrust(Long userId, Integer trustScore){
+
+        UserEntity user = userRepository.findById(userId).orElseThrow();
+        int score = 0;
+        if (user.getTrustScore() == null){
+            score = score + trustScore;
+        }else {
+            score = user.getTrustScore();
+            score = score + trustScore;
+        }
+        user.setTrustScore(score);
+
+        userRepository.save(user);
+    }
 
 
 }

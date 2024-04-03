@@ -23,7 +23,7 @@ public class PostService {
     //전체 글 읽기
     public List<PostDto> readAll(){
         List<PostDto> postDtos = new ArrayList<>();
-        for (Post post: postRepository.findAll()) {
+        for (Post post: postRepository.findAllByOrderByCreatedAtDesc()) {
             postDtos.add(PostDto.fromEntity(post));
         }
         return postDtos;
@@ -42,7 +42,9 @@ public class PostService {
         if (postRepository.existsByStatusAndUserId("구인중", postDto.getUserId())){
             System.out.println("이미 구인중");
             return null;
-        }else {
+        } else if (postRepository.existsByStatusAndUserId("매칭중", postDto.getUserId())) {
+            return null;
+        } else {
             post.setMemo(postDto.getMemo());
             post.setMyPosition(postDto.getMyPosition());
             post.setFindPosition(postDto.getFindPosition());
@@ -87,6 +89,13 @@ public class PostService {
 
 
         return userInfoDto;
+    }
+
+    public PostDto updateStatus(Long postId, String status){
+        Post post = postRepository.findById(postId).orElseThrow();
+        post.setStatus(status);
+
+        return PostDto.fromEntity(postRepository.save(post));
     }
 
 }

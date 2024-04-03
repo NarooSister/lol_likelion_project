@@ -2,17 +2,22 @@ package com.example.lol_likelion.duo.controller;
 
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.duo.dto.EvaluationDto;
 import com.example.lol_likelion.duo.dto.OfferDto;
 import com.example.lol_likelion.duo.dto.PostDto;
+import com.example.lol_likelion.duo.entity.Evaluation;
 import com.example.lol_likelion.duo.entity.Offer;
 import com.example.lol_likelion.duo.entity.Post;
+import com.example.lol_likelion.duo.service.EvaluationService;
 import com.example.lol_likelion.duo.service.OfferService;
 import com.example.lol_likelion.duo.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -21,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import reactor.netty.http.server.HttpServerRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,23 +38,34 @@ public class DuoController {
     private final OfferService offerService;
     private final PostService postService;
     private final UserService userService;
+    private final EvaluationService evaluationService;
 
 
     @GetMapping("")
     public String duoHomepage(Model model, Authentication authentication){
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String userName = userDetails.getUsername();
-        System.out.println("userName = " + userName);
-        UserEntity userEntity = userService.getUserByUsername(userName);
-        Long userId = userEntity.getId();
 
+        //로그인 된 유저인지 확인하기
+        Authentication checkAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = checkAuthentication != null &&
+                !(checkAuthentication instanceof AnonymousAuthenticationToken)
+                && checkAuthentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        if (authentication != null) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String userName = userDetails.getUsername();
+            System.out.println("userName = " + userName);
+            UserEntity userEntity = userService.getUserByUsername(userName);
+            Long userId = userEntity.getId();
+
+            model.addAttribute("userId", userId);
+        }
 //        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
-        model.addAttribute("userId", userId);
 
         model.addAttribute("posts", postService.readAll());
 
 
-        System.out.println("model = " + model);
+//        System.out.println("model = " + model);
 
 
 
@@ -74,14 +91,14 @@ public class DuoController {
     ){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
-        System.out.println("userName = " + userName);
+//        System.out.println("userName = " + userName);
         UserEntity userEntity = userService.getUserByUsername(userName);
         Long userId = userEntity.getId();
 
 //        System.out.println("memo: "+memo);
 //        System.out.println("my_position = " + my_position);
 //        System.out.println("find_position = " + find_position);
-;
+
 //        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
 
 
@@ -91,11 +108,12 @@ public class DuoController {
         postDto.setMyPosition(my_position);
         postDto.setFindPosition(find_position);
         postDto.setUserId(userId);
-        System.out.println("userEntity = " + userEntity.toString());
+//        System.out.println("userEntity = " + userEntity.toString());
         postDto.setUserEntity(userEntity);
 
         if (postService.createDuo(postDto) == null){
-            redirectAttributes.addFlashAttribute("message", "이미 구인중 입니다");
+            redirectAttributes.addFlashAttribute("message",
+                    "구인중 혹은 매칭중에는 새 글을 작성할 수 없습니다!");
         }
         postService.createDuo(postDto);
 
@@ -139,17 +157,35 @@ public class DuoController {
     public String checkPost(
             @PathVariable("postId")
             Long postId,
-            Model model
+            Model model,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     )
     {
+        //로그인 된 유저인지 확인하기
+        Authentication checkAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = checkAuthentication != null &&
+                !(checkAuthentication instanceof AnonymousAuthenticationToken)
+                && checkAuthentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        PostDto postDto = postService.readPost(postId);
+        Long postUserId = postDto.getUserEntity().getId();
         // postId 게시글 하나의 정보
-        model.addAttribute("posts",postService.readPost(postId));
+        model.addAttribute("posts",postDto);
+        if (authentication != null){
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String userName = userDetails.getUsername();
+            UserEntity userEntity = userService.getUserByUsername(userName);
+            Long enterUserId = userEntity.getId();
 
-//        System.out.println(postId);
-//        System.out.println(postService.readPost(postId));
+            if (!postUserId.equals(enterUserId)){
+                redirectAttributes.addFlashAttribute("message",
+                        "본인 글이 아닌경우에는 접근 불가 합니다");
+                return "redirect:/duo";
+            }
+        }
 
-
-//        model.addAttribute("userInfo",postService.readUserInfo(postId));
         return "/duoDetail";
     }
 
@@ -174,7 +210,7 @@ public class DuoController {
             @RequestParam("userId")
             Long userId
     ){
-        System.out.println("userId = " + userId);
+//        System.out.println("userId = " + userId);
         offerService.deleteOffer(postId, userId);
         return "redirect:/duo";
 
@@ -187,10 +223,13 @@ public class DuoController {
             Long offerId,
             Model model
     ){
-        offerService.updateStatus(offerId);
+        offerService.updateStatus(offerId, "수락");
         Offer offer = offerService.readOfferOne(offerId);
         Post post = offer.getPost();
         Long postId = post.getId();
+        postService.updateStatus(postId, "매칭중");
+        //수락시 다른 요청은 자동으로 삭제
+        offerService.deleteAnotherOffer(offerId);
 
         model.addAttribute("posts", post);
         model.addAttribute("offers", offer);
@@ -211,5 +250,81 @@ public class DuoController {
         Long postId = post.getId();
 
         return String.format("redirect:/duo/myDuo/%d",postId);
+    }
+
+    @GetMapping("/offer/result/{postUserId}/{offerUserId}/{postId}/{offerId}")
+    public String duoOfferResult(
+            @PathVariable("postUserId")
+            Long postUserId,
+            @PathVariable("offerUserId")
+            Long offerUserId,
+            @PathVariable("postId")
+            Long postId,
+            @PathVariable("offerId")
+            Long offerId,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
+    ){
+//        System.out.println("postUserId = " + postUserId);
+//        System.out.println("offerUserId = " + offerUserId);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long enterUserId = userEntity.getId();
+        if (!enterUserId.equals(postUserId)){
+            redirectAttributes.addFlashAttribute("message",
+                    "본인 글이 아닌경우에는 접근 불가 합니다");
+            return "redirect:/duo";
+        }
+        evaluationService.createEvaluation(postUserId, offerUserId, postId);
+        postService.updateStatus(postId, "완료");
+        offerService.updateStatus(offerId,"완료");
+
+        return "redirect:/duo";
+    }
+
+    @GetMapping("/trust")
+    public String trustMain(Authentication authentication, Model model){
+
+        //로그인 된 유저인지 확인하기
+        Authentication checkAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = checkAuthentication != null &&
+                !(checkAuthentication instanceof AnonymousAuthenticationToken)
+                && checkAuthentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long enterUserId = userEntity.getId();
+
+        List<EvaluationDto> evaluationList = evaluationService.readMyEvaluation(enterUserId);
+        List<UserEntity> userEntityList = new ArrayList<>();
+        for(EvaluationDto dto : evaluationList){
+            userEntityList.add(userService.findById(dto.getBeingEvaluated()));
+        }
+        model.addAttribute("trusts", userEntityList);
+        model.addAttribute("list", evaluationList);
+
+        return "trust";
+    }
+
+    @PostMapping("/trust")
+    public String resultTrust(
+            @RequestParam("userId")
+            Long userId,
+            @RequestParam("evaluationId")
+            Long evaluationId,
+            @RequestParam("trustScore")
+            Integer trustScore
+    ){
+        System.out.println("userId = " + userId);
+        System.out.println("evaluationId = " + evaluationId);
+        System.out.println("trustScore = " + trustScore);
+        userService.updateTrust(userId, trustScore);
+        evaluationService.updateStatus(evaluationId, "평가완료");
+
+
+        return "redirect:/duo/trust";
     }
 }

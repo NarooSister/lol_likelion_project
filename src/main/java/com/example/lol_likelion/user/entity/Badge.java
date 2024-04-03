@@ -21,6 +21,6 @@ public class Badge {
     private String image;
 
     @OneToMany(mappedBy = "badge", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<UserBadge> userBadges = new HashSet<>();
+    private Set<UserBadge> userBadges;
 
 }

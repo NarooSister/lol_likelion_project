@@ -6,6 +6,45 @@
           integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <title>My Page</title>
     <!-- 필요한 CSS 및 JavaScript 추가 -->
+    <style>
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .badge-image {
+            width: 70px; /* 뱃지 이미지의 너비 */
+            height: 70px; /* 뱃지 이미지의 높이 */
+        }
+
+        .card-body.text-center {
+             text-align: center;
+         }
+
+        .card-img-top {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .level-badge {
+            display: inline-block;
+            padding: 0.25em 0.4em;
+            font-size: 80%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+            background-color: #f0ad4e; /* Or any other color */
+            color: white; /* Text color */
+            margin-right: 5px;
+        }
+    </style>
 </head>
 <body>
 <!-- 네비게이션바 -->
@@ -15,17 +54,53 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-4 mb-4">
-            <div class="card" style="width: 15rem;">
+            <div class="card" style="width: 18rem;">
+                <!-- 프로필 이미지 -->
                 <img th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${user.profileIconId} + '.png'}"
-                     class="card-img-top" alt="Profile Icon">
-                <div class="card-body">
-                    <h5 class="card-title"><strong> <span th:text="${user.username}"></span>님의 페이지</strong></h5>
+                     class="card-img-top mt-4" alt="Profile Icon">
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        <span class="level-badge" th:text="'Lv.' + ${user.level}"></span>
+                        <strong><span th:text="${user.username} + '님의 페이지'"></strong>
+                    </h5>
                     <p class="card-text"><span th:text="${user.gameName}"></span> #<span th:text="${user.tagLine}"></span></p>
                     <a href="/users/password" class="btn btn-primary mb-1">비밀번호 수정</a>
                     <a href="/users/game-name" class="btn btn-secondary">소환사 닉네임 수정</a>
                 </div>
             </div>
+
+
+
+           <!--  뱃지 카드
+            <div class="card mt-3" style="width: 15rem;">
+                <div class="card-body">
+                    <h5 class="card-title" ><strong>내가 획득한 뱃지</strong></h5>
+                    &lt;!&ndash; 뱃지 리스트 출력 &ndash;&gt;
+                    <ul class="list-unstyled">
+                        <li th:each="badge : ${badgeList}">
+                            &lt;!&ndash; 뱃지 이미지, 마우스 올리면 설명 나옴 &ndash;&gt;
+                            <img th:src="@{'/images/badge/' + ${badge.badge.getImage()}}" alt="Badge Image" class="badge-image"
+                                 th:title="${badge.badge.getDescription()}" width="70" height="70">
+                        </li>
+                    </ul>
+                    <a href="/users/represent-badge" class="btn btn-primary mb-1">대표 뱃지 수정</a>
+                </div>
+            </div>-->
+
+            <!-- 뱃지 카드 -->
+            <div class="card mt-3" style="width: 18rem;">
+                <div class="card-body text-center">
+                    <h5 class="card-title"><strong>내가 획득한 뱃지</strong></h5>
+                    <div class="badge-container">
+                        <!-- 뱃지 이미지, 마우스 올리면 설명 나옴 -->
+                        <img th:each="badge : ${badgeList}" th:src="@{'/images/badge/' + ${badge.badge.getImage()}}"
+                             alt="Badge Image" class="badge-image" th:title="${badge.badge.getDescription()}">
+                    </div>
+                    <a href="/users/represent-badge" class="btn btn-primary mt-3">대표 뱃지 수정</a>
+                </div>
+            </div>
         </div>
+
 
         <div class="col-md-8">
             <form th:action="@{/users}" method="post">

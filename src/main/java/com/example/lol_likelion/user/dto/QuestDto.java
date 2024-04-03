@@ -10,20 +10,16 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuestDto {
-    //UserEntity
-    private Integer dailyGameCount;
-    private Integer trustScore;
-    private Integer level;
-    //Quest
-    private Integer continuousDailyGame;
-    private Integer winningStreak;
-    private Integer winning;
-    private Integer triplekillCount;
-    private Integer quadrakillCount;
-    private Integer pentakillCount;
-    private Integer visionWardPlaced;
-    private Integer wardsTakedowns;
-    private Integer firstBloodCount;
+
+    private Integer continuousDailyGame=0;
+    private Integer winningStreak=0;
+    private Integer winning=0;
+    private Integer triplekillCount=0;
+    private Integer quadrakillCount=0;
+    private Integer pentakillCount=0;
+    private Integer visionWardPlaced=0;
+    private Integer wardsTakedowns=0;
+    private Integer firstBloodCount=0;
 
  /*   public static QuestDto fromEntity(UserEntity userEntity, Quest questEntity){
         return QuestDto.builder()

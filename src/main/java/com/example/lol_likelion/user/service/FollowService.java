@@ -1,6 +1,5 @@
 package com.example.lol_likelion.user.service;
 
-import com.example.lol_likelion.auth.dto.UserInfoDto;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.service.UserService;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,10 +56,9 @@ public class FollowService {
 
         return dto;
 
-
     }
-
-    // FOLLOW
+  
+   // FOLLOW
     public void follow(Long userPageId, Long followerId){
 
         UserProfileDto dto = new UserProfileDto();
