@@ -80,7 +80,7 @@
                     <option value="SILVER">Silver</option>
                     <option value="GOLD">Gold</option>
                     <option value="PLATINUM">Platinum</option>
-                    <option value="EMERALD">EMERALD</option>
+                    <option value="EMERALD">Emerald</option>
                     <option value="DIAMOND">Diamond</option>
                     <option value="Master">Master</option>
                     <option value="Grandmaster">Grandmaster</option>
@@ -138,7 +138,7 @@
                 <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
             </td>
             <td th:unless="${post.userEntity.tier} == 'Unranked'">
-                <span th:text="${post.userEntity.tier}"></span>
+                <span class="hidden-text" th:text="${post.userEntity.tier}"></span>
                 <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${post.userEntity.tier} + '.png'}" alt="Ranked Emblems">
             </td>
             <td th:if="${post.userEntity.tier} == 'Unranked'" th:text="${post.userEntity.tier}">
