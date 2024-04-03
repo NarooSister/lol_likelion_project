@@ -152,12 +152,17 @@ public class UserPageController {
         model.addAttribute("championList", championList);
         model.addAttribute("leagueEntryDto", leagueEntryDTO);
 
+
+        //===========================뱃지 보내기==============================
+        //페이지 유저 가져오기
+        UserEntity pageUserEntity = userService.findByGameNameAndTagLine(decodedGameName, decodedTagLine);
+
         //대표 뱃지 목록 보내기
-        List<UserBadgeDto> representBadgeList = badgeService.readAllRepresentBadge(userEntity);
+        List<UserBadgeDto> representBadgeList = badgeService.readAllRepresentBadge(pageUserEntity);
         model.addAttribute("representBadgeList", representBadgeList);
 
         //신뢰 뱃지 보내기
-        UserBadge trustBadge = badgeService.readTrustBadge(userEntity);
+        UserBadge trustBadge = badgeService.readTrustBadge(pageUserEntity);
         // trustBadge가 존재하지 않는 경우는 null 보냄
         model.addAttribute("trustBadge", trustBadge);
 
@@ -211,6 +216,5 @@ public class UserPageController {
 
         return "redirect:/my-page";
     }
-
 
 }
