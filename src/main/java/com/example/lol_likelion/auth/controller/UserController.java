@@ -5,6 +5,7 @@ import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.jwt.JwtTokenUtils;
 import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.user.dto.UserBadgeDto;
+import com.example.lol_likelion.user.entity.Badge;
 import com.example.lol_likelion.user.service.BadgeService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -136,14 +137,11 @@ public class UserController {
                 && authentication.isAuthenticated();
         model.addAttribute("isAuthenticated", isAuthenticated);
 
-        //================뱃지 불러오기=====================
+        //================뱃지 불러오기===========================
         List<UserBadgeDto> badgeList = badgeService.readAllBadge(user);
-
+        Badge badge = new Badge();
+        model.addAttribute("badgeEntity", badge);
         model.addAttribute("badgeList", badgeList);
-
-
-
-
 
         return "my-page";
     }

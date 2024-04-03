@@ -77,7 +77,7 @@ public class UserEntity {
 
     @Setter
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<UserBadge> userBadges = new HashSet<>();
+    private Set<UserBadge> userBadges;
 
     @Setter
     private Integer trustScore;
@@ -91,5 +91,16 @@ public class UserEntity {
     @Setter
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
     private List<Offer> offer;
+
+    //유저 생성할 때 Quest도 생성
+    @PrePersist
+    public void initializeQuest() {
+        if (this.quest == null) {
+            Quest newQuest = new Quest();
+            // Quest 기본값 설정
+            newQuest.setUser(this); // 양방향 설정
+            this.quest = newQuest;
+        }
+    }
 
 }
