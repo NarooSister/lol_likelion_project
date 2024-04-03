@@ -11,13 +11,11 @@ import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.user.dto.UserProfileDto;
 import com.example.lol_likelion.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.example.lol_likelion.user.service.BadgeService;
 import org.springframework.security.core.userdetails.UserDetails;
-import com.example.lol_likelion.user.BadgeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -116,35 +114,34 @@ public class UserPageController {
         }
 */
 
-
-
-
-
-
-
         // ============================follow============================
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("사용자 이름 : " + userName);
 
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//        String userName = userDetails.getUsername();
-//        System.out.println("사용자 이름 : " + userName);
-//
-//        UserEntity userEntity = userService.getUserByUsername(userName);
-//        Long userId = userEntity.getId();
-//        System.out.println("사용자 id : " + userId);
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long userId = userEntity.getId();
+        System.out.println("사용자 id : " + userId);
 
-//        UserEntity userEntity2 = userService.findByGameNameAndTagLine(gameName, tagLine);
-//        if (userEntity2 != null) {
-//            Long pageUserId = userEntity2.getId();
-//            System.out.println("gameName/tagLine : " + pageUserId);
-//
-//            UserProfileDto dto = followService.userProfile(pageUserId, userId);
-//
-//            model.addAttribute("dto", dto);
-//
-//            System.out.println(dto);
-//        } else {
-//            System.out.println("유저가 아님");
-//        }
+        // 검색해서 받아올 때 띄어쓰기가 있으면 A+B+C 이렇게 받아와지는데
+        // DB 에는 A B C 이렇게 되어있기 때문에 gameName 을 찾지 못해서 null 로 계속 보내졌던 거다 !!!
+        // 그래서 replace 해줘서 다시 받아와야 한다 !!
+        String changeGameName = gameName.replace('+', ' ');
+
+        UserEntity userEntity2 = userService.findByGameNameAndTagLine(changeGameName, tagLine);
+
+        if (userEntity2 != null) {
+            Long pageUserId = userEntity2.getId();
+            System.out.println("gameName/tagLine : " + pageUserId);
+
+            UserProfileDto dto = followService.userProfile(pageUserId, userId);
+
+            model.addAttribute("dto", dto);
+
+            System.out.println(dto);
+        } else {
+            System.out.println("유저가 아님");
+        }
 
         // ==============================================================
 
