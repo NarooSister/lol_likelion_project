@@ -1,11 +1,10 @@
 package com.example.lol_likelion.user.controller;
 
 import com.example.lol_likelion.auth.entity.UserEntity;
-import com.example.lol_likelion.auth.utils.service.UserService;
+import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.user.dto.UserProfileDto;
 import com.example.lol_likelion.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
