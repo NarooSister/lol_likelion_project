@@ -107,5 +107,12 @@ public class FollowService {
         }
     }
 
+    public Integer countFollowings(Long userId){
+        return followJPARepository.countFollowByFollowerId(userId);
+    }
+    public Integer countFollows(Long userId){
+        return followJPARepository.countFollowByFollowingId(userId);
+    }
+
 
 }

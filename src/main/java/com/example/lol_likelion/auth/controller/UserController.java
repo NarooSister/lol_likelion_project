@@ -159,7 +159,10 @@ public class UserController {
         model.addAttribute("followers", followers);
         List<Follow> following = followService.findFollowingByUserId(user.getId());
         model.addAttribute("followings", following);
-
+        Integer followerCount = followService.countFollows(user.getId());
+        Integer followingCount = followService.countFollowings(user.getId());
+        model.addAttribute("followerCount", followerCount);
+        model.addAttribute("followingCount", followingCount);
 
         return "my-page";
     }
