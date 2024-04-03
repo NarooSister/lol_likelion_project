@@ -1,6 +1,7 @@
 package com.example.lol_likelion.user.dto;
 
 import com.example.lol_likelion.auth.dto.UserInfoDto;
+import com.example.lol_likelion.auth.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -10,6 +10,7 @@ import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.user.dto.UserBadgeDto;
 import com.example.lol_likelion.user.dto.UserProfileDto;
+import com.example.lol_likelion.user.entity.Follow;
 import com.example.lol_likelion.user.entity.Badge;
 import com.example.lol_likelion.user.entity.UserBadge;
 import com.example.lol_likelion.user.service.FollowService;
@@ -80,7 +81,7 @@ public class UserPageController {
 
 
         // ============================follow============================
-
+      
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
         System.out.println("사용자 이름 : " + userName);
@@ -89,20 +90,25 @@ public class UserPageController {
         Long userId = userEntity.getId();
         System.out.println("사용자 id : " + userId);
 
-        UserEntity userEntity2 = userService.findByGameNameAndTagLine(gameName, tagLine);
+        // 검색해서 받아올 때 띄어쓰기가 있으면 A+B+C 이렇게 받아와지는데
+        // DB 에는 A B C 이렇게 되어있기 때문에 gameName 을 찾지 못해서 null 로 계속 보내졌던 거다 !!!
+        // 그래서 replace 해줘서 다시 받아와야 한다 !!
+        String changeGameName = gameName.replace('+', ' ');
+
+        UserEntity userEntity2 = userService.findByGameNameAndTagLine(changeGameName, tagLine);
+
         if (userEntity2 != null) {
             Long pageUserId = userEntity2.getId();
             System.out.println("gameName/tagLine : " + pageUserId);
 
             UserProfileDto dto = followService.userProfile(pageUserId, userId);
-
             model.addAttribute("dto", dto);
 
-            System.out.println("model: " + model);
+            System.out.println(dto);
         } else {
             System.out.println("유저가 아님");
         }
-
+      
         // ==============================================================
 
         //puuid 불러오기
@@ -227,7 +233,9 @@ public class UserPageController {
         UserEntity userEntity = userService.getUserByUsername(userName);
         Long followerId = userEntity.getId();
         System.out.println("사용자 id : " + followerId);
+  
         //===============================================================
+  
         UserEntity userPage = userService.findUserById(userPageId);
         String gameName = userPage.getGameName();
         String tagLine = userPage.getTagLine();
@@ -258,6 +266,7 @@ public class UserPageController {
         System.out.println("사용자 id : " + followerId);
 
         //===============================================================
+      
         UserEntity userPage = userService.findUserById(userPageId);
         String gameName = userPage.getGameName();
         String tagLine = userPage.getTagLine();

@@ -49,7 +49,6 @@ public class WebSecurityConfig {
                                         "/duo/offer/accept/{offerId}",
                                         "/duo/offer/deny/{offerId}",
                                         "/users/represent-badge"
-
                                 )
                                 .authenticated()
                               //  .hasAnyAuthority("ROLE_USER")

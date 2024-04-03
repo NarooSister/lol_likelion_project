@@ -17,7 +17,9 @@
 
 
 <body>
-
+<div>
+    <li th:each="participant, stat : ${dto.getFollowingUser()}"></li>
+</div>
 <!-- 네비게이션바 -->
 <nav th:replace="~{navbar :: navbarFragment}"></nav>
 <div>

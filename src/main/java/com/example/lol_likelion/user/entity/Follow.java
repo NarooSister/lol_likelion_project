@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
