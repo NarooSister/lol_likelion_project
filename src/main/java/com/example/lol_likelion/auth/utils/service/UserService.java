@@ -1,4 +1,4 @@
-package com.example.lol_likelion.auth.service;
+package com.example.lol_likelion.auth.utils.service;
 
 import com.example.lol_likelion.api.ApiService;
 import com.example.lol_likelion.api.dto.PuuidDto;
@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -69,7 +70,7 @@ public class UserService implements UserDetailsService {
         String tier = apiService.getSummonerTierName(summonerDto);
 
         //dto로 받은 유저정보와 tier 정보, profileIconId 저장하기
-        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid(), summonerDto.getProfileIconId()));
+        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid(), summonerDto.getProfileIconId(), LocalDateTime.now()));
     }
 
     //로그인

@@ -7,21 +7,20 @@ import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
 import com.example.lol_likelion.auth.entity.UserEntity;
-import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.auth.utils.service.UserService;
 import com.example.lol_likelion.user.dto.UserProfileDto;
 import com.example.lol_likelion.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.example.lol_likelion.user.service.BadgeService;
 import org.springframework.security.core.userdetails.UserDetails;
-import com.example.lol_likelion.user.BadgeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -51,6 +50,8 @@ public class UserPageController {
         // URL 인코딩 수행
         String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
         String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
+        System.out.println("encodedGameName:" +encodedGameName);
+        System.out.println("encodedTagLine:" + encodedTagLine);
 
         // 인코딩된 값을 사용하여 리디렉션 URL 구성
         return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
@@ -62,6 +63,9 @@ public class UserPageController {
             @PathVariable String gameName,
             @PathVariable String tagLine,
             Model model) throws Exception {
+
+        String decodedGameName = URLDecoder.decode(gameName, StandardCharsets.UTF_8);
+        String decodedTagLine = URLDecoder.decode(tagLine, StandardCharsets.UTF_8);
 
         //로그인 된 유저인지 확인하기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -75,7 +79,6 @@ public class UserPageController {
         //======================follow 고치려는 노력.....==================================
 
 /*
-
         // follow 수정
         // view나 service는 하나도 안고쳤습니당!
 
@@ -99,7 +102,7 @@ public class UserPageController {
             //view에서 canFollow, canBlock 등으로 팔로우 버튼 차단 버튼 활성화 가능
             if (pageOwnerUser != null) {
                 UserProfileDto userProfileDto = followService.userProfile(pageOwnerUser.getId(), loggedInUser.getId());
-                model.addAttribute("userProfile", userProfileDto);
+                model.addAttribute("dto", userProfileDto);
                 model.addAttribute("canFollow", true); // 팔로우 버튼 표시
                 model.addAttribute("canBlock", true); // 차단 버튼 표시
                 //TODO: follow한 유저인 경우 언팔버튼으로 변경....?
@@ -113,38 +116,34 @@ public class UserPageController {
             // 사용자 1이 비인증인 경우, 팔로우와 차단 버튼을 표시하지 않음.
             model.addAttribute("canFollow", false);
             model.addAttribute("canBlock", false);
-        }
-*/
-
-
-
+        }*/
 
 
 
 
         // ============================follow============================
 
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//        String userName = userDetails.getUsername();
-//        System.out.println("사용자 이름 : " + userName);
-//
-//        UserEntity userEntity = userService.getUserByUsername(userName);
-//        Long userId = userEntity.getId();
-//        System.out.println("사용자 id : " + userId);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("사용자 이름 : " + userName);
 
-//        UserEntity userEntity2 = userService.findByGameNameAndTagLine(gameName, tagLine);
-//        if (userEntity2 != null) {
-//            Long pageUserId = userEntity2.getId();
-//            System.out.println("gameName/tagLine : " + pageUserId);
-//
-//            UserProfileDto dto = followService.userProfile(pageUserId, userId);
-//
-//            model.addAttribute("dto", dto);
-//
-//            System.out.println(dto);
-//        } else {
-//            System.out.println("유저가 아님");
-//        }
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long userId = userEntity.getId();
+        System.out.println("사용자 id : " + userId);
+
+        UserEntity userEntity2 = userService.findByGameNameAndTagLine(gameName, tagLine);
+        if (userEntity2 != null) {
+            Long pageUserId = userEntity2.getId();
+            System.out.println("gameName/tagLine : " + pageUserId);
+
+            UserProfileDto dto = followService.userProfile(pageUserId, userId);
+
+            model.addAttribute("dto", dto);
+
+            System.out.println("model: " +model);
+        } else {
+            System.out.println("유저가 아님");
+        }
 
         // ==============================================================
 
@@ -204,7 +203,8 @@ public class UserPageController {
     public String userPage( @PathVariable String gameName,
                             @PathVariable String tagLine,
                             Model model){
-
+        System.out.println("gameName:" +gameName);
+        System.out.println("tagLine" +tagLine);
         badgeService.userPageUpdate(gameName,tagLine);
 
         return "redirect:/users/{gameName}/{tagLine}";

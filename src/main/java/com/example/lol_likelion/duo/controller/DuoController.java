@@ -1,28 +1,21 @@
 package com.example.lol_likelion.duo.controller;
 
 import com.example.lol_likelion.auth.entity.UserEntity;
-import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.auth.utils.service.UserService;
 import com.example.lol_likelion.duo.dto.OfferDto;
 import com.example.lol_likelion.duo.dto.PostDto;
 import com.example.lol_likelion.duo.entity.Offer;
 import com.example.lol_likelion.duo.entity.Post;
 import com.example.lol_likelion.duo.service.OfferService;
 import com.example.lol_likelion.duo.service.PostService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import reactor.netty.http.server.HttpServerRequest;
-
-import java.util.List;
-import java.util.Optional;
 
 
 @Controller

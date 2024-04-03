@@ -34,6 +34,8 @@
                         <button type="submit" class="btn btn-outline-success btn-sm">업데이트</button>
                     </form>
                 </h4>
+
+
                 <!-- Follow section -->
                 <h5 class="mb-3">
                     <!-- th:if ${dto ?. } 에서 ?. 는 null 일 경우 null을 반환해 nullPointerException을 방지해준다 -->
@@ -173,7 +175,6 @@
         crossorigin="anonymous"></script>
 </body>
 </html>
-<script src="/js/follow.js"></script>
 <script>
     <!-- unix timestamp 계산 코드   -->
 
@@ -227,6 +228,7 @@
         const formattedDuration = formatDurationToHMS(Number(element.textContent));
         element.textContent = formattedDuration;
     });
+
 
 
 </script>

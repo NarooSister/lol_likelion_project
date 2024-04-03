@@ -3,6 +3,10 @@ package com.example.lol_likelion.auth.dto;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -25,8 +29,11 @@ public class CreateUserDto {
     private String tier;
     private String puuid;
     private Integer profileIconId;
+    private Integer trustScore;
+    private Integer level;
+    private LocalDateTime updatedAt;
     public UserEntity toEntity(String encodedPassword
-            , String tier, String puuid, Integer profileIconId
+            , String tier, String puuid, Integer profileIconId, LocalDateTime updatedAt
     ) {
         return UserEntity.builder()
                 .username(this.username)
@@ -39,6 +46,9 @@ public class CreateUserDto {
                 .roles("ROLE_USER")
                 .puuid(puuid)
                 .profileIconId(profileIconId)
+                .trustScore(0)
+                .level(0)
+                .updatedAt(updatedAt)
                 .build();
     }
 
