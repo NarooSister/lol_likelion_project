@@ -272,6 +272,17 @@ public class BadgeService {
         return userBadgeDtos;
     }
 
+    //신뢰 뱃지만 보여주기
+    public UserBadge readTrustBadge(UserEntity user) {
+        // 뱃지 ID가 1 또는 2인 뱃지를 조회한 뒤 존재 하면 반환
+        Optional<UserBadge> badge1 = userBadgeRepository.findByUserIdAndBadgeIdAndState(user.getId(), 1L, BadgeState.TRUST);
+        if (badge1.isPresent()) {
+            return badge1.get();
+        }
+
+        Optional<UserBadge> badge2 = userBadgeRepository.findByUserIdAndBadgeIdAndState(user.getId(), 2L, BadgeState.TRUST);
+        return badge2.orElse(null); // badge2가 존재하면 반환, 그렇지 않으면 null 반환
+    }
     //대표 뱃지 설정하기
     public void setRepresentBadge(UserEntity user, Long badgeId1, Long badgeId2) {
         //모든 대표 뱃지의 상태 초기화

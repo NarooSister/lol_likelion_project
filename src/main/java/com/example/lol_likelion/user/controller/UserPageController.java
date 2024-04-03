@@ -152,6 +152,14 @@ public class UserPageController {
         model.addAttribute("championList", championList);
         model.addAttribute("leagueEntryDto", leagueEntryDTO);
 
+        //대표 뱃지 목록 보내기
+        List<UserBadgeDto> representBadgeList = badgeService.readAllRepresentBadge(userEntity);
+        model.addAttribute("representBadgeList", representBadgeList);
+
+        //신뢰 뱃지 보내기
+        UserBadge trustBadge = badgeService.readTrustBadge(userEntity);
+        // trustBadge가 존재하지 않는 경우는 null 보냄
+        model.addAttribute("trustBadge", trustBadge);
 
         return "user-page";
     }
