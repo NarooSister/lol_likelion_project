@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,8 +60,7 @@ public class FollowService {
    // FOLLOW
     public void follow(Long userPageId, Long followerId){
 
-        UserProfileDto dto = new UserProfileDto();
-
+       // UserProfileDto dto = new UserProfileDto();
         Follow follow = new Follow();
 
         // 팔로우 할 사람 => pageUserId
@@ -81,8 +78,8 @@ public class FollowService {
 
     // UNFOLLOW
     public void unfollow(Long userPageId, Long followerId){
-        System.out.println("userPageId = " + userPageId);
-        System.out.println("followerId = " + followerId);
+        log.info("userPageId = {}", userPageId);
+        log.info("followerId = {}", followerId);
 
         Optional<Follow> follow = followJPARepository.findByFollowerIdAndFollowingId(followerId, userPageId);
         followJPARepository.deleteById(follow.get().getId());
@@ -107,9 +104,12 @@ public class FollowService {
         }
     }
 
+    //유저의 following 확인
     public Integer countFollowings(Long userId){
         return followJPARepository.countFollowByFollowerId(userId);
     }
+
+    //유저의 follower 확인
     public Integer countFollows(Long userId){
         return followJPARepository.countFollowByFollowingId(userId);
     }

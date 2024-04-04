@@ -11,16 +11,13 @@ import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.auth.utils.AuthenticationFacade;
 import com.example.lol_likelion.user.dto.UserBadgeDto;
 import com.example.lol_likelion.user.dto.UserProfileDto;
-import com.example.lol_likelion.user.entity.Follow;
-import com.example.lol_likelion.user.entity.Badge;
 import com.example.lol_likelion.user.entity.UserBadge;
 import com.example.lol_likelion.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.lol_likelion.user.service.BadgeService;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@Slf4j
 @RequestMapping("users")
 @RequiredArgsConstructor
 public class UserPageController {
@@ -57,8 +55,6 @@ public class UserPageController {
         // URL 인코딩 수행
         String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
         String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
-        System.out.println("encodedGameName:" + encodedGameName);
-        System.out.println("encodedTagLine:" + encodedTagLine);
 
         // 인코딩된 값을 사용하여 리디렉션 URL 구성
         return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
@@ -83,18 +79,15 @@ public class UserPageController {
 
 //======================================Follow 수정=====================================================
 
-        // 비로그인 상태의 유저가 접근할 때 오류나는 것 해결
-        // 대신 db에 저장된 유저 페이지라도 view에서 followers, following 볼 수 없음.
-
         if (isAuthenticated && authentication.getPrincipal() instanceof UserDetails) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String userName = userDetails.getUsername();
-            System.out.println("사용자 이름 : " + userName);
+            log.info("사용자 이름 : {}", userName);
 
             UserEntity userEntity = userService.getUserByUsername(userName);
             if (userEntity != null) {
                 Long userId = userEntity.getId();
-                System.out.println("사용자 id : " + userId);
+                log.info("사용자 id : {}", userId);
 
                 // 로그인한 사용자에 대한 추가 처리...
                 UserEntity pageUserEntity = userService.findByGameNameAndTagLine(decodedGameName, decodedTagLine);
@@ -108,16 +101,16 @@ public class UserPageController {
             }
         } else {
             // 인증되지 않았거나 UserDetails 타입이 아닌 경우의 처리
-            System.out.println("익명 사용자 접근 또는 UserDetails 타입이 아님.");
+           log.info("익명 사용자 접근 또는 UserDetails 타입이 아님.");
         }
+
+        //================= match 정보 가져오는 부분 ===============
 
         //puuid 불러오기
         PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
-        String puuid = puuidDto.getPuuid();
 
         //summonerId 불러오기
         SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
-        String summonerId = summonerDto.getId();
 
         //matchId 가져오기
         MatchIdDto matchIdDto = apiService.callRiotApiMatchId(puuidDto);
@@ -125,23 +118,17 @@ public class UserPageController {
         //LeagueEntryDto 불러오는 방법
         LeagueEntryDTO leagueEntryDTO = apiService.getSummonerLeagueEntry(summonerDto);
 
-
-        //================= match 정보 가져오는 부분 ===============
-        //보여줘야 하는 만큼 넣기
-
-        //최근 5게임 matchIdList
+        //최근 10게임 matchIdList
         List<String> matchIdList = matchIdDto.getMatchIdList();
-        //최근 5게임 matchDto를 담을 List
+        //최근 10게임 matchDto를 담을 List
         List<MatchDto> matchDtoList = new ArrayList<>();
-        //최근 5게임 최근 플레이한 챔피언을 담을 List
+        //최근 10게임 최근 플레이한 챔피언을 담을 List
         List<String> championList = new ArrayList<>();
         //매 경기 내 정보만(participantDto 중 내 puuid와 같은 내용) 담을 List
         List<MatchDto.InfoDto.ParticipantDto> participantDtoList = new ArrayList<>();
-        //matchList의 크기 만큼 반복(ex 5)
-        for (int i = 0; i < matchIdList.size(); i++) {
-            //한 개의 matchId 가져오기
-            String matchId = matchIdList.get(i);
-            //가져온 matchId로 인게임 match 정보 가져오기
+        //matchList의 크기 만큼 반복
+        for (String matchId : matchIdList) {
+            //한 개의 matchI로 인게임 match 정보 가져오기
             MatchDto matchDto = apiService.callRiotApiMatch(matchId);
             //i번 째 matchDto를 matchDtoList에 담음
             matchDtoList.add(matchDto);
@@ -183,8 +170,7 @@ public class UserPageController {
     //userPage에서 업데이트 버튼 누르기
     @PostMapping("/{gameName}/{tagLine}")
     public String userPage(@PathVariable String gameName,
-                           @PathVariable String tagLine,
-                           Model model) {
+                           @PathVariable String tagLine) {
 
         badgeService.userPageUpdate(gameName, tagLine);
 
@@ -192,9 +178,10 @@ public class UserPageController {
     }
 
     @GetMapping("/represent-badge")
-    public String getBadgeList(Model model, Authentication authentication) {
+    public String getBadgeList(Model model) {
+
         //로그인 된 유저인지 확인하기
-        authentication = authenticationFacade.getAuth();
+       Authentication authentication = authenticationFacade.getAuth();
         boolean isAuthenticated = authentication != null &&
                 !(authentication instanceof AnonymousAuthenticationToken)
                 && authentication.isAuthenticated();
@@ -233,11 +220,11 @@ public class UserPageController {
         // 로그인한 사람 ID
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
-        System.out.println("사용자 이름 : " + userName);
+        log.info("사용자 이름 : {}", userName);
 
         UserEntity userEntity = userService.getUserByUsername(userName);
         Long followerId = userEntity.getId();
-        System.out.println("사용자 id : " + followerId);
+        log.info("사용자 id : {}" ,followerId);
   
         //===============================================================
   
@@ -260,27 +247,29 @@ public class UserPageController {
     }
 
     @DeleteMapping("/unfollow/{userPageId}")
-    public String unfollow(@PathVariable Long userPageId, Model model,  Authentication authentication) throws Exception {
+    public String unfollow(@PathVariable Long userPageId, Authentication authentication) throws Exception {
         // 로그인한 사람 ID
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
-        System.out.println("사용자 이름 : " + userName);
+        log.info("사용자 이름 : {}", userName);
 
         UserEntity userEntity = userService.getUserByUsername(userName);
         Long followerId = userEntity.getId();
-        System.out.println("사용자 id : " + followerId);
+        log.info("사용자 id : {}" ,followerId);
 
         //===============================================================
       
         UserEntity userPage = userService.findUserById(userPageId);
         String gameName = userPage.getGameName();
         String tagLine = userPage.getTagLine();
-        Long followingId = userPageId;
+      //  Long followingId = userPageId;
+
+        followService.unfollow(userPageId, followerId);
+
         // URL 인코딩 수행
         String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
         String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
 
-        followService.unfollow(userPageId, followerId);
         // 인코딩된 값을 사용하여 리디렉션 URL 구성
         return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
 

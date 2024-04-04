@@ -64,11 +64,6 @@ public class DuoController {
 
         model.addAttribute("posts", postService.readAll());
 
-
-//        System.out.println("model = " + model);
-
-
-
         return "duo";
 
     }
@@ -100,9 +95,6 @@ public class DuoController {
 //        System.out.println("find_position = " + find_position);
 
 //        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
-
-
-
         PostDto postDto = new PostDto();
         postDto.setMemo(memo);
         postDto.setMyPosition(my_position);
@@ -136,7 +128,6 @@ public class DuoController {
         UserEntity userEntity = userService.getUserByUsername(userName);
         Long userId = userEntity.getId();
 
-
         OfferDto offerDto = new OfferDto();
         offerDto.setApplyUserId(userId);
         offerDto.setUserEntity(userEntity);
@@ -145,10 +136,6 @@ public class DuoController {
         offerService.createDuo(postId, offerDto);
 
         return "redirect:/duo";
-
-
-
-
 
     }
 
@@ -181,7 +168,7 @@ public class DuoController {
 
             if (!postUserId.equals(enterUserId)){
                 redirectAttributes.addFlashAttribute("message",
-                        "본인 글이 아닌경우에는 접근 불가 합니다");
+                        "본인 글이 아닌 경우에는 접근 불가 합니다");
                 return "redirect:/duo";
             }
         }
@@ -213,8 +200,6 @@ public class DuoController {
 //        System.out.println("userId = " + userId);
         offerService.deleteOffer(postId, userId);
         return "redirect:/duo";
-
-
     }
 
     @PostMapping("/offer/accept/{offerId}")
@@ -323,7 +308,6 @@ public class DuoController {
         System.out.println("trustScore = " + trustScore);
         userService.updateTrust(userId, trustScore);
         evaluationService.updateStatus(evaluationId, "평가완료");
-
 
         return "redirect:/duo/trust";
     }

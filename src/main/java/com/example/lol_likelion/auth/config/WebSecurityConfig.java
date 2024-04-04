@@ -50,7 +50,6 @@ public class WebSecurityConfig {
                                         "/users/represent-badge"
                                 )
                                 .authenticated()
-                              //  .hasAnyAuthority("ROLE_USER")
                                 .requestMatchers(
                                         "/",
                                         "/error",
@@ -61,7 +60,6 @@ public class WebSecurityConfig {
                                         "/authorization-fail",
                                         "/users/{gameName}/{tagLine}",
                                         "/users/search",
-                                        "/api/users11",
                                         "/duo"
 
                                 )
@@ -76,7 +74,6 @@ public class WebSecurityConfig {
 //                        .defaultSuccessUrl("/users/my-page")
 //                        .failureUrl("/users/login")
 //        )
-//
                 .logout(
                         logout -> logout
                                 .logoutUrl("/logout")
@@ -109,7 +106,6 @@ public class WebSecurityConfig {
                                     }
                                 })
                 );
-
 
         return http.build();
     }

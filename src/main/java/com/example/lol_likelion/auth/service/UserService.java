@@ -7,18 +7,14 @@ import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.utils.AuthenticationFacade;
-import com.example.lol_likelion.duo.dto.PostDto;
-import com.example.lol_likelion.duo.entity.Post;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 
 import java.time.LocalDateTime;
@@ -26,7 +22,6 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
@@ -44,7 +39,6 @@ public class UserService implements UserDetailsService {
     public boolean checkGameName(String gameName, String tagLine){
         return userRepository.existsByGameNameAndTagLine(gameName, tagLine);
     }
-
 
     //Riot Api를 통해 실제로 있는 소환사 아이디인지 확인
     public boolean riotApiCheckGameName(String gameName, String tagLine) {
@@ -71,7 +65,7 @@ public class UserService implements UserDetailsService {
         SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
         String tier = apiService.getSummonerTierName(summonerDto);
 
-        //dto로 받은 유저정보와 tier 정보, profileIconId 저장하기
+        //dto로 받은 유저정보와 tier 정보, profileIconId, updatedAt 저장하기
         userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid(), summonerDto.getProfileIconId(), LocalDateTime.now()));
     }
 
@@ -133,7 +127,6 @@ public class UserService implements UserDetailsService {
 
     // 새 소환사 닉네임 업데이트
     // 닉네임 변경에 따른 puuid, 티어, 프로필 아이콘 변경
-    // TODO: 소환사 닉네임 바꾸면 뱃지 초기화 해야 할지 ?
     @Transactional
     public void updateGameName(UpdateGameNameDto dto){
         UserEntity user = authenticationFacade.extractUser();
@@ -176,12 +169,10 @@ public class UserService implements UserDetailsService {
 
         UserEntity user = userRepository.findById(userId).orElseThrow();
         int score = 0;
-        if (user.getTrustScore() == null){
-            score = score + trustScore;
-        }else {
+        if (user.getTrustScore() != null) {
             score = user.getTrustScore();
-            score = score + trustScore;
         }
+        score = score + trustScore;
         user.setTrustScore(score);
 
         userRepository.save(user);

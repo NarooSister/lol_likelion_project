@@ -79,6 +79,7 @@ public class UserController {
             bindingResult.addError(new FieldError("dto", "passwordCheck", "비밀번호가 일치하지 않습니다."));
         }
 
+        //에러 메시지 보내기
         if(bindingResult.hasErrors()) {
             return "register";
         }
@@ -118,21 +119,10 @@ public class UserController {
         return "redirect:/";
     }
 
-    /*@GetMapping("/logout")
-    public String logout(HttpServletResponse response) {
-        // 쿠키 파기
-        Cookie cookie = new Cookie("token", null);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-
-        return "redirect:/";
-    }*/
     @PostMapping("/logout")
     public String logout(HttpServletResponse response) {
-
-        // 리다이렉트는 클라이언트 측에서 처리됨
-        return "redirect:/"; // 이 부분은 실제로는 수행되지 않지만, 일반적인 Spring 컨트롤러 메소드 구조를 따릅니다.
+        //JS로 처리
+        return "redirect:/";
     }
 
     @GetMapping("/my-page")
@@ -157,8 +147,10 @@ public class UserController {
 
         List<Follow> followers = followService.findFollowersByUserId(user.getId());
         model.addAttribute("followers", followers);
+
         List<Follow> following = followService.findFollowingByUserId(user.getId());
         model.addAttribute("followings", following);
+
         Integer followerCount = followService.countFollows(user.getId());
         Integer followingCount = followService.countFollowings(user.getId());
         model.addAttribute("followerCount", followerCount);
@@ -184,11 +176,13 @@ public class UserController {
         model.addAttribute("user", user);
         return "redirect:/my-page";
     }
+
     @GetMapping("/users/password")
     public String updatePasswordForm(Model model){
         model.addAttribute("updatePasswordDto", new UpdatePasswordDto());
         return "password-update";
     }
+
     @PostMapping("/users/password")
     public String updatePassword(@Valid UpdatePasswordDto dto, BindingResult bindingResult) {
 
@@ -215,6 +209,7 @@ public class UserController {
         model.addAttribute("updateGameNameDto", new UpdateGameNameDto());
         return "gameName-update";
     }
+
     @PostMapping("/users/game-name")
     public String updateGameName(@Valid UpdateGameNameDto dto, BindingResult bindingResult){
 
@@ -236,6 +231,5 @@ public class UserController {
         service.updateGameName(dto);
         return "redirect:/my-page";
     }
-
 
 }

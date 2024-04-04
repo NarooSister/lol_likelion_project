@@ -18,7 +18,6 @@
                     <div class="col-lg-8 col-xl-6">
                         <h1 class="text-center mb-5">소환사 닉네임 변경</h1>
                         <form th:action="@{/users/game-name}" th:method="post" th:object="${updateGameNameDto}" >
-
                             <div class="form-floating mb-3">
                                 <input class="form-control" id="gameName" name="gameName" type="text"
                                        placeholder="소환사 닉네임을 작성해 주세요." required>

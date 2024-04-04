@@ -51,5 +51,4 @@ public class CreateUserDto {
                 .updatedAt(updatedAt)
                 .build();
     }
-
 }
