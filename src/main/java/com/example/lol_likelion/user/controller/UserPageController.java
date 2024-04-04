@@ -172,7 +172,7 @@ public class UserPageController {
         //매 경기 내 정보만(participantDto 중 내 puuid와 같은 내용) 담을 List
         List<MatchDto.InfoDto.ParticipantDto> participantDtoList = new ArrayList<>();
         //matchList의 크기 만큼 반복(ex 5)
-        for (int i = 0; i < 2/*matchIdList.size()*/; i++) {
+        for (int i = 0; i < 4/*matchIdList.size()*/; i++) {
             //한 개의 matchId 가져오기
             String matchId = matchIdList.get(i);
             //가져온 matchId로 인게임 match 정보 가져오기
@@ -194,17 +194,22 @@ public class UserPageController {
 
 
         //===========================뱃지 보내기==============================
+
         //페이지 유저 가져오기
         UserEntity pageUserEntity = userService.findByGameNameAndTagLine(decodedGameName, decodedTagLine);
 
-        //대표 뱃지 목록 보내기
-        List<UserBadgeDto> representBadgeList = badgeService.readAllRepresentBadge(pageUserEntity);
-        model.addAttribute("representBadgeList", representBadgeList);
+        if (pageUserEntity != null) {
+            // 유저가 DB에 존재하면 뱃지 관련 처리
+            List<UserBadgeDto> representBadgeList = badgeService.readAllRepresentBadge(pageUserEntity);
+            model.addAttribute("representBadgeList", representBadgeList);
 
-        //신뢰 뱃지 보내기
-        UserBadge trustBadge = badgeService.readTrustBadge(pageUserEntity);
-        // trustBadge가 존재하지 않는 경우는 null 보냄
-        model.addAttribute("trustBadge", trustBadge);
+            UserBadge trustBadge = badgeService.readTrustBadge(pageUserEntity);
+            model.addAttribute("trustBadge", trustBadge);
+        } else {
+            // 유저가 DB에 존재하지 않을 경우, 뱃지를 보여주지 않음
+            model.addAttribute("representBadgeList", null);
+            model.addAttribute("trustBadge", null);
+        }
 
         return "user-page";
     }
