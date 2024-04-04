@@ -86,6 +86,13 @@ public class UserEntity {
     private Integer trustScore;
     @Setter
     private Integer level;
+    @Setter
+    private String firstChampion;
+    @Setter
+    private String secondChampion;
+    @Setter
+    private String thirdChampion;
+
 
     @Setter
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)

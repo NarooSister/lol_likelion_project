@@ -32,8 +32,12 @@ public class CreateUserDto {
     private Integer trustScore;
     private Integer level;
     private LocalDateTime updatedAt;
+    private String firstChampion;
+    private String secondChampion;
+    private String thirdChampion;
     public UserEntity toEntity(String encodedPassword
-            , String tier, String puuid, Integer profileIconId, LocalDateTime updatedAt
+            , String tier, String puuid, Integer profileIconId, LocalDateTime updatedAt,
+                               String firstChampion, String secondChampion, String thirdChampion
     ) {
         return UserEntity.builder()
                 .username(this.username)
@@ -49,6 +53,9 @@ public class CreateUserDto {
                 .trustScore(0)
                 .level(0)
                 .updatedAt(updatedAt)
+                .firstChampion(firstChampion)
+                .secondChampion(secondChampion)
+                .thirdChampion(thirdChampion)
                 .build();
     }
 }

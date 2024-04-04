@@ -28,7 +28,7 @@
             color: black;
         }
         .tag-line {
-            color: gray;
+            color: rgb(128, 128, 128);
         }
         .memo-bubble {
             position: relative;
@@ -63,7 +63,7 @@
 <body>
 <nav th:replace="~{navbar :: navbarFragment}"></nav>
 <div class="container mt-5">
-    <h1>테스트 중입니다</h1>
+    <h1>내 글 보기</h1>
     <div>
         <form th:action="@{/duo/myDuo/{postId}(postId=${posts.id})}" th:method="post" style="display: inline;">
             <input type="hidden" name="_method" value="delete">

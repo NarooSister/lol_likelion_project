@@ -8,6 +8,7 @@ import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
 import com.example.lol_likelion.auth.entity.UserEntity;
+import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.user.dto.QuestDto;
 import com.example.lol_likelion.user.dto.UserBadgeDto;
 import com.example.lol_likelion.user.entity.*;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,7 @@ public class BadgeService {
     private final UserBadgeRepository userBadgeRepository;
     private final BadgeRepository badgeRepository;
     private final QuestRepository questRepository;
+    private final UserService userService;
     private final ApiService apiService;
 
     // user-page에서 업데이트 버튼을 누르면 일어나는 과정
@@ -47,7 +50,7 @@ public class BadgeService {
 
 
     //TODO: userPageUpdate 리팩토링...!
-    public void userPageUpdate(String gameName, String tagLine) {
+    public void userPageUpdate(String gameName, String tagLine) throws IOException {
         //유저 가져오기
         Optional<UserEntity> optionalUser = userRepository.findByGameNameAndTagLine(gameName, tagLine);
         if (optionalUser.isEmpty()) {
@@ -62,10 +65,10 @@ public class BadgeService {
 
         //최근 update 시간 이후의 전적 matchId 가져 오기
         MatchIdDto matchIdDto = apiService.callRiotApiMatchIdByTime(user.getPuuid(), unixUpdatedAt);
-        if(matchIdDto == null){
+        if (matchIdDto == null) {
             return;
         }
-        log.info("matchIdDto: "+ matchIdDto);
+        log.info("matchIdDto: " + matchIdDto);
 
         QuestDto questDto = new QuestDto();
 
@@ -99,12 +102,11 @@ public class BadgeService {
                 //i번째 경기 중 내 정보를 담음
                 MatchDto.InfoDto.ParticipantDto participantDto = apiService.myInfoFromParticipants(matchDto, puuidDto);
 
-                log.info("participantDto에서 가져오기 test, ward:" +participantDto.getWardsPlaced());
+                log.info("participantDto에서 가져오기 test, ward:" + participantDto.getWardsPlaced());
 
                 participantDtoList.add(participantDto);
             }
         }
-
 
         if (!participantDtoList.isEmpty()) {
             // ParticipantDto에서 정보를 추출하여 QuestDto에 저장하는 로직
@@ -138,6 +140,12 @@ public class BadgeService {
 
             //뱃지 수여 조건 확인 후 뱃지 부여
             checkAndAwardBadges(user, questDto);
+
+            //대표 챔피언 3명 저장하기
+            List<String> mostchampionList = userService.getMostChampionNames(user.getPuuid());
+            user.setFirstChampion(mostchampionList.get(0));
+            user.setSecondChampion(mostchampionList.get(1));
+            user.setThirdChampion(mostchampionList.get(2));
 
             //뱃지 갯수에 따라 level 업데이트 하기
             levelUpdate(user);
@@ -270,7 +278,7 @@ public class BadgeService {
     }
 
     // READ ALL - 유저의 뱃지 중 획득한 뱃지만 보여주기(TRUST 뱃지 제외)
-    public List<UserBadgeDto> readAllBadgeExceptTrust(UserEntity user){
+    public List<UserBadgeDto> readAllBadgeExceptTrust(UserEntity user) {
         List<UserBadgeDto> userBadgeDtos = new ArrayList<>();
         //획득한 뱃지와 대표 뱃지를 모두 보여줌
         for (UserBadge userBadge : userBadgeRepository.findAllByUserIdAndStates(user.getId(), BadgeState.ACQUIRED, BadgeState.REPRESENTATIVE)) {

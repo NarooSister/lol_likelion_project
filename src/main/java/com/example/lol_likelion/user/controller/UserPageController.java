@@ -23,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -122,8 +123,7 @@ public class UserPageController {
         List<String> matchIdList = matchIdDto.getMatchIdList();
         //최근 10게임 matchDto를 담을 List
         List<MatchDto> matchDtoList = new ArrayList<>();
-        //최근 10게임 최근 플레이한 챔피언을 담을 List
-        List<String> championList = new ArrayList<>();
+
         //매 경기 내 정보만(participantDto 중 내 puuid와 같은 내용) 담을 List
         List<MatchDto.InfoDto.ParticipantDto> participantDtoList = new ArrayList<>();
         //matchList의 크기 만큼 반복
@@ -142,7 +142,6 @@ public class UserPageController {
         //model에 넣어서 화면으로 보낸다.
         model.addAttribute("participantDtoList", participantDtoList);
         model.addAttribute("matchDtoList", matchDtoList);
-        model.addAttribute("championList", championList);
         model.addAttribute("leagueEntryDto", leagueEntryDTO);
 
 
@@ -170,7 +169,7 @@ public class UserPageController {
     //userPage에서 업데이트 버튼 누르기
     @PostMapping("/{gameName}/{tagLine}")
     public String userPage(@PathVariable String gameName,
-                           @PathVariable String tagLine) {
+                           @PathVariable String tagLine) throws IOException {
 
         badgeService.userPageUpdate(gameName, tagLine);
 
@@ -216,7 +215,7 @@ public class UserPageController {
     }
 
     @PostMapping("/follow/{userPageId}")
-    public String follow(@PathVariable Long userPageId, Model model,  Authentication authentication) throws Exception {
+    public String follow(@PathVariable Long userPageId, Authentication authentication) throws Exception {
         // 로그인한 사람 ID
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();

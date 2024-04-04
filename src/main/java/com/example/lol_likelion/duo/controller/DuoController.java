@@ -1,5 +1,6 @@
 package com.example.lol_likelion.duo.controller;
 
+import com.example.lol_likelion.auth.config.ChampionDataLoader;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.duo.dto.EvaluationDto;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import reactor.netty.http.server.HttpServerRequest;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +44,7 @@ public class DuoController {
 
 
     @GetMapping("")
-    public String duoHomepage(Model model, Authentication authentication){
+    public String duoHomepage(Model model, Authentication authentication) {
 
         //로그인 된 유저인지 확인하기
         Authentication checkAuthentication = SecurityContextHolder.getContext().getAuthentication();
@@ -59,6 +61,7 @@ public class DuoController {
             Long userId = userEntity.getId();
 
             model.addAttribute("userId", userId);
+
         }
 //        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
 

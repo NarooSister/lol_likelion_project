@@ -22,6 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -56,8 +57,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String create(@Valid CreateUserDto dto, BindingResult bindingResult)
-    {
+    public String create(@Valid CreateUserDto dto, BindingResult bindingResult) throws IOException {
         //Username 중복 체크
         if(service.checkUsername(dto.getUsername())) {
             bindingResult.addError(new FieldError("dto", "username", "로그인 아이디가 중복됩니다."));
@@ -120,7 +120,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public String logout(HttpServletResponse response) {
+    public String logout() {
         //JS로 처리
         return "redirect:/";
     }

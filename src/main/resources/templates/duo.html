@@ -70,7 +70,7 @@
 <body>
 <nav th:replace="~{navbar :: navbarFragment}"></nav>
 <div class="container mt-5">
-    <h1>테스트 중입니다</h1>
+    <h1>듀오 구하기</h1>
     <!-- Filter Form -->
     <form id="filterForm">
         <div class="row">
@@ -152,9 +152,9 @@
                 <img class="myPosition-icon" th:src="@{'/images/rankedPosition/Position_Challenger-' + ${post.myPosition} + '.png'}" alt="Position Emblems">
             </td>
             <td>
-                <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
-                <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
-                <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
+                <img class="champion-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/' + ${post.userEntity.getFirstChampion()} + '.png'}" alt="모스트 챔피언">
+                <img class="champion-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/' + ${post.userEntity.getSecondChampion()}+ '.png'}" alt="모스트 챔피언">
+                <img class="champion-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/' + ${post.userEntity.getThirdChampion()}+ '.png'}" alt="모스트 챔피언">
             </td>
             <td>
                 <src class="hidden-text" th:text="${post.findPosition}"></src>
@@ -168,6 +168,7 @@
             <td>
                 <a th:text="${post.status}"></a>
             </td>
+
             <td th:unless="${post.getUserId() == userId or post.status == '매칭중' or post.status == '완료'}">
                 <div th:block th:if="${post.offer != null}">
                     <form th:if="${post.offer.![applyUserId].contains(userId)}"
@@ -183,7 +184,7 @@
                 </div>
             </td>
             <td th:if="${post.getUserId() == userId}">
-                <span class="badge bg-primary">내 글</span>
+                <span class="badge btn btn-primary">내 글</span>
             </td>
         </tr>
         </tbody>
@@ -201,6 +202,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
+
     document.addEventListener('DOMContentLoaded', function () {
         var table = document.getElementById('postTable');
         table.addEventListener('click', function (event) {

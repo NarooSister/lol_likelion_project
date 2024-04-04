@@ -3,6 +3,7 @@ package com.example.lol_likelion.auth.service;
 import com.example.lol_likelion.api.ApiService;
 import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
+import com.example.lol_likelion.auth.config.ChampionDataLoader;
 import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.repository.UserRepository;
@@ -17,8 +18,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,6 +34,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final ApiService apiService;
     private final AuthenticationFacade authenticationFacade;
+    private final ChampionDataLoader championDataLoader;
 
     //존재하는 아이디인지 확인
     public boolean checkUsername(String username) {
@@ -56,7 +62,7 @@ public class UserService implements UserDetailsService {
 
     //회원가입
     @Transactional(timeout = 10)
-    public void createUser(CreateUserDto dto) {
+    public void createUser(CreateUserDto dto) throws IOException {
         //tier 정보 가져와서 저장하기
         //과정 : gameName과 tagLine으로 puuid 가져오기 -> puuid로 summonerId 와 profileIconId 가져오기
         //-> summonerId로 tier 가져오기...
@@ -65,9 +71,24 @@ public class UserService implements UserDetailsService {
         SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
         String tier = apiService.getSummonerTierName(summonerDto);
 
-        //dto로 받은 유저정보와 tier 정보, profileIconId, updatedAt 저장하기
-        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid(), summonerDto.getProfileIconId(), LocalDateTime.now()));
+        // 모스트 챔피언 이름 가져오기
+        List<String> mostChampionNames = getMostChampionNames(puuidDto.getPuuid());
+
+        // dto로 받은 유저 정보와 추가 정보 저장하기
+        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier,
+                puuidDto.getPuuid(), summonerDto.getProfileIconId(), LocalDateTime.now(),
+                mostChampionNames.get(0),mostChampionNames.get(1), mostChampionNames.get(2)));
     }
+
+
+    //모스트 챔피언의 이름을 가져오기
+    public List<String> getMostChampionNames(String puuid) throws IOException {
+        List<Long> championIds = apiService.callRiotApiMostChampion(puuid);
+        return championIds.stream()
+                .map(championId -> championDataLoader.findChampionIdByKey(String.valueOf(championId)))
+                .collect(Collectors.toList());
+    }
+
 
     //로그인
     @Transactional

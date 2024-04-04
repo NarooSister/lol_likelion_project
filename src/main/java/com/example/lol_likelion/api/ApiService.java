@@ -14,7 +14,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -97,6 +96,25 @@ public class ApiService {
 
         return matchIdDto;
     }
+
+    public List<Long> callRiotApiMostChampion(String puuid) {
+        String url = UriComponentsBuilder.fromUriString("https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{encryptedPUUID}/top")
+                .queryParam("api_key", apiKey)
+                .buildAndExpand(puuid)
+                .toUriString();
+
+        List<ChampionMasteryDto> championMasteryDtoList = authRestClient.get()
+                .uri(url)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>(){});
+
+        // 상위 3개 챔피언 ID 추출
+        return championMasteryDtoList.stream()
+                .limit(3)
+                .map(ChampionMasteryDto::getChampionId)
+                .collect(Collectors.toList());
+    }
+
 
     // update시 사용하는 최근 업데이트 시간 이후로 Match 가져오기
     // puuid로 matchId 가지고 오기
@@ -203,18 +221,6 @@ public class ApiService {
         //infoDto 안에 participantDto
         List<MatchDto.InfoDto.ParticipantDto> participants = matchDto.getInfo().getParticipants();
         return participants.get(index);
-    }
-
-    //최근 ?게임동안 플레이 한 챔피언
-    public String recentPlayChampion(MatchDto matchDto, PuuidDto puuidDto) {
-        //플레이어 10명 정보 가져오기
-        List<String> participantsPuuid = matchDto.getMetadata().getParticipants();
-        //나랑 puuid가 같은 participant의 순서
-        String puuid = puuidDto.getPuuid(); //내 puuid
-        int index = participantsPuuid.indexOf(puuid);
-        //infoDto 안에 participantDto
-        List<MatchDto.InfoDto.ParticipantDto> participants = matchDto.getInfo().getParticipants();
-        return participants.get(index).getChampionName();
     }
 
 }
