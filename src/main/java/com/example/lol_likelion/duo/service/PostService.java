@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +97,13 @@ public class PostService {
         post.setStatus(status);
 
         return PostDto.fromEntity(postRepository.save(post));
+    }
+
+    public void updateTime(Long postId){
+        Post post = postRepository.findById(postId).orElseThrow();
+        post.setCreatedAt(LocalDateTime.now());
+
+        postRepository.save(post);
     }
 
 }

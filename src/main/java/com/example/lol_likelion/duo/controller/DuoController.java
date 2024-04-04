@@ -327,4 +327,19 @@ public class DuoController {
 
         return "redirect:/duo/trust";
     }
+
+    @PutMapping("/myDuo/{postId}")
+    public String pullUpPost(
+            @PathVariable("postId")
+            Long postId,
+            RedirectAttributes redirectAttributes
+
+    ){
+        postService.updateTime(postId);
+
+        redirectAttributes.addFlashAttribute("message",
+                "글을 끌어 올렸습니다");
+
+        return "redirect:/duo";
+    }
 }

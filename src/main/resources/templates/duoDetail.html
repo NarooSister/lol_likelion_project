@@ -64,10 +64,17 @@
 <nav th:replace="~{navbar :: navbarFragment}"></nav>
 <div class="container mt-5">
     <h1>테스트 중입니다</h1>
-    <form th:action="@{/duo/myDuo/{postId}(postId=${posts.id})}" th:method="post">
-        <input type="hidden" name="_method" value="delete">
-        <input type="submit" class="btn btn-danger" value="삭제하기">
-    </form>
+    <div>
+        <form th:action="@{/duo/myDuo/{postId}(postId=${posts.id})}" th:method="post" style="display: inline;">
+            <input type="hidden" name="_method" value="delete">
+            <input type="submit" class="btn btn-danger" value="삭제하기">
+        </form>
+
+        <form th:action="@{/duo/myDuo/{postId}(postId=${posts.id})}" th:method="post" style="display: inline;">
+            <input type="hidden" name="_method" value="put">
+            <input type="submit" class="btn btn-success" value="끌어올리기">
+        </form>
+    </div>
     <div>
         <table class="table table-striped" id="postTable">
             <thead>
