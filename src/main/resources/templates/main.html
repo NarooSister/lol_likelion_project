@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>소환사 검색</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- 네비게이션바 -->
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
+
+<div class="container text-center mt-5">
+    <!-- 이미지 중앙 배치 -->
+    <img src="/images/img-removebg.png" alt="사자 아이콘" class="mb-4" style="max-width: 500px;">
+    <!-- 검색 폼 -->
+    <form id="searchForm" method="post" action="/users/search" class="d-flex justify-content-center mb-2">
+        <input type="text" name="gameName" class="form-control me-2" placeholder="소환사 닉네임 입력" required>
+        <input type="text" name="tagLine" class="form-control me-2" placeholder="게임 태그(Ex.#KR1) 입력" required>
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+</body>
+</html>
