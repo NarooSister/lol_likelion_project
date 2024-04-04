@@ -6,7 +6,9 @@ import com.example.lol_likelion.auth.jwt.JwtTokenUtils;
 import com.example.lol_likelion.auth.service.UserService;
 import com.example.lol_likelion.user.dto.UserBadgeDto;
 import com.example.lol_likelion.user.entity.Badge;
+import com.example.lol_likelion.user.entity.Follow;
 import com.example.lol_likelion.user.service.BadgeService;
+import com.example.lol_likelion.user.service.FollowService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -31,6 +33,7 @@ public class UserController {
     private final UserService service;
     private final JwtTokenUtils jwtTokenUtils;
     private final BadgeService badgeService;
+    private final FollowService followService;
 
 
     @GetMapping("/")
@@ -115,14 +118,21 @@ public class UserController {
         return "redirect:/";
     }
 
-    @GetMapping("/logout")
+    /*@GetMapping("/logout")
     public String logout(HttpServletResponse response) {
         // 쿠키 파기
         Cookie cookie = new Cookie("token", null);
+        cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
 
-        return "main";
+        return "redirect:/";
+    }*/
+    @PostMapping("/logout")
+    public String logout(HttpServletResponse response) {
+
+        // 리다이렉트는 클라이언트 측에서 처리됨
+        return "redirect:/"; // 이 부분은 실제로는 수행되지 않지만, 일반적인 Spring 컨트롤러 메소드 구조를 따릅니다.
     }
 
     @GetMapping("/my-page")
@@ -142,6 +152,17 @@ public class UserController {
         Badge badge = new Badge();
         model.addAttribute("badgeEntity", badge);
         model.addAttribute("badgeList", badgeList);
+
+        //=================팔로워 팔로잉 리스트==================
+
+        List<Follow> followers = followService.findFollowersByUserId(user.getId());
+        model.addAttribute("followers", followers);
+        List<Follow> following = followService.findFollowingByUserId(user.getId());
+        model.addAttribute("followings", following);
+        Integer followerCount = followService.countFollows(user.getId());
+        Integer followingCount = followService.countFollowings(user.getId());
+        model.addAttribute("followerCount", followerCount);
+        model.addAttribute("followingCount", followingCount);
 
         return "my-page";
     }

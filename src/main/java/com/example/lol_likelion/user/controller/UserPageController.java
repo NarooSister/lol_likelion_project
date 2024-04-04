@@ -8,8 +8,10 @@ import com.example.lol_likelion.api.dto.SummonerDto;
 import com.example.lol_likelion.api.dto.matchdata.MatchDto;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.auth.utils.AuthenticationFacade;
 import com.example.lol_likelion.user.dto.UserBadgeDto;
 import com.example.lol_likelion.user.dto.UserProfileDto;
+import com.example.lol_likelion.user.entity.Follow;
 import com.example.lol_likelion.user.entity.Badge;
 import com.example.lol_likelion.user.entity.UserBadge;
 import com.example.lol_likelion.user.service.FollowService;
@@ -38,6 +40,7 @@ public class UserPageController {
     private final UserService userService;
     private final FollowService followService;
     private final BadgeService badgeService;
+    private final AuthenticationFacade authenticationFacade;
 
 
     // 소환사 닉네임과 태그로 검색하기
@@ -72,15 +75,46 @@ public class UserPageController {
         String decodedTagLine = URLDecoder.decode(tagLine, StandardCharsets.UTF_8);
 
         //로그인 된 유저인지 확인하기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = authenticationFacade.getAuth();
         boolean isAuthenticated = authentication != null &&
                 !(authentication instanceof AnonymousAuthenticationToken)
                 && authentication.isAuthenticated();
         model.addAttribute("isAuthenticated", isAuthenticated);
 
+//======================================Follow 수정=====================================================
+
+        // 비로그인 상태의 유저가 접근할 때 오류나는 것 해결
+        // 대신 db에 저장된 유저 페이지라도 view에서 followers, following 볼 수 없음.
+
+        if (isAuthenticated && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String userName = userDetails.getUsername();
+            System.out.println("사용자 이름 : " + userName);
+
+            UserEntity userEntity = userService.getUserByUsername(userName);
+            if (userEntity != null) {
+                Long userId = userEntity.getId();
+                System.out.println("사용자 id : " + userId);
+
+                // 로그인한 사용자에 대한 추가 처리...
+                UserEntity pageUserEntity = userService.findByGameNameAndTagLine(decodedGameName, decodedTagLine);
+                model.addAttribute("pageUser", pageUserEntity); // 페이지 유저 정보 모델에 추가
+
+                if (pageUserEntity != null) {
+                    Long pageUserId = pageUserEntity.getId();
+                    UserProfileDto dto = followService.userProfile(pageUserId, userId);
+                    model.addAttribute("dto", dto); // 팔로우 상태 및 기타 정보 모델에 추가
+                }
+            }
+        } else {
+            // 인증되지 않았거나 UserDetails 타입이 아닌 경우의 처리
+            System.out.println("익명 사용자 접근 또는 UserDetails 타입이 아님.");
+        }
+
 
         // ============================follow============================
 
+      /*
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
         System.out.println("사용자 이름 : " + userName);
@@ -89,20 +123,26 @@ public class UserPageController {
         Long userId = userEntity.getId();
         System.out.println("사용자 id : " + userId);
 
-        UserEntity userEntity2 = userService.findByGameNameAndTagLine(gameName, tagLine);
+        // 검색해서 받아올 때 띄어쓰기가 있으면 A+B+C 이렇게 받아와지는데
+        // DB 에는 A B C 이렇게 되어있기 때문에 gameName 을 찾지 못해서 null 로 계속 보내졌던 거다 !!!
+        // 그래서 replace 해줘서 다시 받아와야 한다 !!
+        // String changeGameName = gameName.replace('+', ' ');
+        // -> encoding시 띄어쓰기에 +가 생겨서 다시 decoding 해줌.
+
+        UserEntity userEntity2 = userService.findByGameNameAndTagLine(decodedGameName, decodedTagLine);
+
         if (userEntity2 != null) {
             Long pageUserId = userEntity2.getId();
             System.out.println("gameName/tagLine : " + pageUserId);
 
             UserProfileDto dto = followService.userProfile(pageUserId, userId);
-
             model.addAttribute("dto", dto);
 
-            System.out.println("model: " + model);
+            System.out.println(dto);
         } else {
             System.out.println("유저가 아님");
         }
-
+      */
         // ==============================================================
 
         //puuid 불러오기
@@ -183,7 +223,7 @@ public class UserPageController {
     @GetMapping("/represent-badge")
     public String getBadgeList(Model model, Authentication authentication) {
         //로그인 된 유저인지 확인하기
-        authentication = SecurityContextHolder.getContext().getAuthentication();
+        authentication = authenticationFacade.getAuth();
         boolean isAuthenticated = authentication != null &&
                 !(authentication instanceof AnonymousAuthenticationToken)
                 && authentication.isAuthenticated();
@@ -216,5 +256,64 @@ public class UserPageController {
 
         return "redirect:/my-page";
     }
+
+    @PostMapping("/follow/{userPageId}")
+    public String follow(@PathVariable Long userPageId, Model model,  Authentication authentication) throws Exception {
+        // 로그인한 사람 ID
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("사용자 이름 : " + userName);
+
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long followerId = userEntity.getId();
+        System.out.println("사용자 id : " + followerId);
+  
+        //===============================================================
+  
+        UserEntity userPage = userService.findUserById(userPageId);
+        String gameName = userPage.getGameName();
+        String tagLine = userPage.getTagLine();
+        Long followingId = userPageId;
+
+        System.out.println("팔로우할 id : " + followingId);
+
+        followService.follow(followingId,followerId);
+
+        // URL 인코딩 수행
+        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+        String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
+
+        // 인코딩된 값을 사용하여 리디렉션 URL 구성
+        return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
+
+    }
+
+    @DeleteMapping("/unfollow/{userPageId}")
+    public String unfollow(@PathVariable Long userPageId, Model model,  Authentication authentication) throws Exception {
+        // 로그인한 사람 ID
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        System.out.println("사용자 이름 : " + userName);
+
+        UserEntity userEntity = userService.getUserByUsername(userName);
+        Long followerId = userEntity.getId();
+        System.out.println("사용자 id : " + followerId);
+
+        //===============================================================
+      
+        UserEntity userPage = userService.findUserById(userPageId);
+        String gameName = userPage.getGameName();
+        String tagLine = userPage.getTagLine();
+        Long followingId = userPageId;
+        // URL 인코딩 수행
+        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+        String encodedTagLine = URLEncoder.encode(tagLine, StandardCharsets.UTF_8);
+
+        followService.unfollow(userPageId, followerId);
+        // 인코딩된 값을 사용하여 리디렉션 URL 구성
+        return "redirect:/users/" + encodedGameName + "/" + encodedTagLine;
+
+    }
+
 
 }

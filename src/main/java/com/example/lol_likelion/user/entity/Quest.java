@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDate;
+
 
 @Getter
 @Entity
@@ -22,6 +24,8 @@ public class Quest {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    //마지막 게임 날짜
+    private LocalDate lastPlayDate;
     // 연속적인 게임 일수
     // 조건 - 7일, 30일)
     private Integer continuousDailyGame=0;

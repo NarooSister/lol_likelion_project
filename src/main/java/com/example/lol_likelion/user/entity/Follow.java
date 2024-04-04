@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +32,11 @@ public class Follow {
     @Setter
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Setter
+    private Long followingUser;
+    @Setter
+    private Long followerUser;
 
     public Follow(UserEntity follower, UserEntity following, LocalDateTime createdAt) {
         this.follower = follower;
