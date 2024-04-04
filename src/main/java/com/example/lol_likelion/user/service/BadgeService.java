@@ -90,19 +90,20 @@ public class BadgeService {
 
                 //마지막 게임 날짜 가지고 오기
                 Long gameStartTimestamp = matchDto.getInfo().getGameStartTimestamp();
-                log.info("gameStartTimestamp: " + gameStartTimestamp);
+                //log.info("gameStartTimestamp: " + gameStartTimestamp);
                 LocalDate lastPlayDate = Instant.ofEpochSecond(gameStartTimestamp)
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate();
                 questDto.setLastPlayDate(lastPlayDate);
 
-                log.info("lastPlayDate: " + lastPlayDate);
+                //log.info("lastPlayDate: " + lastPlayDate);
 
                 if(matchDto != null){
                     //i번 째 matchDto를 matchDtoList에 담음
                     matchDtoList.add(matchDto);
                     //i번째 경기 중 내 정보를 담음
                     MatchDto.InfoDto.ParticipantDto participantDto = apiService.myInfoFromParticipants(matchDto, puuidDto);
+                    log.info("participantDto에서 가져오기 test, ward:" +participantDto.getWardsPlaced());
                     if(participantDto != null){
                         participantDtoList.add(participantDto);
                     }
@@ -122,9 +123,13 @@ public class BadgeService {
                     questDto.setWinningStreak(0);
                 }
                 questDto.setTriplekillCount(questDto.getTriplekillCount() + participantDto.getTripleKills());
+                System.out.println("questDto.getTriplekillCount:" + questDto.getTriplekillCount());
+                System.out.println("participantDto.getTripleKills:" + participantDto.getTripleKills());
                 questDto.setQuadrakillCount(questDto.getQuadrakillCount() + participantDto.getQuadraKills());
                 questDto.setPentakillCount(questDto.getPentakillCount() + participantDto.getPentaKills());
                 questDto.setVisionWardPlaced(questDto.getVisionWardPlaced() + participantDto.getWardsPlaced());
+                log.info("questDto.getvisionWard:" + questDto.getVisionWardPlaced());
+                log.info("participantDto.getWardsPlaced:" + participantDto.getWardsPlaced());
                 questDto.setWardsTakedowns(questDto.getWardsTakedowns() + participantDto.getWardsKilled());
                 if (participantDto.getFirstBloodKill()) {
                     questDto.setFirstBloodCount(questDto.getFirstBloodCount() + 1);

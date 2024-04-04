@@ -111,40 +111,6 @@ public class UserPageController {
             System.out.println("익명 사용자 접근 또는 UserDetails 타입이 아님.");
         }
 
-
-        // ============================follow============================
-
-      /*
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String userName = userDetails.getUsername();
-        System.out.println("사용자 이름 : " + userName);
-
-        UserEntity userEntity = userService.getUserByUsername(userName);
-        Long userId = userEntity.getId();
-        System.out.println("사용자 id : " + userId);
-
-        // 검색해서 받아올 때 띄어쓰기가 있으면 A+B+C 이렇게 받아와지는데
-        // DB 에는 A B C 이렇게 되어있기 때문에 gameName 을 찾지 못해서 null 로 계속 보내졌던 거다 !!!
-        // 그래서 replace 해줘서 다시 받아와야 한다 !!
-        // String changeGameName = gameName.replace('+', ' ');
-        // -> encoding시 띄어쓰기에 +가 생겨서 다시 decoding 해줌.
-
-        UserEntity userEntity2 = userService.findByGameNameAndTagLine(decodedGameName, decodedTagLine);
-
-        if (userEntity2 != null) {
-            Long pageUserId = userEntity2.getId();
-            System.out.println("gameName/tagLine : " + pageUserId);
-
-            UserProfileDto dto = followService.userProfile(pageUserId, userId);
-            model.addAttribute("dto", dto);
-
-            System.out.println(dto);
-        } else {
-            System.out.println("유저가 아님");
-        }
-      */
-        // ==============================================================
-
         //puuid 불러오기
         PuuidDto puuidDto = apiService.callRiotApiPuuid(gameName, tagLine);
         String puuid = puuidDto.getPuuid();
@@ -172,7 +138,7 @@ public class UserPageController {
         //매 경기 내 정보만(participantDto 중 내 puuid와 같은 내용) 담을 List
         List<MatchDto.InfoDto.ParticipantDto> participantDtoList = new ArrayList<>();
         //matchList의 크기 만큼 반복(ex 5)
-        for (int i = 0; i < 4/*matchIdList.size()*/; i++) {
+        for (int i = 0; i < matchIdList.size(); i++) {
             //한 개의 matchId 가져오기
             String matchId = matchIdList.get(i);
             //가져온 matchId로 인게임 match 정보 가져오기

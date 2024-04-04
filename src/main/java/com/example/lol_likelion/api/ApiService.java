@@ -82,7 +82,7 @@ public class ApiService {
                 .queryParam("queue", 420)
                 .queryParam("type", "ranked")
                 .queryParam("api_key", this.apiKey)
-                .queryParam("count", 5)
+                .queryParam("count", 10)
                 .buildAndExpand(puuidDto.getPuuid())
                 .toUriString();
 
@@ -106,7 +106,7 @@ public class ApiService {
                 .queryParam("queue", 420)
                 .queryParam("type", "ranked")
                 .queryParam("api_key", this.apiKey)
-                .queryParam("count", 5)
+                .queryParam("count", 10)
                 .buildAndExpand(puuid)
                 .toUriString();
 
