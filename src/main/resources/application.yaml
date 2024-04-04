@@ -1,3 +1,10 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/lion
+    username: root
+    password: root
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -10,6 +17,14 @@ logging:
   level:
     org:
       springframework:
-        security:
-          web:
-            FilterChainProxy: Debug
+        security: Debug
+    root: info
+
+
+riot:
+  api:
+    key: RGAPI-0f072dec-9a05-42c7-90fe-2a70d5af7be1
+
+
+jwt:
+  secret: asdo42j42jdfjlsfj1j5pr3krjfjfj1f3jfgjgkd77356789asrf2
