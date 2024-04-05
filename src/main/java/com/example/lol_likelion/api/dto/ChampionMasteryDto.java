@@ -10,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class MostChampionDto {
-    private List<Integer> championId;
+public class ChampionMasteryDto {
+    private Long championId;
+    private String puuid;
 }

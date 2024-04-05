@@ -18,13 +18,12 @@
                     <div class="col-lg-8 col-xl-6">
                         <h1 class="text-center mb-5">소환사 닉네임 변경</h1>
                         <form th:action="@{/users/game-name}" th:method="post" th:object="${updateGameNameDto}" >
-
                             <div class="form-floating mb-3">
                                 <input class="form-control" id="gameName" name="gameName" type="text"
                                        placeholder="소환사 닉네임을 작성해 주세요." required>
                                 <label for="gameName">소환사 닉네임</label>
                                 <div class="error-class" th:errors="*{gameName}"></div>
-
+                            </div>
                             <div class="form-floating mb-3">
                                 <input class="form-control" id="tagLine" name="tagLine" type="text"
                                        placeholder="게임 태그를 작성해 주세요." required>
@@ -36,7 +35,6 @@
                                 <button class="btn btn-primary btn-lg" id="gameName-check-button" type="submit">Submit</button>
                             </div>
                             <div style="margin-top: 16px; text-align: right"><a href="/my-page">마이 페이지로 돌아가기</a></div>
-                            </div>
                         </form>
                     </div>
 

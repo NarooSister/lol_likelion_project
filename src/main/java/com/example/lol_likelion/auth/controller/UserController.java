@@ -4,6 +4,11 @@ import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.jwt.JwtTokenUtils;
 import com.example.lol_likelion.auth.service.UserService;
+import com.example.lol_likelion.user.dto.UserBadgeDto;
+import com.example.lol_likelion.user.entity.Badge;
+import com.example.lol_likelion.user.entity.Follow;
+import com.example.lol_likelion.user.service.BadgeService;
+import com.example.lol_likelion.user.service.FollowService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -17,6 +22,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class UserController {
@@ -25,6 +33,8 @@ public class UserController {
 
     private final UserService service;
     private final JwtTokenUtils jwtTokenUtils;
+    private final BadgeService badgeService;
+    private final FollowService followService;
 
 
     @GetMapping("/")
@@ -47,8 +57,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String create(@Valid CreateUserDto dto, BindingResult bindingResult)
-    {
+    public String create(@Valid CreateUserDto dto, BindingResult bindingResult) throws IOException {
         //Username 중복 체크
         if(service.checkUsername(dto.getUsername())) {
             bindingResult.addError(new FieldError("dto", "username", "로그인 아이디가 중복됩니다."));
@@ -70,6 +79,7 @@ public class UserController {
             bindingResult.addError(new FieldError("dto", "passwordCheck", "비밀번호가 일치하지 않습니다."));
         }
 
+        //에러 메시지 보내기
         if(bindingResult.hasErrors()) {
             return "register";
         }
@@ -109,14 +119,10 @@ public class UserController {
         return "redirect:/";
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpServletResponse response) {
-        // 쿠키 파기
-        Cookie cookie = new Cookie("token", null);
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-
-        return "main";
+    @PostMapping("/logout")
+    public String logout() {
+        //JS로 처리
+        return "redirect:/";
     }
 
     @GetMapping("/my-page")
@@ -130,6 +136,25 @@ public class UserController {
                 !(authentication instanceof AnonymousAuthenticationToken)
                 && authentication.isAuthenticated();
         model.addAttribute("isAuthenticated", isAuthenticated);
+
+        //================뱃지 불러오기===========================
+        List<UserBadgeDto> badgeList = badgeService.readAllBadge(user);
+        Badge badge = new Badge();
+        model.addAttribute("badgeEntity", badge);
+        model.addAttribute("badgeList", badgeList);
+
+        //=================팔로워 팔로잉 리스트==================
+
+        List<Follow> followers = followService.findFollowersByUserId(user.getId());
+        model.addAttribute("followers", followers);
+
+        List<Follow> following = followService.findFollowingByUserId(user.getId());
+        model.addAttribute("followings", following);
+
+        Integer followerCount = followService.countFollows(user.getId());
+        Integer followingCount = followService.countFollowings(user.getId());
+        model.addAttribute("followerCount", followerCount);
+        model.addAttribute("followingCount", followingCount);
 
         return "my-page";
     }
@@ -151,11 +176,13 @@ public class UserController {
         model.addAttribute("user", user);
         return "redirect:/my-page";
     }
+
     @GetMapping("/users/password")
     public String updatePasswordForm(Model model){
         model.addAttribute("updatePasswordDto", new UpdatePasswordDto());
         return "password-update";
     }
+
     @PostMapping("/users/password")
     public String updatePassword(@Valid UpdatePasswordDto dto, BindingResult bindingResult) {
 
@@ -182,6 +209,7 @@ public class UserController {
         model.addAttribute("updateGameNameDto", new UpdateGameNameDto());
         return "gameName-update";
     }
+
     @PostMapping("/users/game-name")
     public String updateGameName(@Valid UpdateGameNameDto dto, BindingResult bindingResult){
 
@@ -203,6 +231,5 @@ public class UserController {
         service.updateGameName(dto);
         return "redirect:/my-page";
     }
-
 
 }

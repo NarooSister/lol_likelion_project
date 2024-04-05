@@ -38,7 +38,6 @@ public class WebSecurityConfig {
                         auth -> auth
                                 .requestMatchers(
                                         "/my-page",
-                                        "/logout",
                                         "/users",
                                         "/users/password",
                                         "/users/game-name",
@@ -47,21 +46,20 @@ public class WebSecurityConfig {
                                         "/duo/myDuo/{postId}",
                                         "/duo/offer/{postId}",
                                         "/duo/offer/accept/{offerId}",
-                                        "/duo/offer/deny/{offerId}"
-                                        
+                                        "/duo/offer/deny/{offerId}",
+                                        "/users/represent-badge"
                                 )
                                 .authenticated()
-                              //  .hasAnyAuthority("ROLE_USER")
                                 .requestMatchers(
                                         "/",
                                         "/error",
+                                        "/logout",
                                         "/login",
                                         "/register",
-                                        "/users/authentication-fail",
-                                        "/users/authorization-fail",
+                                        "/authentication-fail",
+                                        "/authorization-fail",
                                         "/users/{gameName}/{tagLine}",
                                         "/users/search",
-                                        "/api/users11",
                                         "/duo"
 
                                 )
@@ -76,12 +74,11 @@ public class WebSecurityConfig {
 //                        .defaultSuccessUrl("/users/my-page")
 //                        .failureUrl("/users/login")
 //        )
-//
-//                .logout(
-//                        logout -> logout
-//                                .logoutUrl("/users/logout")
-//                                .logoutSuccessUrl("/users/login")
-//                )
+                .logout(
+                        logout -> logout
+                                .logoutUrl("/logout")
+                                .logoutSuccessUrl("/")
+                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -99,17 +96,16 @@ public class WebSecurityConfig {
                                     //api 요청의 경우 실패하면 error 출력
                                     //화면 요청의 경우 실패하면 에러 페이지로 redirect
                                     if (!request.getRequestURI().contains("api")) {
-                                        response.sendRedirect("/users/authentication-fail");
+                                        response.sendRedirect("/authentication-fail");
                                     }
                                 })
                                 //인가 실패
                                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                                     if (!request.getRequestURI().contains("api")) {
-                                        response.sendRedirect("/users/authorization-fail");
+                                        response.sendRedirect("/authorization-fail");
                                     }
                                 })
                 );
-
 
         return http.build();
     }

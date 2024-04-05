@@ -12,7 +12,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,9 +47,15 @@ public class UserEntity {
     @Setter
     private String tier;
     @Setter
-    private Integer dailyGameCount;
+    private Integer dailyGameCount; //하루에 플레이 한 게임 카운트-> 잔디 구현을 위해서는 List나 Set으로 고쳐야 함
+
     @Setter
     private Integer profileIconId;
+
+    @Setter
+    private Integer leagueWins;
+    @Setter
+    private Integer leagueLosses;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -56,11 +64,11 @@ public class UserEntity {
     private LocalDateTime updatedAt;        // 유저 페이지에서 최근 업데이트 된 시간
 
     @Setter
-    @OneToMany(mappedBy = "following")
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
     private List<Follow> followerList;
 
     @Setter
-    @OneToMany(mappedBy = "follower")
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
     private List<Follow> followingList;
 
     @Builder.Default
@@ -72,12 +80,19 @@ public class UserEntity {
 
     @Setter
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<UserBadge> userBadges = new HashSet<>();
+    private Set<UserBadge> userBadges;
 
     @Setter
     private Integer trustScore;
     @Setter
     private Integer level;
+    @Setter
+    private String firstChampion;
+    @Setter
+    private String secondChampion;
+    @Setter
+    private String thirdChampion;
+
 
     @Setter
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
@@ -86,5 +101,16 @@ public class UserEntity {
     @Setter
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
     private List<Offer> offer;
+
+    //유저 생성할 때 Quest도 생성
+    @PrePersist
+    public void initializeQuest() {
+        if (this.quest == null) {
+            Quest newQuest = new Quest();
+            // Quest 기본값 설정
+            newQuest.setUser(this); // 양방향 설정
+            this.quest = newQuest;
+        }
+    }
 
 }

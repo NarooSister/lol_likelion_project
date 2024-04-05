@@ -8,6 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class AuthenticationFacade {
     //사용자 인증 여부 확인하여 인증 객체 반환
@@ -19,5 +21,13 @@ public class AuthenticationFacade {
     public UserEntity extractUser() {
         CustomUserDetails userDetails = (CustomUserDetails) getAuth().getPrincipal();
         return userDetails.getEntity();
+    }
+
+    public Optional<UserEntity> extractOptionalUser() {
+        Authentication auth = getAuth();
+        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails userDetails) {
+            return Optional.of(userDetails.getEntity());
+        }
+        return Optional.empty();
     }
 }

@@ -38,6 +38,9 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
                     "WHERE following_id = :pageUserId", nativeQuery = true)
     Long followingCount(@Param("pageUserId") Long pageUserId);
 
+
+
+
 }
 
 

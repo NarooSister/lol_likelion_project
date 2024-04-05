@@ -3,27 +3,30 @@ package com.example.lol_likelion.auth.service;
 import com.example.lol_likelion.api.ApiService;
 import com.example.lol_likelion.api.dto.PuuidDto;
 import com.example.lol_likelion.api.dto.SummonerDto;
+import com.example.lol_likelion.auth.config.ChampionDataLoader;
 import com.example.lol_likelion.auth.dto.*;
 import com.example.lol_likelion.auth.entity.UserEntity;
 import com.example.lol_likelion.auth.repository.UserRepository;
 import com.example.lol_likelion.auth.utils.AuthenticationFacade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
@@ -31,6 +34,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final ApiService apiService;
     private final AuthenticationFacade authenticationFacade;
+    private final ChampionDataLoader championDataLoader;
 
     //존재하는 아이디인지 확인
     public boolean checkUsername(String username) {
@@ -41,7 +45,6 @@ public class UserService implements UserDetailsService {
     public boolean checkGameName(String gameName, String tagLine){
         return userRepository.existsByGameNameAndTagLine(gameName, tagLine);
     }
-
 
     //Riot Api를 통해 실제로 있는 소환사 아이디인지 확인
     public boolean riotApiCheckGameName(String gameName, String tagLine) {
@@ -59,7 +62,7 @@ public class UserService implements UserDetailsService {
 
     //회원가입
     @Transactional(timeout = 10)
-    public void createUser(CreateUserDto dto) {
+    public void createUser(CreateUserDto dto) throws IOException {
         //tier 정보 가져와서 저장하기
         //과정 : gameName과 tagLine으로 puuid 가져오기 -> puuid로 summonerId 와 profileIconId 가져오기
         //-> summonerId로 tier 가져오기...
@@ -68,9 +71,24 @@ public class UserService implements UserDetailsService {
         SummonerDto summonerDto = apiService.callRiotApiSummonerId(puuidDto);
         String tier = apiService.getSummonerTierName(summonerDto);
 
-        //dto로 받은 유저정보와 tier 정보, profileIconId 저장하기
-        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier, puuidDto.getPuuid(), summonerDto.getProfileIconId()));
+        // 모스트 챔피언 이름 가져오기
+        List<String> mostChampionNames = getMostChampionNames(puuidDto.getPuuid());
+
+        // dto로 받은 유저 정보와 추가 정보 저장하기
+        userRepository.save(dto.toEntity(passwordEncoder.encode(dto.getPassword()), tier,
+                puuidDto.getPuuid(), summonerDto.getProfileIconId(), LocalDateTime.now(),
+                mostChampionNames.get(0),mostChampionNames.get(1), mostChampionNames.get(2)));
     }
+
+
+    //모스트 챔피언의 이름을 가져오기
+    public List<String> getMostChampionNames(String puuid) throws IOException {
+        List<Long> championIds = apiService.callRiotApiMostChampion(puuid);
+        return championIds.stream()
+                .map(championId -> championDataLoader.findChampionIdByKey(String.valueOf(championId)))
+                .collect(Collectors.toList());
+    }
+
 
     //로그인
     @Transactional
@@ -130,7 +148,6 @@ public class UserService implements UserDetailsService {
 
     // 새 소환사 닉네임 업데이트
     // 닉네임 변경에 따른 puuid, 티어, 프로필 아이콘 변경
-    // TODO: 소환사 닉네임 바꾸면 뱃지 초기화 해야 할지 ?
     @Transactional
     public void updateGameName(UpdateGameNameDto dto){
         UserEntity user = authenticationFacade.extractUser();
@@ -159,6 +176,27 @@ public class UserService implements UserDetailsService {
     public UserEntity findByGameNameAndTagLine(String gameName, String tagLine) {
         Optional<UserEntity> optionalUser = userRepository.findByGameNameAndTagLine(gameName, tagLine);
         return optionalUser.orElse(null);
+    }
+
+    public UserEntity findUserById(Long userId){
+        return userRepository.findById(userId).orElseThrow();
+    }
+
+    public UserEntity findById(Long userId){
+        return userRepository.findById(userId).orElseThrow();
+    }
+
+    public void updateTrust(Long userId, Integer trustScore){
+
+        UserEntity user = userRepository.findById(userId).orElseThrow();
+        int score = 0;
+        if (user.getTrustScore() != null) {
+            score = user.getTrustScore();
+        }
+        score = score + trustScore;
+        user.setTrustScore(score);
+
+        userRepository.save(user);
     }
 
 
