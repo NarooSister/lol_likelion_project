@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시물 및 제안</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .split-screen {
+            display: flex;
+            height: 100vh;
+        }
+        .left-pane, .center-pane, .right-pane {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+        .left-pane h2, .right-pane h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .heart-icon {
+            font-size: 100px; /* Adjust size as needed */
+            color: red;
+        }
+        .game-info {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .game-name {
+            font-weight: bold;
+            font-size: 20px;
+            color: #007bff;
+        }
+        .tag-line {
+            font-style: italic;
+            font-size: 16px;
+            color: #6c757d;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        .evaluate-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .evaluate-button:hover {
+            background-color: #0056b3;
+        }
+        .cancel-button {
+            background-color: #dc3545; /* Red color for cancel button */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .cancel-button:hover {
+            background-color: #c82333;
+        }
+        .tier-icon {
+            width: 300px;
+            height: 300px;
+            margin-right: 5px;
+        }
+        .profile-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .findPosition-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .myPosition-icon{
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="split-screen">
+    <div class="left-pane">
+        <h2>작성자</h2>
+        <div th:each="post : ${posts}" class="game-info">
+            <input type="hidden" th:value="${posts.getId()}" name="postId" id="postId">
+            <!-- Add more post details as needed -->
+            <p th:with="postUserInfo=${posts.userEntity}">
+                <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${posts.userEntity.tier} + '.png'}" alt="Ranked Emblems">
+                <br>
+                <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${postUserInfo.profileIconId} + '.png'}">
+                <span class="game-name" th:text="${postUserInfo.gameName}"></span> <span>#</span> <span class="tag-line" th:text="${postUserInfo.tagLine}"></span>
+                <br>
+                <img class="myPosition-icon" th:src="@{'/images/rankedPosition/Position_Challenger-' + ${posts.myPosition} + '.png'}" alt="Position Emblems">
+                <input type="hidden" th:value="${postUserInfo.getId()}" name="postUserId" id="postUserId">
+            </p>
+        </div>
+    </div>
+    <div class="center-pane">
+        <span class="heart-icon">&hearts;</span>
+        <div class="button-container">
+            <button class="evaluate-button" onclick="redirectToResult()">평가하기</button>
+            <br>
+            <br>
+            <button class="cancel-button" onclick="cancelOffer()">취소하기</button>
+        </div>
+    </div>
+    <div class="right-pane">
+        <h2>신청자</h2>
+        <div th:each="offer : ${offers}" class="game-info">
+            <!-- Add more offer details as needed -->
+            <input type="hidden" th:value="${offers.getId()}" id="offerId" name="offerId">
+            <p th:with="offerUserInfo=${offers.userEntity}">
+                <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${offers.userEntity.tier} + '.png'}" alt="Ranked Emblems">
+                <br>
+                <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${offerUserInfo.profileIconId} + '.png'}">
+                <span class="game-name" th:text="${offerUserInfo.gameName}"></span> <span>#</span> <span class="tag-line" th:text="${offerUserInfo.tagLine}"></span>
+                <br>
+                <img class="findPosition-icon" th:src="@{'/images/rankedPosition/Position_Grandmaster-' + ${offers.post.findPosition} + '.png'}" alt="Position Emblems">
+                <input type="hidden" th:value="${offerUserInfo.getId()}" name="offerUserId" id="offerUserId">
+            </p>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    function redirectToResult() {
+        var postUserId = document.getElementById("postUserId").value;
+        var offerUserId = document.getElementById("offerUserId").value;
+        var postId = document.getElementById("postId").value;
+        var offerId = document.getElementById("offerId").value;
+        var url = "/duo/offer/result/" + postUserId + "/" + offerUserId + "/" + postId + "/" + offerId;
+        window.location.href = url;
+    }
+
+    function cancelOffer() {
+        // 취소하기 버튼을 눌렀을 때 수행할 작업을 여기에 추가합니다.
+        alert("Offer cancelled!"); // 예시로 경고창을 띄워보겠습니다.
+    }
+</script>
+</body>
+</html>

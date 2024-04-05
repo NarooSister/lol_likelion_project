@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <style>
+        .champion-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .profile-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .clickable {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        .game-name {
+            font-weight: bold;
+            color: black;
+        }
+        .tag-line {
+            color: rgb(128, 128, 128);
+        }
+        .memo-bubble {
+            position: relative;
+            display: inline-block;
+        }
+        .memo-text {
+            width: auto;
+            background-color: #f9f9f9;
+            color: #000;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+        }
+        .tier-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .findPosition-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .myPosition-icon{
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
+<div class="container mt-5">
+    <h1>내 글 보기</h1>
+    <div>
+        <form th:action="@{/duo/myDuo/{postId}(postId=${posts.id})}" th:method="post" style="display: inline;">
+            <input type="hidden" name="_method" value="delete">
+            <input type="submit" class="btn btn-danger" value="삭제하기">
+        </form>
+
+        <form th:action="@{/duo/myDuo/{postId}(postId=${posts.id})}" th:method="post" style="display: inline;">
+            <input type="hidden" name="_method" value="put">
+            <input type="submit" class="btn btn-success" value="끌어올리기">
+        </form>
+    </div>
+    <div>
+        <table class="table table-striped" id="postTable">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>사용자 정보</th>
+                <th>티어</th>
+                <th>내 포지션</th>
+                <th>선호 챔피언</th>
+                <th>찾는 포지션</th>
+                <th>메모</th>
+                <th>상태</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${posts.id}"></td>
+                <td th:with="userInfo=${posts.userEntity}">
+                    <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
+                    <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
+                </td>
+                <td th:unless="${posts.userEntity.tier} == 'Unranked'">
+                    <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${posts.userEntity.tier} + '.png'}" alt="Ranked Emblems">
+                </td>
+                <td th:if="${posts.userEntity.tier} == 'Unranked'" th:text="${posts.userEntity.tier}">
+
+                </td>
+                <td>
+                    <img class="myPosition-icon" th:src="@{'/images/rankedPosition/Position_Challenger-' + ${posts.myPosition} + '.png'}" alt="Position Emblems">
+                </td>
+                <td>
+                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
+                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
+                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
+                </td>
+                <td>
+                    <img class="findPosition-icon" th:src="@{'/images/rankedPosition/Position_Grandmaster-' + ${posts.findPosition} + '.png'}" alt="Position Emblems">
+                </td>
+                <td>
+                    <div class="memo-bubble">
+                        <span class="memo-text" th:text="${posts.memo}"></span>
+                    </div>
+                </td>
+                <td>
+                    <a th:text="${posts.status}"></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <h2>신청 목록</h2>
+        <hr class="my-4">
+        <div th:if="${posts.offer.isEmpty()}" class="alert alert-info" role="alert">글이 없어요</div>
+        <div th:unless="${posts.offer.isEmpty()}">
+            <div th:each="offer:${posts.offer}">
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>번호</th>
+                                <th>신청자</th>
+                                <th>티어</th>
+                                <th>상태</th>
+                                <th>선호 챔피언</th>
+                                <th>수락 / 거절</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td th:text="${offer.id}"></td>
+                                <td th:with="userInfo=${offer.userEntity}">
+                                    <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
+                                    <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
+                                </td>
+                                <td>
+                                    <img class="tier-icon" th:unless="${offer.userEntity.tier} == 'Unranked'" th:src="@{'/images/rankedEmblems/Rank=' + ${offer.userEntity.tier} + '.png'}" alt="Ranked Emblems">
+                                    <span th:if="${offer.userEntity.tier} == 'Unranked'" th:text="${offer.userEntity.tier}"></span>
+                                </td>
+                                <td class="status" th:text="${offer.status}"></td>
+                                <td>
+                                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Shyvana.png" alt="Shyvana">
+                                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Ahri.png" alt="Ahri">
+                                    <img class="champion-icon" src="https://ddragon.leagueoflegends.com/cdn/10.6.1/img/champion/Garen.png" alt="Garen">
+                                </td>
+                                <td th:unless="${offer.status == '완료'}">
+                                    <form style="display: inline-block;" method="post" th:action="@{/duo/offer/accept/{offerId}(offerId=${offer.id})}">
+                                        <button type="submit" class="btn btn-success">수락</button>
+                                    </form>
+                                    <form style="display: inline-block;" method="post" th:action="@{/duo/offer/deny/{offerId}(offerId=${offer.id})}">
+                                        <input type="hidden" name="_method" value="delete">
+                                        <button type="submit" class="btn btn-danger">거절</button>
+                                    </form>
+                                </td>
+                                <td th:if="${offer.status == '완료'}">
+                                    <button type="button" class="btn btn-success">완료</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

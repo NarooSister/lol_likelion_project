@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <style>
+        .champion-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .profile-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .clickable {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        .game-name {
+            font-weight: bold;
+            color: black;
+        }
+        .tag-line {
+            color: rgb(128, 128, 128);
+        }
+        .memo-bubble {
+            position: relative;
+            display: inline-block;
+        }
+        .memo-text {
+            width: auto;
+            background-color: #f9f9f9;
+            color: #000;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+        }
+        .tier-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .findPosition-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .myPosition-icon{
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .hidden-text{
+            display: none;
+        }
+        #filterForm {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
+<div class="container mt-5">
+    <h1>듀오 구하기</h1>
+    <!-- Filter Form -->
+    <form id="filterForm">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label for="tierFilter">티어</label>
+                <select class="form-control" id="tierFilter">
+                    <option value="">모두</option>
+                    <option value="Unranked">Unranked</option>
+                    <option value="IRON">Iron</option>
+                    <option value="BRONZE">Bronze</option>
+                    <option value="SILVER">Silver</option>
+                    <option value="GOLD">Gold</option>
+                    <option value="PLATINUM">Platinum</option>
+                    <option value="EMERALD">Emerald</option>
+                    <option value="DIAMOND">Diamond</option>
+                    <option value="Master">Master</option>
+                    <option value="Grandmaster">Grandmaster</option>
+                    <option value="CHALLENGER">Challenger</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="positionFilter">포지션</label>
+                <select class="form-control" id="positionFilter">
+                    <option value="">모두</option>
+                    <option value="top">탑</option>
+                    <option value="jungle">정글</option>
+                    <option value="mid">미드</option>
+                    <option value="bottom">원딜</option>
+                    <option value="supporter">서포트</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="statusFilter">구인 상태</label>
+                <select class="form-control" id="statusFilter">
+                    <option value="">모두</option>
+                    <option value="구인중">구인중</option>
+                    <option value="매칭중">매칭중</option>
+                    <option value="완료">완료</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label>&nbsp;</label><br>
+                <button class="btn btn-primary btn-block" type="submit">검색</button>
+            </div>
+        </div>
+
+    </form>
+    <!-- End Filter Form -->
+    <input type="hidden" th:if="${message != null}" th:value="${message}" name="message" id="message">
+    <table class="table table-striped" id="postTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>사용자 정보</th>
+            <th>티어</th>
+            <th>내 포지션</th>
+            <th>선호 챔피언</th>
+            <th>찾는 포지션</th>
+            <th>메모</th>
+            <th>상태</th>
+            <th>신청</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:unless="${posts.isEmpty()}" th:each="post : ${posts}">
+            <td th:text="${post.id}"></td>
+            <td th:with="userInfo=${post.userEntity}">
+                <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${userInfo.profileIconId} + '.png'}">
+                <span class="game-name" th:text="${userInfo.gameName}"></span>#<span class="tag-line" th:text="${userInfo.tagLine}"></span>
+            </td>
+            <td th:unless="${post.userEntity.tier} == 'Unranked'">
+                <span class="hidden-text" th:text="${post.userEntity.tier}"></span>
+                <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${post.userEntity.tier} + '.png'}" alt="Ranked Emblems">
+            </td>
+            <td th:if="${post.userEntity.tier} == 'Unranked'" th:text="${post.userEntity.tier}">
+                <span class="hidden-text" th:value="${post.userEntity.tier}"></span>
+            </td>
+            <td>
+                <img class="myPosition-icon" th:src="@{'/images/rankedPosition/Position_Challenger-' + ${post.myPosition} + '.png'}" alt="Position Emblems">
+            </td>
+            <td>
+                <img class="champion-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/' + ${post.userEntity.getFirstChampion()} + '.png'}" alt="모스트 챔피언">
+                <img class="champion-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/' + ${post.userEntity.getSecondChampion()}+ '.png'}" alt="모스트 챔피언">
+                <img class="champion-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/' + ${post.userEntity.getThirdChampion()}+ '.png'}" alt="모스트 챔피언">
+            </td>
+            <td>
+                <src class="hidden-text" th:text="${post.findPosition}"></src>
+                <img class="findPosition-icon" th:src="@{'/images/rankedPosition/Position_Grandmaster-' + ${post.findPosition} + '.png'}" alt="Position Emblems">
+            </td>
+            <td>
+                <div class="memo-bubble">
+                    <span class="memo-text" th:text="${post.memo}"></span>
+                </div>
+            </td>
+            <td>
+                <a th:text="${post.status}"></a>
+            </td>
+
+            <td th:unless="${post.getUserId() == userId or post.status == '매칭중' or post.status == '완료'}">
+                <div th:block th:if="${post.offer != null}">
+                    <form th:if="${post.offer.![applyUserId].contains(userId)}"
+                          th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
+                        <input type="hidden" name="_method" value="delete">
+                        <input type="hidden" name="userId" th:value="${userId}">
+                        <button type="submit" class="btn btn-danger">취소</button>
+                    </form>
+                    <form th:unless="${post.offer.![applyUserId].contains(userId)}"
+                          th:action="@{/duo/offer/{postId}(postId=${post.id})}" method="post">
+                        <button type="submit" class="btn btn-primary">신청</button>
+                    </form>
+                </div>
+            </td>
+            <td th:if="${post.getUserId() == userId}">
+                <span class="badge btn btn-primary">내 글</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div th:if="${posts.isEmpty()}">
+        <p>글이 없어요!!</p>
+    </div>
+    <button onclick=location.href="/duo/myDuo" class="btn btn-primary">글쓰기</button>
+    <button onclick=location.href="/duo/trust" class="btn btn-primary">평가하기</button>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var table = document.getElementById('postTable');
+        table.addEventListener('click', function (event) {
+            var target = event.target;
+            while (target && target.tagName !== 'TR') {
+                target = target.parentNode;
+            }
+            if (!target) return;
+            var postId = target.cells[0].innerText;
+            window.location.href = '/duo/myDuo/' + postId;
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var errorMessageElement = document.getElementById('message');
+        if (errorMessageElement) {
+            var errorMessage = errorMessageElement.value;
+            alert(errorMessage);
+        } else {
+            console.log("errorMessage hidden field not found");
+        }
+    });
+
+    // Filter Form Handling
+    document.addEventListener('DOMContentLoaded', function () {
+        var filterForm = document.getElementById('filterForm');
+        filterForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // 폼 제출 방지
+
+            var tierFilter = document.getElementById('tierFilter').value;
+            var positionFilter = document.getElementById('positionFilter').value;
+            var statusFilter = document.getElementById('statusFilter').value;
+
+            // 여기에 필터링 로직 추가
+            // 예를 들어, 각 행의 데이터를 숨기거나 보여주는 등의 처리
+            filterPosts(tierFilter, positionFilter, statusFilter);
+        });
+    });
+    function filterPosts(tierFilter, positionFilter, statusFilter) {
+        var posts = document.querySelectorAll('#postTable tbody tr');
+        posts.forEach(function(post) {
+            var postTier = post.querySelector('td:nth-child(3)').textContent.trim();
+            var postPosition = post.querySelector('td:nth-child(6)').textContent.trim();
+            var postStatus = post.querySelector('td:nth-child(8)').textContent.trim();
+
+            // 티어, 포지션, 상태 중 하나라도 일치하지 않으면 해당 행을 숨김
+            if ((tierFilter !== '' && postTier !== tierFilter) ||
+                (positionFilter !== '' && postPosition !== positionFilter) ||
+                (statusFilter !== '' && postStatus !== statusFilter)) {
+                post.style.display = 'none';
+            } else {
+                post.style.display = '';
+            }
+        });
+    }
+</script>
+</body>
+</html>

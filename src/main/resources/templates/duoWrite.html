@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>글 작성 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            resize: none;
+        }
+        .image-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .image-option {
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            transition: border-color 0.3s ease;
+            overflow: hidden;
+        }
+        .image-option:hover {
+            border-color: #007bff;
+        }
+        .selected {
+            border-color: #007bff;
+        }
+        .image-option img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .image-option div {
+            text-align: center;
+            margin-top: 5px;
+            color: #555;
+        }
+        input[type="submit"] {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        input[type="button"] {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="button"]:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>글 작성 페이지</h1>
+    <form method="post" action="/duo/myDuo">
+        <textarea name="memo" cols="30" rows="5" placeholder="메모를 작성해주세요"></textarea>
+        <h2>내 포지션</h2>
+        <div class="image-selector" id="my_position_selector">
+            <!-- 내 포지션 이미지 선택 영역 -->
+        </div>
+        <h2>찾는 포지션</h2>
+        <div class="image-selector" id="find_position_selector">
+            <!-- 찾는 포지션 이미지 선택 영역 -->
+        </div>
+        <input type="hidden" name="my_position" id="my_position">
+        <input type="hidden" name="find_position" id="find_position">
+        <div style="text-align: center;">
+            <input type="submit" value="글 작성">
+            <input type="button" onclick="history.back()" value="취소">
+        </div>
+    </form>
+</div>
+
+<script>
+    // 이미지 선택 영역을 동적으로 생성하는 함수
+    function createImageSelector(containerId, inputName, prefix, defaultPosition) {
+        const container = document.getElementById(containerId);
+        const positions = ['mid', 'top', 'jungle', 'bottom', 'supporter']; // 포지션 리스트
+
+        positions.forEach(position => {
+            const div = document.createElement('div');
+            div.classList.add('image-option');
+            div.setAttribute('data-value', position);
+            div.onclick = function() {
+                document.getElementById(inputName).value = position;
+                selectImage(containerId, position);
+            };
+
+            const img = document.createElement('img');
+            img.src = `/images/rankedPosition/${prefix}-${position}.png`;
+            img.alt = position;
+
+            const label = document.createElement('div');
+            label.textContent = position.charAt(0).toUpperCase() + position.slice(1); // 첫 글자 대문자로 변경
+
+            div.appendChild(img);
+            div.appendChild(label);
+            container.appendChild(div);
+
+            // 기본값 설정
+            if (position === defaultPosition) {
+                document.getElementById(inputName).value = defaultPosition;
+                div.classList.add('selected');
+            }
+        });
+    }
+
+    // 이미지 선택 시 선택 표시를 갱신하는 함수
+    function selectImage(containerId, selectedPosition) {
+        const options = document.querySelectorAll(`#${containerId} .image-option`);
+        options.forEach(option => {
+            if (option.getAttribute('data-value') === selectedPosition) {
+                option.classList.add('selected');
+            } else {
+                option.classList.remove('selected');
+            }
+        });
+    }
+
+    // 내 포지션 선택기 생성 (기본값: mid)
+    createImageSelector('my_position_selector', 'my_position', 'Position_Challenger', 'mid');
+    // 찾는 포지션 선택기 생성 (기본값: top)
+    createImageSelector('find_position_selector', 'find_position', 'Position_Grandmaster', 'top');
+</script>
+</body>
+</html>

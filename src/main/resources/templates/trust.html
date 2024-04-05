@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <style>
+        .profile-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .tier-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 5px;
+        }
+        .game-name {
+            font-weight: bold;
+            color: black;
+        }
+        .tag-line {
+            color: gray;
+        }
+        .emoji-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .emoji-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .emoji-content button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 30px; /* Adjust the size of the icons */
+        }
+        .evaluation-form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .evaluation-form input[type="submit"] {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .evaluation-form input[type="submit"]:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
+<div class="container mt-5">
+    <h1>Trust</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Rank</th>
+                <th>Profile Icon</th>
+                <th>Game Name</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Iterate over trusts -->
+            <tr th:each="index : ${#numbers.sequence(0, trusts.size() - 1)}">
+                <td>
+                    <span th:text="${list[index].getId()}"></span>
+                </td>
+                <td>
+                    <span th:unless="${trusts[index].tier} == 'Unranked'">
+                        <img class="tier-icon" th:src="@{'/images/rankedEmblems/Rank=' + ${trusts[index].tier} + '.png'}" alt="Ranked Emblems">
+                    </span>
+                    <span th:if="${trusts[index].tier} == 'Unranked'" th:text="${trusts[index].tier}"></span>
+                </td>
+                <td>
+                    <img class="profile-icon" th:src="@{'https://ddragon.leagueoflegends.com/cdn/14.6.1/img/profileicon/' + ${trusts[index].profileIconId} + '.png'}">
+                </td>
+                <td>
+                    <span class="game-name" th:text="${trusts[index].gameName}"></span>#<span class="tag-line" th:text="${trusts[index].tagLine}"></span>
+                </td>
+                <td>
+                    <span th:if="${list[index].getStatus() == '미평가'}" class="emoji-wrapper">
+                        <div class="evaluation-form">
+                            <!-- 평가하기 폼 -->
+                            <form th:action="@{/duo/trust}" method="post">
+                                <input type="hidden" name="userId" th:value="${trusts[index].getId()}">
+                                <input type="hidden" name="evaluationId" th:value="${list[index].getId()}">
+                                <input type="hidden" name="trustScore" value="1">
+                                <input type="submit" value="좋아요">
+                            </form>
+                            <form th:action="@{/duo/trust}" method="post">
+                                <input type="hidden" name="userId" th:value="${trusts[index].getId()}">
+                                <input type="hidden" name="evaluationId" th:value="${list[index].getId()}">
+                                <input type="hidden" name="trustScore" value="-1">
+                                <input type="submit" value="싫어요">
+                            </form>
+                        </div>
+                    </span>
+                    <span th:if="${list[index].getStatus() == '평가완료'}">평가완료</span>
+                </td>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Bootstrap JS dependencies (optional) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script>
+
+</script>
+
+</body>
+</html>
